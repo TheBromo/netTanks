@@ -16,10 +16,12 @@ import java.util.Random;
 public class Framework extends Canvas {
 
     public static double MOUSEX, MOUSEY, SCALE;
+    public static boolean OVERLAY;
 
     private GraphicsContext gc;
     private Timeline gameloop;
     private Random random;
+    private HUD hud;
 
     private Map map;
     private Tank player;
@@ -33,6 +35,7 @@ public class Framework extends Canvas {
         this.setHeight(height);
         random = new Random();
         BULLETS = new ArrayList<>();
+        hud = new HUD(this);
 
         //Create Game Loop
         gameloop = new Timeline(new KeyFrame(
@@ -89,6 +92,9 @@ public class Framework extends Canvas {
 //            }
         }
 
+        if (OVERLAY) {
+            hud.showOverlay(gc);
+        }
     }
 
     public void setKeyInput() {
@@ -110,6 +116,10 @@ public class Framework extends Canvas {
                         break;
                     case SPACE:
                         player.setColor(new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1));
+                        break;
+                    case F1:
+                        OVERLAY = !OVERLAY;
+                        System.out.println(OVERLAY);
                         break;
                 }
             }
@@ -177,5 +187,13 @@ public class Framework extends Canvas {
 //                gc.getTransform().setMyy(SCALE);
 //            }
 //        });
+    }
+
+    public Tank getPlayer() {
+        return player;
+    }
+
+    public Map getMap() {
+        return map;
     }
 }
