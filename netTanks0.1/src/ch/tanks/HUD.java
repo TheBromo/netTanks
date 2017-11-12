@@ -24,5 +24,10 @@ public class HUD {
         gc.fillText("angle: " + framework.getPlayer().getAngle(), 15, spacing * 3, width);
         gc.fillText("turret angle: " + framework.getPlayer().getTurret().getAngle(), 15, spacing * 4, width);
         gc.fillText("bullets: " + Framework.BULLETS.size(), 15, spacing * 5, width);
+
+
+        //LINES & BOUNDS
+        gc.setStroke(Color.LIGHTPINK);
+        gc.strokeLine(framework.getPlayer().getX(), framework.getPlayer().getY(), Framework.MOUSEX, Framework.MOUSEY);
     }
 }
