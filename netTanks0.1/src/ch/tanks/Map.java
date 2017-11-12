@@ -74,7 +74,7 @@ class Wall extends Obstacle {
     public void update(GraphicsContext gc) {
         //gc.strokeRect(x*64, y*64, x*64 + 64, y*64 + 64);
         gc.setFill(Color.valueOf("#debf89"));
-        gc.fillRect(x * 64, y * 64, x * 64 + 64, y * 64 + 64);
+        gc.fillRoundRect(x * 64, y * 64, (x * 64) + 64, (y * 64) + 64, 10, 10);
 
     }
 }

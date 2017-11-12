@@ -7,25 +7,32 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Framework extends Canvas {
 
-    public static double MOUSEX, MOUSEY;
+    public static double MOUSEX, MOUSEY, SCALE;
 
     private GraphicsContext gc;
     private Timeline gameloop;
+    private Random random;
 
     private Map map;
     private Tank player;
-    private ArrayList<Tank> players;
+    private ArrayList<Tank> players; //TODO add other players
+    public static ArrayList<Bullet> BULLETS;
+
 
     public Framework(int width, int height) {
         gc = this.getGraphicsContext2D();
         this.setWidth(width);
         this.setHeight(height);
+        random = new Random();
+        BULLETS = new ArrayList<>();
 
         //Create Game Loop
         gameloop = new Timeline(new KeyFrame(
@@ -39,20 +46,22 @@ public class Framework extends Canvas {
             MOUSEY = me.getY();
         });
 
+        //Set SCALE to current scale of Canvas
+        SCALE = this.getScaleX();
+
         //Make the Canvas register keystrokes
         this.addEventFilter(MouseEvent.ANY, (e) -> this.requestFocus());
 
         //Set Inputs
         setKeyInput();
         setMouseInput();
-
     }
 
     public void start() {
         gameloop.play();
 
-        map = new Map(512, 512);
-        player = new Tank(100, 100, 0);
+        map = new Map(15, 10); //Size can be changed later
+        player = new Tank(100, 100, 0, Color.valueOf("#5cb0cc"));
     }
 
     public void stop() {
@@ -64,15 +73,22 @@ public class Framework extends Canvas {
      * Used to update and render objects etc.
      */
     public void update() {
-        //Clear Canvas (Stops "smearing" effect)
+        //Clear Canvas (Prevents "smearing" effect)
         gc.clearRect(0, 0, this.getWidth(), this.getHeight());
 
         //Update all the things!
         map.update(gc);
         player.update(gc);
-        //for (Tank tank: players) {
-        //    tank.update(gc);
-        //}
+
+        for (Bullet b : BULLETS) {
+            //TODO
+            b.update(gc);
+//            if (b.getX() >= getWidth()) {
+//                b = new Bullet((float) getWidth(), b.getY(), -b.getAngle(), b.getType());
+//                System.out.println(getWidth() + ":" + b.getY() + ":" + -b.getAngle());
+//            }
+        }
+
     }
 
     public void setKeyInput() {
@@ -91,6 +107,9 @@ public class Framework extends Canvas {
                         break;
                     case D:
                         player.setRotation(1);
+                        break;
+                    case SPACE:
+                        player.setColor(new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1));
                         break;
                 }
             }
@@ -118,6 +137,13 @@ public class Framework extends Canvas {
     }
 
     public void setMouseInput() {
+        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                player.shoot();
+            }
+        });
+
         this.setOnMousePressed((new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -131,5 +157,25 @@ public class Framework extends Canvas {
 
             }
         }));
+
+//        this.setOnScroll(se -> {
+//
+//            double maxSCALE = 3, minSCALE = 0.5;
+//            double zoom = se.getDeltaY() / 320;
+//
+//            if (SCALE + zoom > maxSCALE) {
+//                SCALE = maxSCALE;
+//                gc.getTransform().setMxx(SCALE);
+//                gc.getTransform().setMyy(SCALE);
+//            } else if (SCALE + zoom < minSCALE) {
+//                SCALE = minSCALE;
+//                gc.getTransform().setMxx(SCALE);
+//                gc.getTransform().setMyy(SCALE);
+//            } else {
+//                SCALE += zoom;
+//                gc.getTransform().setMxx(SCALE);
+//                gc.getTransform().setMyy(SCALE);
+//            }
+//        });
     }
 }
