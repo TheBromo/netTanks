@@ -5,6 +5,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 
+import java.util.ArrayList;
+
 public class Tank {
 
     private float x, y, angle;
@@ -13,6 +15,7 @@ public class Tank {
     //TODO add TankID
 
     private Turret turret;
+    private ArrayList<Bullet> bullets;
 
     public Tank(float x, float y, float angle, Color color) {
         this.x = x;
@@ -26,6 +29,7 @@ public class Tank {
         }
 
         turret = new Turret(this, angle);
+        bullets = new ArrayList<>();
     }
 
     public void update(GraphicsContext gc) {
@@ -54,7 +58,7 @@ public class Tank {
     }
 
     public void shoot() {
-        Framework.BULLETS.add(new Bullet(x, y, turret.getAngle(), BulletType.STANDARD));
+        bullets.add(new Bullet(x, y, turret.getAngle(), BulletType.STANDARD));
         System.out.println("Pew! " + turret.getAngle());
     }
 
@@ -122,7 +126,7 @@ class Turret {
     }
 
     public void update(GraphicsContext gc) {
-        angle = (float) Math.toDegrees(Math.atan2((tank.getY() - Framework.MOUSEY), (tank.getX() - Framework.MOUSEX)));
+        angle = ((float) Math.toDegrees(Math.atan2((tank.getY() - Framework.MOUSEY), (tank.getX() - Framework.MOUSEX))) + 180);
 
         gc.save();
 

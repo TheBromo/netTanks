@@ -7,7 +7,7 @@ public class Bullet {
 
     private float rootX, rootY, angle;
     private float x, y;
-    private int ticks;
+    private int ticks, rebounds;
     private BulletType type;
     //TODO add TankID
 
@@ -18,6 +18,7 @@ public class Bullet {
         x = rootX;
         y = rootY;
         this.type = type;
+        Framework.BULLETS.add(this);
     }
 
     public void update(GraphicsContext gc) {
@@ -26,6 +27,19 @@ public class Bullet {
         y += Math.cos(Math.toRadians(-angle)) * type.speed();
         gc.setFill(Color.RED);
         gc.fillOval(x, y, 3, 3);
+    }
+
+    public void setRebound(float x, float y) {
+        //TODO rebounds may need a new rootX and rootY
+
+        if (rebounds < type.rebounds()) {
+            this.x = x;
+            this.y = y;
+            this.rebounds++;
+            angle = -angle;
+        } else {
+            Framework.BULLETS.remove(this);
+        }
     }
 
     public int getTicks() {
@@ -60,7 +74,9 @@ public class Bullet {
 enum BulletType {
 
     // ...(Bullet-speed, Rebound-amount);
-    STANDARD(2, 1), HIGHSPEED(4, 0);
+    STANDARD(2, 1),
+    ROCKET(4, 0),
+    BOUNCY(1, 2);
 
     private final float speed;
     private final int rebounds;

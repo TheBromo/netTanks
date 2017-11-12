@@ -119,7 +119,6 @@ public class Framework extends Canvas {
                         break;
                     case F1:
                         OVERLAY = !OVERLAY;
-                        System.out.println(OVERLAY);
                         break;
                 }
             }
