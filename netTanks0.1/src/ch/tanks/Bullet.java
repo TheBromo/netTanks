@@ -5,41 +5,40 @@ import javafx.scene.paint.Color;
 
 public class Bullet {
 
+    private Framework framework;
+
     private float rootX, rootY, angle;
-    private float x, y;
+    private float x, y, radius;
     private int ticks, rebounds;
     private BulletType type;
     //TODO add TankID
 
-    public Bullet(float rootX, float rootY, float angle, BulletType type) {
+    public Bullet(float rootX, float rootY, float angle, BulletType type, Framework framework) {
+        this.framework = framework;
         this.rootX = rootX;
         this.rootY = rootY;
         this.angle = angle;
         x = rootX;
         y = rootY;
         this.type = type;
-        Framework.BULLETS.add(this);
+        this.radius = 3;
+
+        framework.getBullets().add(this);
     }
 
     public void update(GraphicsContext gc) {
         ticks++;
-        x += Math.sin(Math.toRadians(-angle)) * type.speed();
-        y += Math.cos(Math.toRadians(-angle)) * type.speed();
-        gc.setFill(Color.RED);
-        gc.fillOval(x, y, 3, 3);
+        x -= Math.sin(Math.toRadians(-angle)) * type.speed();
+        y -= Math.cos(Math.toRadians(-angle)) * type.speed();
+        gc.setFill(Color.GRAY);
+        gc.fillOval(x - radius, y - radius, radius * 2, radius * 2);
     }
 
     public void setRebound(float x, float y) {
-        //TODO rebounds may need a new rootX and rootY
-
-        if (rebounds < type.rebounds()) {
-            this.x = x;
-            this.y = y;
-            this.rebounds++;
-            angle = -angle;
-        } else {
-            Framework.BULLETS.remove(this);
-        }
+        this.x = x;
+        this.y = y;
+        this.rebounds++;
+        angle = -angle;
     }
 
     public int getTicks() {
@@ -69,14 +68,22 @@ public class Bullet {
     public float getY() {
         return y;
     }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    public int getRebounds() {
+        return rebounds;
+    }
 }
 
 enum BulletType {
 
     // ...(Bullet-speed, Rebound-amount);
-    STANDARD(2, 1),
-    ROCKET(4, 0),
-    BOUNCY(1, 2);
+    STANDARD(3, 1),
+    ROCKET(5, 0),
+    BOUNCY(3, 2);
 
     private final float speed;
     private final int rebounds;

@@ -9,6 +9,8 @@ import java.util.ArrayList;
 
 public class Tank {
 
+    private Framework framework;
+
     private float x, y, angle;
     private float velocity, rotation;
     private Color color;
@@ -17,7 +19,8 @@ public class Tank {
     private Turret turret;
     private ArrayList<Bullet> bullets;
 
-    public Tank(float x, float y, float angle, Color color) {
+    public Tank(float x, float y, float angle, Color color, Framework framework) {
+        this.framework = framework;
         this.x = x;
         this.y = y;
         this.angle = angle;
@@ -58,7 +61,7 @@ public class Tank {
     }
 
     public void shoot() {
-        bullets.add(new Bullet(x, y, turret.getAngle(), BulletType.STANDARD));
+        bullets.add(new Bullet(x, y, turret.getAngle(), BulletType.BOUNCY, framework));
         System.out.println("Pew! " + turret.getAngle());
     }
 
@@ -126,11 +129,11 @@ class Turret {
     }
 
     public void update(GraphicsContext gc) {
-        angle = ((float) Math.toDegrees(Math.atan2((tank.getY() - Framework.MOUSEY), (tank.getX() - Framework.MOUSEX))) + 180);
+        angle = ((float) Math.toDegrees(Math.atan2((tank.getY() - Framework.MOUSEY), (tank.getX() - Framework.MOUSEX))) - 90);
 
         gc.save();
 
-        gc.transform(new Affine(new Rotate(angle, tank.getX(), tank.getY())));
+        gc.transform(new Affine(new Rotate(angle + 90, tank.getX(), tank.getY())));
         gc.setFill(tank.getColor().brighter());
         gc.fillRoundRect(tank.getX() - 16, tank.getY() - 16, 32, 32, 7, 7);
         gc.setFill(Color.LIGHTGRAY);
@@ -139,7 +142,7 @@ class Turret {
         gc.restore();
 
 //        gc.fillRect(Framework.MOUSEX, Framework.MOUSEY, 3, 3);
-//        gc.strokeLine(tank.getX(), tank.getY(), Framework.MOUSEX, Framework.MOUSEY);
+//        gc.strokeLine(tank.getIndexX(), tank.getIndexY(), Framework.MOUSEX, Framework.MOUSEY);
     }
 
     public float getAngle() {

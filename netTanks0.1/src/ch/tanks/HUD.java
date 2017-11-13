@@ -19,11 +19,11 @@ public class HUD {
         gc.setFill(Color.rgb(100, 100, 100, 0.5));
         gc.fillRect(0, 0, width, height);
         gc.setFill(Color.WHITESMOKE);
-        gc.fillText("mouse x: " + Framework.MOUSEX + "\tmouse y: " + Framework.MOUSEY, 15, spacing * 1, width);
-        gc.fillText("x: " + framework.getPlayer().getX() + "\ty: " + framework.getPlayer().getY(), 15, spacing * 2, width);
+        gc.fillText("mouse indexX: " + Framework.MOUSEX + "\tmouse indexY: " + Framework.MOUSEY, 15, spacing * 1, width);
+        gc.fillText("indexX: " + framework.getPlayer().getX() + "\tindexY: " + framework.getPlayer().getY(), 15, spacing * 2, width);
         gc.fillText("angle: " + framework.getPlayer().getAngle(), 15, spacing * 3, width);
         gc.fillText("turret angle: " + framework.getPlayer().getTurret().getAngle(), 15, spacing * 4, width);
-        gc.fillText("bullets: " + Framework.BULLETS.size(), 15, spacing * 5, width);
+        gc.fillText("bullets: " + framework.getBullets().size(), 15, spacing * 5, width);
 
 
         //LINES & BOUNDS
