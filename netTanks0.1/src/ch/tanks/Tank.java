@@ -62,7 +62,7 @@ public class Tank {
     }
 
     public void shoot() {
-        bullets.add(new Bullet(x, y, turret.getAngle(), BulletType.BOUNCY, framework));
+        bullets.add(new Bullet(x, y, turret.getAngle(), BulletType.STANDARD, framework));
         System.out.println("Pew! " + turret.getAngle());
     }
 

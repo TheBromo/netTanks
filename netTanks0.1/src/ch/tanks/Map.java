@@ -8,12 +8,19 @@ import java.util.ArrayList;
 public class Map {
 
     private int width, height;
+    private ArrayList<Segment> boundaries;
     private ArrayList<Block> blocks;
 
     public Map(int width, int height) {
         this.width = width;
         this.height = height;
         blocks = new ArrayList<>();
+        boundaries = new ArrayList<>();
+
+        boundaries.add(new Segment(0, 0, 960, 0, true));
+        boundaries.add(new Segment(960, 0, 960, 640, false));
+        boundaries.add(new Segment(0, 640, 960, 640, true));
+        boundaries.add(new Segment(0, 0, 0, 640, false));
 
         //Create Map
         blocks.add(new Block(4, 3, BlockType.STANDARD));
@@ -50,5 +57,9 @@ public class Map {
 
     public int getHeight() {
         return height;
+    }
+
+    public ArrayList<Segment> getBoundaries() {
+        return boundaries;
     }
 }

@@ -104,50 +104,36 @@ public class Framework extends Canvas {
         ArrayList<Bullet> removedBullets = new ArrayList<>();
 
         for (Bullet bullet : bullets) {
-            //TODO Update to new "Segment" method
-            if (Collision.testCircleToSegment(bullet.getX(), bullet.getY(), bullet.getRadius(), 0, 0, 960, 0) ||
-                    Collision.testCircleToSegment(bullet.getX(), bullet.getY(), bullet.getRadius(), 960, 0, 960, 640) ||
-                    Collision.testCircleToSegment(bullet.getX(), bullet.getY(), bullet.getRadius(), 0, 640, 960, 640) ||
-                    Collision.testCircleToSegment(bullet.getX(), bullet.getY(), bullet.getRadius(), 0, 0, 0, 640)
-                    ) {
-                if (bullet.getRebounds() < bullet.getType().rebounds()) {
-                    //Rebound
-                    bullet.setRebound(bullet.getX(), bullet.getY(), true);
-                } else {
-                    //Remove
-                    removedBullets.add(bullet);
+
+            //MAP BOUNDARIES
+            for (Segment segment : map.getBoundaries()) {
+                if (Collision.testBulletToSegment(bullet, segment)) {
+                    if (bullet.getRebounds() < bullet.getType().rebounds()) {
+                        //Rebound
+                        bullet.setRebound(bullet.getX(), bullet.getY(), segment.isHorizontal());
+                    } else {
+                        //Remove
+                        removedBullets.add(bullet);
+                    }
+                    break;
                 }
             }
 
+            //MAP BLOCKS
             for (Block block : map.getBlocks()) {
                 if (!block.getType().isShootable()) {
 
-                    //TOP OR BOTTOM
-                    if (Collision.testBulletToSegment(bullet, block.getTop()) ||
-                            Collision.testBulletToSegment(bullet, block.getBottom())) {
-
-                        if (bullet.getRebounds() < bullet.getType().rebounds()) {
-                            //Rebound
-                            bullet.setRebound(bullet.getX(), bullet.getY(), true);
-                        } else {
-                            //Remove
-                            removedBullets.add(bullet);
+                    for (Segment seg : block.getSegments()) {
+                        if (Collision.testBulletToSegment(bullet, seg)) {
+                            if (bullet.getRebounds() < bullet.getType().rebounds()) {
+                                //Rebound
+                                bullet.setRebound(bullet.getX(), bullet.getY(), seg.isHorizontal());
+                            } else {
+                                //Remove
+                                removedBullets.add(bullet);
+                            }
+                            break;
                         }
-                        break;
-                    }
-
-                    //RIGHT OR LEFT
-                    else if (Collision.testBulletToSegment(bullet, block.getRight()) ||
-                            Collision.testBulletToSegment(bullet, block.getLeft())) {
-
-                        if (bullet.getRebounds() < bullet.getType().rebounds()) {
-                            //Rebound
-                            bullet.setRebound(bullet.getX(), bullet.getY(), false);
-                        } else {
-                            //Remove
-                            removedBullets.add(bullet);
-                        }
-                        break;
                     }
                 }
             }
