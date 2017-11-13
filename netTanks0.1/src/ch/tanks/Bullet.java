@@ -34,11 +34,17 @@ public class Bullet {
         gc.fillOval(x - radius, y - radius, radius * 2, radius * 2);
     }
 
-    public void setRebound(float x, float y) {
+    public void setRebound(float x, float y, boolean horizontal) {
         this.x = x;
         this.y = y;
         this.rebounds++;
-        angle = -angle;
+
+        if (horizontal) {
+            angle = 180 - angle;
+        } else {
+            angle = -angle;
+        }
+
     }
 
     public int getTicks() {

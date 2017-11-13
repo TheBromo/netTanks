@@ -50,6 +50,39 @@ public class Collision {
         return distance < circleRadius;
     }
 
+    public static boolean testBulletToSegment(Bullet bullet, Segment segment) {
+
+        double circleCenterX = bullet.getX();
+        double circleCenterY = bullet.getY();
+        double circleRadius = bullet.getRadius();
+        double lineAX = segment.getAx();
+        double lineAY = segment.getAy();
+        double lineBX = segment.getBx();
+        double lineBY = segment.getBy();
+
+        double lineSize = Math.sqrt(Math.pow(lineAX - lineBX, 2) + Math.pow(lineAY - lineBY, 2));
+        double distance;
+
+        if (lineSize == 0) {
+            distance = Math.sqrt(Math.pow(circleCenterX - lineAX, 2) + Math.pow(circleCenterY - lineAY, 2));
+            return distance < circleRadius;
+        }
+
+        double u = ((circleCenterX - lineAX) * (lineBX - lineAX) + (circleCenterY - lineAY) * (lineBY - lineAY)) / (lineSize * lineSize);
+
+        if (u < 0) {
+            distance = Math.sqrt(Math.pow(circleCenterX - lineAX, 2) + Math.pow(circleCenterY - lineAY, 2));
+        } else if (u > 1) {
+            distance = Math.sqrt(Math.pow(circleCenterX - lineBX, 2) + Math.pow(circleCenterY - lineBY, 2));
+        } else {
+            double ix = lineAX + u * (lineBX - lineAX);
+            double iy = lineAY + u * (lineBY - lineAY);
+            distance = Math.sqrt(Math.pow(circleCenterX - ix, 2) + Math.pow(circleCenterY - iy, 2));
+        }
+
+        return distance < circleRadius;
+    }
+
     /**
      * Rectangle To Circle.
      */

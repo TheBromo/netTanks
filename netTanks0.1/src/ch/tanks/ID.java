@@ -1,5 +1,6 @@
 package ch.tanks;
 
 public enum ID {
-    player
+    PLAYER,
+    ENEMY //TODO
 }

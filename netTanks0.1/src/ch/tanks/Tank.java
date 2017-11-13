@@ -14,16 +14,17 @@ public class Tank {
     private float x, y, angle;
     private float velocity, rotation;
     private Color color;
-    //TODO add TankID
+    private ID id;
 
     private Turret turret;
     private ArrayList<Bullet> bullets;
 
-    public Tank(float x, float y, float angle, Color color, Framework framework) {
+    public Tank(float x, float y, float angle, Color color, ID id, Framework framework) {
         this.framework = framework;
         this.x = x;
         this.y = y;
         this.angle = angle;
+        this.id = id;
 
         if (color != null) {
             this.color = color;
@@ -116,6 +117,10 @@ public class Tank {
     public void setColor(Color color) {
         this.color = color;
     }
+
+    public ID getId() {
+        return id;
+    }
 }
 
 class Turret {
@@ -129,7 +134,7 @@ class Turret {
     }
 
     public void update(GraphicsContext gc) {
-        angle = ((float) Math.toDegrees(Math.atan2((tank.getY() - Framework.MOUSEY), (tank.getX() - Framework.MOUSEX))) - 90);
+        //angle = ((float) Math.toDegrees(Math.atan2((tank.getY() - Framework.MOUSEY), (tank.getX() - Framework.MOUSEX))) - 90);
 
         gc.save();
 
@@ -147,5 +152,9 @@ class Turret {
 
     public float getAngle() {
         return angle;
+    }
+
+    public void setAngle(float angle) {
+        this.angle = angle;
     }
 }

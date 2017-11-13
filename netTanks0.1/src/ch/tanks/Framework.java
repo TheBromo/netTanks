@@ -26,7 +26,7 @@ public class Framework extends Canvas {
 
     private Map map;
     private Tank player;
-    private ArrayList<Tank> players; //TODO add other players
+    private ArrayList<Tank> tanks; //TODO add other players
     private ArrayList<Bullet> bullets;
 
 
@@ -37,18 +37,13 @@ public class Framework extends Canvas {
         random = new Random();
         bullets = new ArrayList<>();
         hud = new HUD(this);
+        tanks = new ArrayList<>();
 
         //Create Game Loop
         gameloop = new Timeline(new KeyFrame(
                 Duration.millis(16.666666666667),
                 ae -> update()));
         gameloop.setCycleCount(Timeline.INDEFINITE);
-
-        //Tell the Canvas to update MOUSEX and MOUSEY every time the mouse was moved
-        this.setOnMouseMoved(me -> {
-            MOUSEX = me.getX();
-            MOUSEY = me.getY();
-        });
 
         //Set SCALE to current scale of Canvas
         SCALE = this.getScaleX();
@@ -65,7 +60,9 @@ public class Framework extends Canvas {
         gameloop.play();
 
         map = new Map(15, 10); //Size can be changed later
-        player = new Tank(100, 100, 0, Color.valueOf("#5cb0cc"), this);
+        player = new Tank(100, 100, 0, Color.valueOf("#5cb0cc"), ID.PLAYER, this);
+        tanks.add(new Tank(500, 100, -50, Color.DARKGREEN, ID.ENEMY, this));
+        tanks.add(player);
     }
 
     public void stop() {
@@ -80,14 +77,21 @@ public class Framework extends Canvas {
         //Clear Canvas (Prevents "smearing" effect)
         gc.clearRect(0, 0, this.getWidth(), this.getHeight());
 
+        //Turn turret to current mouse position
+        player.getTurret().setAngle(
+                ((float) Math.toDegrees(Math.atan2((MOUSEY - player.getY()), (MOUSEX - player.getX()))) + 90));
+
         //Check for any collisions before updating
         collision();
 
         //Update all the things!
         map.update(gc);
-        player.update(gc);
-        for (Bullet b : bullets) {
-            b.update(gc);
+        for (Tank tank : tanks) {
+            tank.update(gc);
+        }
+
+        for (Bullet bullet : bullets) {
+            bullet.update(gc);
         }
 
         if (OVERLAY) {
@@ -99,39 +103,51 @@ public class Framework extends Canvas {
         //Bullet vs Map boundaries
         ArrayList<Bullet> removedBullets = new ArrayList<>();
 
-        for (Bullet b : bullets) {
-            if (Collision.testCircleToSegment(b.getX(), b.getY(), b.getRadius(), 0, 0, 960, 0) ||
-                    Collision.testCircleToSegment(b.getX(), b.getY(), b.getRadius(), 960, 0, 960, 640) ||
-                    Collision.testCircleToSegment(b.getX(), b.getY(), b.getRadius(), 0, 640, 960, 640) ||
-                    Collision.testCircleToSegment(b.getX(), b.getY(), b.getRadius(), 0, 0, 0, 640)
+        for (Bullet bullet : bullets) {
+            //TODO Update to new "Segment" method
+            if (Collision.testCircleToSegment(bullet.getX(), bullet.getY(), bullet.getRadius(), 0, 0, 960, 0) ||
+                    Collision.testCircleToSegment(bullet.getX(), bullet.getY(), bullet.getRadius(), 960, 0, 960, 640) ||
+                    Collision.testCircleToSegment(bullet.getX(), bullet.getY(), bullet.getRadius(), 0, 640, 960, 640) ||
+                    Collision.testCircleToSegment(bullet.getX(), bullet.getY(), bullet.getRadius(), 0, 0, 0, 640)
                     ) {
-                //TOP
-                if (b.getRebounds() < b.getType().rebounds()) {
+                if (bullet.getRebounds() < bullet.getType().rebounds()) {
                     //Rebound
-                    b.setRebound(b.getX(), b.getY());
-                    System.out.println(b.getAngle());
+                    bullet.setRebound(bullet.getX(), bullet.getY(), true);
                 } else {
                     //Remove
-                    removedBullets.add(b);
+                    removedBullets.add(bullet);
                 }
             }
 
             for (Block block : map.getBlocks()) {
                 if (!block.getType().isShootable()) {
-                    if (Collision.testCircleToSegment(b.getX(), b.getY(), b.getRadius(), block.getX(), block.getY(), block.getX() + 64, block.getY()) ||
-                            Collision.testCircleToSegment(b.getX(), b.getY(), b.getRadius(), block.getX() + 64, block.getY(), block.getX() + 64, block.getY() + 64) ||
-                            Collision.testCircleToSegment(b.getX(), b.getY(), b.getRadius(), block.getX(), block.getY() + 64, block.getX() + 64, block.getY() + 64) ||
-                            Collision.testCircleToSegment(b.getX(), b.getY(), b.getRadius(), block.getX(), block.getY(), block.getX(), block.getY() + 64)
-                            ) {
-                        //TOP
-                        if (b.getRebounds() < b.getType().rebounds()) {
+
+                    //TOP OR BOTTOM
+                    if (Collision.testBulletToSegment(bullet, block.getTop()) ||
+                            Collision.testBulletToSegment(bullet, block.getBottom())) {
+
+                        if (bullet.getRebounds() < bullet.getType().rebounds()) {
                             //Rebound
-                            b.setRebound(b.getX(), b.getY());
-                            System.out.println(b.getAngle());
+                            bullet.setRebound(bullet.getX(), bullet.getY(), true);
                         } else {
                             //Remove
-                            removedBullets.add(b);
+                            removedBullets.add(bullet);
                         }
+                        break;
+                    }
+
+                    //RIGHT OR LEFT
+                    else if (Collision.testBulletToSegment(bullet, block.getRight()) ||
+                            Collision.testBulletToSegment(bullet, block.getLeft())) {
+
+                        if (bullet.getRebounds() < bullet.getType().rebounds()) {
+                            //Rebound
+                            bullet.setRebound(bullet.getX(), bullet.getY(), false);
+                        } else {
+                            //Remove
+                            removedBullets.add(bullet);
+                        }
+                        break;
                     }
                 }
             }
@@ -189,27 +205,24 @@ public class Framework extends Canvas {
     }
 
     public void setMouseInput() {
-        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if (event.getButton() == MouseButton.PRIMARY) {
-                    player.shoot();
-                }
+        this.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY) {
+                player.shoot();
             }
         });
 
-        this.setOnMousePressed((new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
+        this.setOnMousePressed((event -> {
 
-            }
         }));
 
-        this.setOnMouseReleased((new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
+        this.setOnMouseReleased((event -> {
 
-            }
+        }));
+
+        this.setOnMouseMoved((event -> {
+            //Tell the Canvas to update MOUSEX and MOUSEY every time the mouse was moved
+            MOUSEX = event.getX();
+            MOUSEY = event.getY();
         }));
 
 //        this.setOnScroll(se -> {
