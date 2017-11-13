@@ -61,7 +61,7 @@ public class Framework extends Canvas {
 
         map = new Map(15, 10); //Size can be changed later
         player = new Tank(100, 100, 0, Color.valueOf("#5cb0cc"), ID.PLAYER, this);
-        tanks.add(new Tank(500, 100, -50, Color.DARKGREEN, ID.ENEMY, this));
+//        tanks.add(new Tank(500, 100, -50, Color.DARKGREEN, ID.ENEMY, this)); Adds second tank
         tanks.add(player);
     }
 
