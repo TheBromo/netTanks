@@ -73,7 +73,7 @@ public class Framework extends Canvas {
      * Gets called 60 times per second by the gameloop.
      * Used to update and render objects etc.
      */
-    public void update() {
+    private void update() {
         //Clear Canvas (Prevents "smearing" effect)
         gc.clearRect(0, 0, this.getWidth(), this.getHeight());
 
@@ -100,7 +100,6 @@ public class Framework extends Canvas {
     }
 
     private void collision() {
-        //Bullet vs Map boundaries
         ArrayList<Bullet> removedBullets = new ArrayList<>();
 
         for (Bullet bullet : bullets) {
@@ -142,7 +141,7 @@ public class Framework extends Canvas {
         bullets.removeAll(removedBullets);
     }
 
-    public void setKeyInput() {
+    private void setKeyInput() {
         this.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
@@ -190,7 +189,7 @@ public class Framework extends Canvas {
         });
     }
 
-    public void setMouseInput() {
+    private void setMouseInput() {
         this.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY) {
                 player.shoot();
