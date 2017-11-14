@@ -26,7 +26,7 @@ public class Framework extends Canvas {
 
     private Map map;
     private Tank player;
-    private ArrayList<Tank> tanks; //TODO add other players
+    private ArrayList<Tank> tanks;
     private ArrayList<Bullet> bullets;
 
 
@@ -136,9 +136,13 @@ public class Framework extends Canvas {
                     }
                 }
             }
+
+            //TODO collision BULLET - TANK
         }
 
         bullets.removeAll(removedBullets);
+
+        //TODO collision TANK - MAP
     }
 
     private void setKeyInput() {

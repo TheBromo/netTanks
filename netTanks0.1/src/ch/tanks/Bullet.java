@@ -2,6 +2,8 @@ package ch.tanks;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Affine;
+import javafx.scene.transform.Rotate;
 
 public class Bullet {
 
@@ -11,7 +13,7 @@ public class Bullet {
     private float x, y, radius;
     private int ticks, rebounds;
     private BulletType type;
-    //TODO add TankID
+    private ID tankID; //TODO
 
     public Bullet(float rootX, float rootY, float angle, BulletType type, Framework framework) {
         this.framework = framework;
@@ -30,8 +32,7 @@ public class Bullet {
         ticks++;
         x -= Math.sin(Math.toRadians(-angle)) * type.speed();
         y -= Math.cos(Math.toRadians(-angle)) * type.speed();
-        gc.setFill(Color.GRAY);
-        gc.fillOval(x - radius, y - radius, radius * 2, radius * 2);
+        type.render(this, gc);
     }
 
     public void setRebound(float x, float y, boolean horizontal) {
@@ -86,7 +87,6 @@ public class Bullet {
 
 enum BulletType {
 
-    // ...(Bullet-speed, Rebound-amount);
     STANDARD(3, 1),
     ROCKET(5, 0),
     BOUNCY(3, 2);
@@ -105,6 +105,35 @@ enum BulletType {
 
     public int rebounds() {
         return rebounds;
+    }
+
+    public void render(Bullet bullet, GraphicsContext gc) {
+        gc.save();
+        gc.translate(bullet.getX(), bullet.getY());
+        gc.transform(new Affine(new Rotate(bullet.getAngle()))); //Rotate the gc to the angle of the bullet's path
+
+        //TODO increase bullet size in general
+
+        if (this == STANDARD) {
+            gc.translate(-2, -3); //Move SVG to center of Bullet
+            gc.setFill(Color.GRAY);
+            gc.beginPath();
+            gc.appendSVGPath("M 0 3 Q 0 1 2 0 Q 4 1 4 3 L 4 7 L 0 7 Z"); //SVG PATH OF BULLET
+            gc.fill();
+            gc.closePath();
+        } else if (this == ROCKET) {
+            //TODO create rocket SVG
+            gc.setFill(Color.GRAY);
+            gc.beginPath();
+            gc.appendSVGPath("M 0 3 Q 0 1 2 0 Q 4 1 4 3 L 4 7 L 0 7 Z"); //SVG PATH OF BULLET
+            gc.fill();
+            gc.closePath();
+        } else if (this == BOUNCY) {
+            gc.setFill(Color.GRAY);
+            gc.fillOval(bullet.getX() - bullet.getRadius(), bullet.getY() - bullet.getRadius(), bullet.getRadius() * 2, bullet.getRadius() * 2);
+        }
+
+        gc.restore();
     }
 }
 

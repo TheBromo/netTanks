@@ -26,8 +26,26 @@ public class HUD {
         gc.fillText("bullets: " + framework.getBullets().size(), 15, spacing * 5, width);
 
 
-        //LINES & BOUNDS
-        gc.setStroke(Color.LIGHTPINK);
+        //LINES & BOUNDS//
+
+        //Line
+        gc.setStroke(Color.RED);
         gc.strokeLine(framework.getPlayer().getX(), framework.getPlayer().getY(), Framework.MOUSEX, Framework.MOUSEY);
+
+        //Bullet bounds
+        gc.setStroke(Color.RED);
+        for (Bullet b : framework.getBullets()) {
+            gc.strokeOval(b.getX() - b.getRadius(), b.getY() - b.getRadius(), b.getRadius() * 2, b.getRadius() * 2);
+        }
+
+        //Block bounds
+        gc.setStroke(Color.RED);
+        for (Block b : framework.getMap().getBlocks()) {
+            for (Segment s : b.getSegments()) {
+                gc.strokeLine(s.getAx(), s.getAy(), s.getBx(), s.getBy());
+            }
+        }
+
+
     }
 }

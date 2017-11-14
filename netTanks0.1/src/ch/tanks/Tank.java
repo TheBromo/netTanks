@@ -134,8 +134,6 @@ class Turret {
     }
 
     public void update(GraphicsContext gc) {
-        //angle = ((float) Math.toDegrees(Math.atan2((tank.getY() - Framework.MOUSEY), (tank.getX() - Framework.MOUSEX))) - 90);
-
         gc.save();
 
         gc.transform(new Affine(new Rotate(angle + 90, tank.getX(), tank.getY())));
@@ -145,9 +143,6 @@ class Turret {
         gc.fillRect(tank.getX() - 40, tank.getY() - 2, 25, 4);
 
         gc.restore();
-
-//        gc.fillRect(Framework.MOUSEX, Framework.MOUSEY, 3, 3);
-//        gc.strokeLine(tank.getIndexX(), tank.getIndexY(), Framework.MOUSEX, Framework.MOUSEY);
     }
 
     public float getAngle() {
