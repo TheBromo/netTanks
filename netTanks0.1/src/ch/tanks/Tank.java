@@ -62,7 +62,7 @@ public class Tank {
     }
 
     public void shoot() {
-        bullets.add(new Bullet(x, y, turret.getAngle(), BulletType.STANDARD, framework));
+        bullets.add(new Bullet(turret.getMuzzleX(), turret.getMuzzleY(), turret.getAngle(), BulletType.STANDARD, framework));
         System.out.println("Pew! " + turret.getAngle());
     }
 
@@ -125,12 +125,13 @@ public class Tank {
 
 class Turret {
 
-    private float angle;
+    private float angle, barrelLength;
     private Tank tank;
 
     public Turret(Tank tank, float angle) {
         this.tank = tank;
         this.angle = angle;
+        this.barrelLength = 40;
     }
 
     public void update(GraphicsContext gc) {
@@ -151,5 +152,13 @@ class Turret {
 
     public void setAngle(float angle) {
         this.angle = angle;
+    }
+
+    public float getMuzzleX() {
+        return (float) (tank.getX() - Math.sin(Math.toRadians(-angle)) * barrelLength);
+    }
+
+    public float getMuzzleY() {
+        return (float) (tank.getY() - Math.cos(Math.toRadians(-angle)) * barrelLength);
     }
 }
