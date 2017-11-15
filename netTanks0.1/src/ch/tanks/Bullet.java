@@ -23,7 +23,7 @@ public class Bullet {
         x = rootX;
         y = rootY;
         this.type = type;
-        this.radius = 3;
+        this.radius = type.radius();
 
         framework.getBullets().add(this);
     }
@@ -95,16 +95,18 @@ public class Bullet {
 
 enum BulletType {
 
-    STANDARD(3, 1),
-    ROCKET(5, 0),
-    BOUNCY(3, 2);
+    STANDARD(3, 1, 4),
+    ROCKET(5, 0, 4),
+    BOUNCY(3, 2, 4);
 
     private final float speed;
     private final int rebounds;
+    private final float radius;
 
-    BulletType(float speed, int rebounds) {
+    BulletType(float speed, int rebounds, float radius) {
         this.speed = speed;
         this.rebounds = rebounds;
+        this.radius = radius;
     }
 
     public float speed() {
@@ -113,6 +115,10 @@ enum BulletType {
 
     public int rebounds() {
         return rebounds;
+    }
+
+    public float radius() {
+        return radius;
     }
 
     public void render(Bullet bullet, GraphicsContext gc) {

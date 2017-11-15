@@ -109,4 +109,37 @@ public class Collision {
                 testCircleToSegment(tx, ty, circleRadius, cx + rectWidth / 2, cy - rectHeight / 2, cx - rectWidth / 2, cy - rectHeight / 2) ||
                 testCircleToSegment(tx, ty, circleRadius, cx - rectWidth / 2, cy - rectHeight / 2, cx - rectWidth / 2, cy + rectHeight / 2);
     }
+
+    public static boolean testBulletToTank(Bullet bullet, Tank tank) {
+        double rectWidth = 64;
+        double rectHeight = 64;
+        double rectRotation = tank.getRotation();
+        double rectCenterX = tank.getX();
+        double rectCenterY = tank.getY();
+        double circleCenterX = bullet.getX();
+        double circleCenterY = bullet.getY();
+        double circleRadius = bullet.getRadius();
+
+        double tx, ty, cx, cy;
+
+        if (rectRotation == 0) { // Higher Efficiency for Rectangles with 0 rotation.
+            tx = circleCenterX;
+            ty = circleCenterY;
+
+            cx = rectCenterX;
+            cy = rectCenterY;
+        } else {
+            tx = Math.cos(rectRotation) * circleCenterX - Math.sin(rectRotation) * circleCenterY;
+            ty = Math.cos(rectRotation) * circleCenterY + Math.sin(rectRotation) * circleCenterX;
+
+            cx = Math.cos(rectRotation) * rectCenterX - Math.sin(rectRotation) * rectCenterY;
+            cy = Math.cos(rectRotation) * rectCenterY + Math.sin(rectRotation) * rectCenterX;
+        }
+
+        return testRectangleToPoint(rectWidth, rectHeight, rectRotation, rectCenterX, rectCenterY, circleCenterX, circleCenterY) ||
+                testCircleToSegment(tx, ty, circleRadius, cx - rectWidth / 2, cy + rectHeight / 2, cx + rectWidth / 2, cy + rectHeight / 2) ||
+                testCircleToSegment(tx, ty, circleRadius, cx + rectWidth / 2, cy + rectHeight / 2, cx + rectWidth / 2, cy - rectHeight / 2) ||
+                testCircleToSegment(tx, ty, circleRadius, cx + rectWidth / 2, cy - rectHeight / 2, cx - rectWidth / 2, cy - rectHeight / 2) ||
+                testCircleToSegment(tx, ty, circleRadius, cx - rectWidth / 2, cy - rectHeight / 2, cx - rectWidth / 2, cy + rectHeight / 2);
+    }
 }
