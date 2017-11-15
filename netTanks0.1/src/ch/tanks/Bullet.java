@@ -76,6 +76,14 @@ public class Bullet {
         return y;
     }
 
+    public float getNextX() {
+        return (float) (x - Math.sin(Math.toRadians(-angle)) * type.speed());
+    }
+
+    public float getNextY() {
+        return (float) (y - Math.cos(Math.toRadians(-angle)) * type.speed());
+    }
+
     public float getRadius() {
         return radius;
     }

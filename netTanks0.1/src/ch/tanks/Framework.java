@@ -214,25 +214,25 @@ public class Framework extends Canvas {
             MOUSEY = event.getY();
         }));
 
-//        this.setOnScroll(se -> {
-//
-//            double maxSCALE = 3, minSCALE = 0.5;
-//            double zoom = se.getDeltaY() / 320;
-//
-//            if (SCALE + zoom > maxSCALE) {
-//                SCALE = maxSCALE;
-//                gc.getTransform().setMxx(SCALE);
-//                gc.getTransform().setMyy(SCALE);
-//            } else if (SCALE + zoom < minSCALE) {
-//                SCALE = minSCALE;
-//                gc.getTransform().setMxx(SCALE);
-//                gc.getTransform().setMyy(SCALE);
-//            } else {
-//                SCALE += zoom;
-//                gc.getTransform().setMxx(SCALE);
-//                gc.getTransform().setMyy(SCALE);
-//            }
-//        });
+        this.setOnScroll(se -> {
+
+            double maxSCALE = 3, minSCALE = 0.5;
+            double zoom = se.getDeltaY() / 320;
+
+            if (SCALE + zoom > maxSCALE) {
+                SCALE = maxSCALE;
+                gc.getTransform().setMxx(SCALE);
+                gc.getTransform().setMyy(SCALE);
+            } else if (SCALE + zoom < minSCALE) {
+                SCALE = minSCALE;
+                gc.getTransform().setMxx(SCALE);
+                gc.getTransform().setMyy(SCALE);
+            } else {
+                SCALE += zoom;
+                gc.getTransform().setMxx(SCALE);
+                gc.getTransform().setMyy(SCALE);
+            }
+        });
     }
 
     public Tank getPlayer() {

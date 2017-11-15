@@ -52,8 +52,8 @@ public class Collision {
 
     public static boolean testBulletToSegment(Bullet bullet, Segment segment) {
 
-        double circleCenterX = bullet.getX();
-        double circleCenterY = bullet.getY();
+        double circleCenterX = bullet.getNextX();
+        double circleCenterY = bullet.getNextY();
         double circleRadius = bullet.getRadius();
         double lineAX = segment.getAx();
         double lineAY = segment.getAy();

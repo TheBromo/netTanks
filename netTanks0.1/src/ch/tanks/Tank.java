@@ -42,9 +42,6 @@ public class Tank {
         x += Math.sin(Math.toRadians(-angle)) * velocity;
         y += Math.cos(Math.toRadians(-angle)) * velocity;
 
-        //COLLISION
-        //TODO add Collision and Bounds
-
         //RENDER
         gc.save();
 
