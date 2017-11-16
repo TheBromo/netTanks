@@ -95,9 +95,9 @@ public class Bullet {
 
 enum BulletType {
 
-    STANDARD(3, 1, 4),
-    ROCKET(5, 0, 4),
-    BOUNCY(3, 2, 4);
+    STANDARD(3, 1, 3),
+    ROCKET(5, 0, 3),
+    BOUNCY(3, 2, 3);
 
     private final float speed;
     private final int rebounds;

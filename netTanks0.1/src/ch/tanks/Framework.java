@@ -84,6 +84,7 @@ public class Framework extends Canvas {
         //Check for any collisions before updating
         collision();
 
+
         //Update all the things!
         map.update(gc);
         for (Tank tank : tanks) {
@@ -148,6 +149,11 @@ public class Framework extends Canvas {
         bullets.removeAll(removedBullets);
 
         //TODO collision TANK - MAP
+//        for (Tank tank : tanks) {
+//            if (Collision.) {
+//
+//            }
+//        }
     }
 
     private void setKeyInput() {
