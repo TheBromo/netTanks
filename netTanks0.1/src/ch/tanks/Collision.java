@@ -145,6 +145,27 @@ public class Collision {
                 testCircleToSegment(tx, ty, circleRadius, cx + rectWidth / 2, cy - rectHeight / 2, cx - rectWidth / 2, cy - rectHeight / 2) ||
                 testCircleToSegment(tx, ty, circleRadius, cx - rectWidth / 2, cy - rectHeight / 2, cx - rectWidth / 2, cy + rectHeight / 2);
     }
+
+    public static boolean testRectangleToPoint(Rectangle rectangle, Point point) {
+        double rectWidth = rectangle.getWidth();
+        double rectHeight = rectangle.getHeight();
+        double rectRotation = rectangle.getRotation();
+        double rectCenterX = rectangle.getCenterX();
+        double rectCenterY = rectangle.getCenterY();
+        double pointX = point.getX();
+        double pointY = point.getY();
+
+        if (rectRotation == 0)   // Higher Efficiency for Rectangles with 0 rotation.
+            return Math.abs(rectCenterX - pointX) < rectWidth / 2 && Math.abs(rectCenterY - pointY) < rectHeight / 2;
+
+        double tx = Math.cos(rectRotation) * pointX - Math.sin(rectRotation) * pointY;
+        double ty = Math.cos(rectRotation) * pointY + Math.sin(rectRotation) * pointX;
+
+        double cx = Math.cos(rectRotation) * rectCenterX - Math.sin(rectRotation) * rectCenterY;
+        double cy = Math.cos(rectRotation) * rectCenterY + Math.sin(rectRotation) * rectCenterX;
+
+        return Math.abs(cx - tx) < rectWidth / 2 && Math.abs(cy - ty) < rectHeight / 2;
+    }
 }
 
 class Rectangle {
@@ -163,10 +184,25 @@ class Rectangle {
         this.height = height;
         this.rotation = rotation;
 
-        a = new Point(centerX - (width / 2), centerY - (height / 2));
-        b = new Point(centerX + (width / 2), centerY - (height / 2));
-        c = new Point(centerX + (width / 2), centerY + (height / 2));
-        d = new Point(centerX - (width / 2), centerY + (height / 2));
+
+        a = setPoints(centerX - (width / 2), centerY - (height / 2));
+        b = setPoints(centerX + (width / 2), centerY - (height / 2));
+        c = setPoints(centerX + (width / 2), centerY + (height / 2));
+        d = setPoints(centerX - (width / 2), centerY + (height / 2));
+    }
+
+    private Point setPoints(double x, double y) {
+        Point point;
+
+        double tempX = x - centerX;
+        double tempY = y - centerY;
+
+        double rotatedX = tempX * Math.cos(Math.toRadians(rotation)) - tempY * Math.sin(Math.toRadians(rotation));
+        double rotatedY = tempX * Math.sin(Math.toRadians(rotation)) + tempY * Math.cos(Math.toRadians(rotation));
+
+        point = new Point(rotatedX + centerX, rotatedY + centerY);
+
+        return point;
     }
 
     public ArrayList<Segment> getSegments() {

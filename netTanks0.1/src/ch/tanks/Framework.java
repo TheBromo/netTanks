@@ -132,7 +132,6 @@ public class Framework extends Pane {
                     if (bullet.getRebounds() < bullet.getType().rebounds()) {
                         //Rebound
                         bullet.setRebound(bullet.getX(), bullet.getY(), (float) segment.getAngle()); //TODO
-                        System.out.println("Map");
                     } else {
                         //Remove
                         removedBullets.add(bullet);
@@ -150,7 +149,6 @@ public class Framework extends Pane {
                             if (bullet.getRebounds() < bullet.getType().rebounds()) {
                                 //Rebound
                                 bullet.setRebound(bullet.getX(), bullet.getY(), (float) seg.getAngle()); //TODO
-                                System.out.println("Block");
                             } else {
                                 //Remove
                                 removedBullets.add(bullet);
@@ -170,13 +168,91 @@ public class Framework extends Pane {
         }
         bullets.removeAll(removedBullets);
 
-        //TODO collision TANK - MAP
-//        for (Tank tank : tanks) {
-//            if (Collision.) {
-//
-//            }
-//        }
+        //TODO collision TANK - BLOCK
+        for (Block block : map.getBlocks()) {
+            //FRONT LEFT
+            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints().get(0))) {
+                if (player.getVelocity() < 0) {
+                    player.setVelocity(0);
+                }
+                if (player.getRotation() < 0) { //TODO
+                    player.setRotation(0);
+                }
+            }
 
+            //FRONT RIGHT
+            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints().get(1))) {
+                if (player.getVelocity() < 0) {
+                    player.setVelocity(0);
+                }
+                if (player.getRotation() > 0) { //TODO
+                    player.setRotation(0);
+                }
+            }
+
+            //BACK RIGHT
+            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints().get(2))) {
+                if (player.getVelocity() > 0) {
+                    player.setVelocity(0);
+                }
+                if (player.getRotation() > 0) { //TODO
+                    player.setRotation(0);
+                }
+            }
+
+            //BACK LEFT
+            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints().get(3))) {
+                if (player.getVelocity() > 0) {
+                    player.setVelocity(0);
+                }
+                if (player.getRotation() < 0) { //TODO
+                    player.setRotation(0);
+                }
+            }
+        }
+
+        //TODO TANK - MAP
+        //FRONT LEFT
+        if (Collision.testRectangleToPoint(map.getBounds(), player.getFutureBounds().getPoints().get(0))) {
+            if (player.getVelocity() < 0) {
+                player.setVelocity(0);
+            }
+            if (player.getRotation() < 0) { //TODO
+                player.setRotation(0);
+            }
+        }
+
+        //FRONT RIGHT
+        if (Collision.testRectangleToPoint(map.getBounds(), player.getFutureBounds().getPoints().get(1))) {
+            if (player.getVelocity() < 0) {
+                player.setVelocity(0);
+            }
+            if (player.getRotation() > 0) { //TODO
+                player.setRotation(0);
+            }
+        }
+
+        //BACK RIGHT
+        if (Collision.testRectangleToPoint(map.getBounds(), player.getFutureBounds().getPoints().get(2))) {
+            if (player.getVelocity() > 0) {
+                player.setVelocity(0);
+            }
+            if (player.getRotation() > 0) { //TODO
+                player.setRotation(0);
+            }
+        }
+
+        //BACK LEFT
+        if (Collision.testRectangleToPoint(map.getBounds(), player.getFutureBounds().getPoints().get(3))) {
+            if (player.getVelocity() > 0) {
+                player.setVelocity(0);
+            }
+            if (player.getRotation() < 0) { //TODO
+                player.setRotation(0);
+            }
+        }
+
+        //PICKUP - TANK
         ArrayList<PickUp> removedPickUps = new ArrayList<>();
         for (PickUp pickUp : pickUps) {
             if (Collision.testRectangleToCircle(64, 64, player.getAngle(), player.getX(), player.getY(), pickUp.getX(), pickUp.getY(), pickUp.getRadius())) {

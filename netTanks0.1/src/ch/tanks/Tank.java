@@ -137,6 +137,14 @@ public class Tank {
     public Rectangle getBounds() {
         return bounds;
     }
+
+    public Rectangle getFutureBounds() {
+
+        double x = this.x + Math.sin(Math.toRadians(-angle + rotation)) * (velocity);
+        double y = this.y + Math.cos(Math.toRadians(-angle + rotation)) * (velocity);
+
+        return new Rectangle(x, y, 64, 64, angle);
+    }
 }
 
 class Turret {
