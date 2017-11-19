@@ -211,46 +211,7 @@ public class Framework extends Pane {
             }
         }
 
-        //TODO TANK - MAP
-        //FRONT LEFT
-        if (Collision.testRectangleToPoint(map.getBounds(), player.getFutureBounds().getPoints().get(0))) {
-            if (player.getVelocity() < 0) {
-                player.setVelocity(0);
-            }
-            if (player.getRotation() < 0) { //TODO
-                player.setRotation(0);
-            }
-        }
 
-        //FRONT RIGHT
-        if (Collision.testRectangleToPoint(map.getBounds(), player.getFutureBounds().getPoints().get(1))) {
-            if (player.getVelocity() < 0) {
-                player.setVelocity(0);
-            }
-            if (player.getRotation() > 0) { //TODO
-                player.setRotation(0);
-            }
-        }
-
-        //BACK RIGHT
-        if (Collision.testRectangleToPoint(map.getBounds(), player.getFutureBounds().getPoints().get(2))) {
-            if (player.getVelocity() > 0) {
-                player.setVelocity(0);
-            }
-            if (player.getRotation() > 0) { //TODO
-                player.setRotation(0);
-            }
-        }
-
-        //BACK LEFT
-        if (Collision.testRectangleToPoint(map.getBounds(), player.getFutureBounds().getPoints().get(3))) {
-            if (player.getVelocity() > 0) {
-                player.setVelocity(0);
-            }
-            if (player.getRotation() < 0) { //TODO
-                player.setRotation(0);
-            }
-        }
 
         //PICKUP - TANK
         ArrayList<PickUp> removedPickUps = new ArrayList<>();

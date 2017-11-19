@@ -51,7 +51,5 @@ public class HUD {
         for (Point p : framework.getPlayer().getBounds().getPoints()) {
             gc.fillOval(p.getX() - 1, p.getY() - 1, 2, 2);
         }
-
-
     }
 }
