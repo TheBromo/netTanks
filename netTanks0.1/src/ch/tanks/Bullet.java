@@ -14,6 +14,7 @@ public class Bullet {
     private int ticks, rebounds;
     private BulletType type;
     private ID tankID; //TODO
+    private Circle bounds;
 
     public Bullet(float rootX, float rootY, float angle, BulletType type, Framework framework) {
         this.framework = framework;
@@ -24,6 +25,7 @@ public class Bullet {
         y = rootY;
         this.type = type;
         this.radius = type.radius();
+        bounds = new Circle(x, y, radius);
 
         framework.getBullets().add(this);
     }
@@ -32,20 +34,22 @@ public class Bullet {
         ticks++;
         x -= Math.sin(Math.toRadians(-angle)) * type.speed();
         y -= Math.cos(Math.toRadians(-angle)) * type.speed();
+        bounds.setLocation(x, y, radius);
         type.render(this, gc);
     }
 
-    public void setRebound(float x, float y, boolean horizontal) {
+    public void setRebound(float x, float y, float angle) {
         this.x = x;
         this.y = y;
         this.rebounds++;
-
-        if (horizontal) {
-            angle = 180 - angle;
+        System.out.println("Angle: " + this.angle);
+        if (angle == 90 || angle == 270) { //TODO make a general statement for reflection angle
+            this.angle = 180 - this.angle;
         } else {
-            angle = -angle;
+            this.angle = -this.angle;
         }
-
+        System.out.println("Rebound angle: " + this.angle);
+        System.out.println(angle);
     }
 
     public int getTicks() {
@@ -90,6 +94,10 @@ public class Bullet {
 
     public int getRebounds() {
         return rebounds;
+    }
+
+    public Circle getBounds() {
+        return bounds;
     }
 }
 

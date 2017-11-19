@@ -1,20 +1,25 @@
 package ch.tanks;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 public class PickUp {
 
     private float x, y, radius;
-    private PickUpType type;
+    private int time;
 
-    public PickUp(float x, float y, PickUpType type) {
+    public PickUp(float x, float y) {
         this.x = x;
         this.y = y;
-        this.type = type;
+        this.radius = 32;
+
+        time = 60 * 10;
     }
 
     public void update(GraphicsContext gc) {
-        type.render(gc);
+        gc.setFill(Color.WHITE);
+        gc.fillOval(x - radius, y - radius, radius, radius);
+        time--;
     }
 
     public float getX() {
@@ -41,16 +46,12 @@ public class PickUp {
         this.radius = radius;
     }
 
-    public PickUpType getType() {
-        return type;
+    public void setTime(int timeInSeconds) {
+        this.time = 60 * timeInSeconds;
     }
-}
 
-enum PickUpType {
-
-    BULLETTYPE();
-
-    public void render(GraphicsContext gc) {
-
+    public int getTime() {
+        return time;
     }
+
 }

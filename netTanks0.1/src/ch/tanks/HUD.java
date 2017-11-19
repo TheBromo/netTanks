@@ -41,8 +41,8 @@ public class HUD {
         //Block bounds
         gc.setStroke(Color.RED);
         for (Block b : framework.getMap().getBlocks()) {
-            for (Segment s : b.getSegments()) {
-                gc.strokeLine(s.getAx(), s.getAy(), s.getBx(), s.getBy());
+            for (Segment s : b.getBounds().getSegments()) {
+                gc.strokeLine(s.getA().getX(), s.getA().getY(), s.getB().getX(), s.getB().getY());
             }
         }
 

@@ -1,40 +1,71 @@
 package ch.tanks;
 
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Affine;
+import javafx.scene.transform.Rotate;
 
 import java.util.ArrayList;
 
-public class Map {
+public class Map extends Canvas {
+
+    Framework framework;
+
+    private int updates;
+
+    private GraphicsContext gc;
 
     private int width, height;
-    private ArrayList<Segment> boundaries;
+    private Rectangle bounds;
     private ArrayList<Block> blocks;
 
-    public Map(int width, int height) {
+    public Map(int width, int height, Framework framework) {
+        this.framework = framework;
+        this.setWidth(framework.getWidth());
+        this.setHeight(framework.getHeight());
         this.width = width;
         this.height = height;
         blocks = new ArrayList<>();
-        boundaries = new ArrayList<>();
 
-        boundaries.add(new Segment(0, 0, 960, 0, true));
-        boundaries.add(new Segment(960, 0, 960, 640, false));
-        boundaries.add(new Segment(0, 640, 960, 640, true));
-        boundaries.add(new Segment(0, 0, 0, 640, false));
+        gc = this.getGraphicsContext2D();
+
+        bounds = new Rectangle(960 / 2, 640 / 2, 960, 640, 0);
 
         //Create Map
         blocks.add(new Block(4, 3, BlockType.STANDARD));
         blocks.add(new Block(4, 4, BlockType.CORK));
         blocks.add(new Block(4, 5, BlockType.HOLE));
 
+
+        gc.setFill(Color.BEIGE);
+        gc.fillRect(0, 0, this.getWidth(), this.getHeight());
     }
 
     public void update(GraphicsContext gc) {
-        gc.setFill(Color.BEIGE);
-        gc.fillRect(0, 0, width * 64, height * 64);
+
+        render();
 
         for (Block b : blocks) {
             b.update(gc);
+        }
+
+        updates++;
+    }
+
+    public void render() {
+        //Tank tracks
+
+        if (updates == 7) {
+            for (Tank tank : framework.getTanks()) {
+                gc.save();
+                gc.transform(new Affine(new Rotate(tank.getAngle(), tank.getX(), tank.getY())));
+                gc.setFill(Color.rgb(229, 229, 211, 0.8));
+                gc.fillRect(tank.getX() - 32, tank.getY(), 16, 5);
+                gc.fillRect(tank.getX() + 32 - 16, tank.getY(), 16, 5);
+                gc.restore();
+            }
+            updates = 0;
         }
     }
 
@@ -51,15 +82,15 @@ public class Map {
         return null;
     }
 
-    public int getWidth() {
+    public int getBlockWidth() {
         return width;
     }
 
-    public int getHeight() {
+    public int getBlockHeight() {
         return height;
     }
 
-    public ArrayList<Segment> getBoundaries() {
-        return boundaries;
+    public Rectangle getBounds() {
+        return bounds;
     }
 }

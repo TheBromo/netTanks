@@ -15,9 +15,12 @@ public class Tank {
     private float velocity, rotation;
     private Color color;
     private ID id;
+    private Rectangle bounds;
 
     private Turret turret;
     private ArrayList<Bullet> bullets;
+
+    private BulletType bulletType;
 
     public Tank(float x, float y, float angle, Color color, ID id, Framework framework) {
         this.framework = framework;
@@ -34,6 +37,8 @@ public class Tank {
 
         turret = new Turret(this, angle);
         bullets = new ArrayList<>();
+        bulletType = BulletType.STANDARD;
+        bounds = new Rectangle(x, y, 64, 64, angle);
     }
 
     public void update(GraphicsContext gc) {
@@ -41,6 +46,8 @@ public class Tank {
         angle += rotation;
         x += Math.sin(Math.toRadians(-angle)) * velocity;
         y += Math.cos(Math.toRadians(-angle)) * velocity;
+
+        bounds.setLocation(x, y, 64, 64, angle);
 
         //RENDER
         gc.save();
@@ -59,7 +66,7 @@ public class Tank {
     }
 
     public void shoot() {
-        bullets.add(new Bullet(turret.getMuzzleX(), turret.getMuzzleY(), turret.getAngle(), BulletType.STANDARD, framework));
+        bullets.add(new Bullet(turret.getMuzzleX(), turret.getMuzzleY(), turret.getAngle(), bulletType, framework));
         System.out.println("Pew! " + turret.getAngle());
     }
 
@@ -118,6 +125,18 @@ public class Tank {
     public ID getId() {
         return id;
     }
+
+    public BulletType getBulletType() {
+        return bulletType;
+    }
+
+    public void setBulletType(BulletType bulletType) {
+        this.bulletType = bulletType;
+    }
+
+    public Rectangle getBounds() {
+        return bounds;
+    }
 }
 
 class Turret {
@@ -134,11 +153,11 @@ class Turret {
     public void update(GraphicsContext gc) {
         gc.save();
 
-        gc.transform(new Affine(new Rotate(angle + 90, tank.getX(), tank.getY())));
+        gc.transform(new Affine(new Rotate(angle, tank.getX(), tank.getY())));
         gc.setFill(tank.getColor().brighter());
         gc.fillRoundRect(tank.getX() - 16, tank.getY() - 16, 32, 32, 7, 7);
         gc.setFill(Color.LIGHTGRAY);
-        gc.fillRect(tank.getX() - 40, tank.getY() - 2, 25, 4);
+        gc.fillRect(tank.getX() - 2, tank.getY() - 40, 4, 25);
 
         gc.restore();
     }

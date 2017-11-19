@@ -1,5 +1,8 @@
 package ch.tanks;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * Code originally from Stackoverflow by bruce956
  * https://stackoverflow.com/questions/5650032/collision-detection-with-rotated-rectangles
@@ -50,15 +53,15 @@ public class Collision {
         return distance < circleRadius;
     }
 
-    public static boolean testBulletToSegment(Bullet bullet, Segment segment) {
+    public static boolean testCircleToSegment(Circle circle, Segment segment) {
 
-        double circleCenterX = bullet.getNextX();
-        double circleCenterY = bullet.getNextY();
-        double circleRadius = bullet.getRadius();
-        double lineAX = segment.getAx();
-        double lineAY = segment.getAy();
-        double lineBX = segment.getBx();
-        double lineBY = segment.getBy();
+        double circleCenterX = circle.getCenterX();
+        double circleCenterY = circle.getCenterY();
+        double circleRadius = circle.getRadius();
+        double lineAX = segment.getA().getX();
+        double lineAY = segment.getA().getY();
+        double lineBX = segment.getB().getX();
+        double lineBY = segment.getB().getY();
 
         double lineSize = Math.sqrt(Math.pow(lineAX - lineBX, 2) + Math.pow(lineAY - lineBY, 2));
         double distance;
@@ -110,15 +113,15 @@ public class Collision {
                 testCircleToSegment(tx, ty, circleRadius, cx - rectWidth / 2, cy - rectHeight / 2, cx - rectWidth / 2, cy + rectHeight / 2);
     }
 
-    public static boolean testBulletToTank(Bullet bullet, Tank tank) {
-        double rectWidth = 64;
-        double rectHeight = 64;
-        double rectRotation = tank.getRotation();
-        double rectCenterX = tank.getX();
-        double rectCenterY = tank.getY();
-        double circleCenterX = bullet.getX();
-        double circleCenterY = bullet.getY();
-        double circleRadius = bullet.getRadius();
+    public static boolean testCircleToRectangle(Circle circle, Rectangle rectangle) {
+        double rectWidth = rectangle.getWidth();
+        double rectHeight = rectangle.getHeight();
+        double rectRotation = rectangle.getRotation();
+        double rectCenterX = rectangle.getCenterX();
+        double rectCenterY = rectangle.getCenterY();
+        double circleCenterX = circle.getCenterX();
+        double circleCenterY = circle.getCenterY();
+        double circleRadius = circle.getRadius();
 
         double tx, ty, cx, cy;
 
@@ -141,5 +144,232 @@ public class Collision {
                 testCircleToSegment(tx, ty, circleRadius, cx + rectWidth / 2, cy + rectHeight / 2, cx + rectWidth / 2, cy - rectHeight / 2) ||
                 testCircleToSegment(tx, ty, circleRadius, cx + rectWidth / 2, cy - rectHeight / 2, cx - rectWidth / 2, cy - rectHeight / 2) ||
                 testCircleToSegment(tx, ty, circleRadius, cx - rectWidth / 2, cy - rectHeight / 2, cx - rectWidth / 2, cy + rectHeight / 2);
+    }
+}
+
+class Rectangle {
+
+    private double centerX, centerY, width, height, rotation;
+    private Point a, b, c, d;
+
+    public Rectangle(double centerX, double centerY, double width, double height, double rotation) {
+        setLocation(centerX, centerY, width, height, rotation);
+    }
+
+    public void setLocation(double centerX, double centerY, double width, double height, double rotation) {
+        this.centerX = centerX;
+        this.centerY = centerY;
+        this.width = width;
+        this.height = height;
+        this.rotation = rotation;
+
+        a = new Point(centerX - (width / 2), centerY - (height / 2));
+        b = new Point(centerX + (width / 2), centerY - (height / 2));
+        c = new Point(centerX + (width / 2), centerY + (height / 2));
+        d = new Point(centerX - (width / 2), centerY + (height / 2));
+    }
+
+    public ArrayList<Segment> getSegments() {
+        ArrayList<Segment> segments = new ArrayList<>();
+
+        Segment segA = new Segment(a, b);
+        Segment segB = new Segment(b, c);
+        Segment segC = new Segment(c, d);
+        Segment segD = new Segment(d, a);
+
+        segments.add(segA);
+        segments.add(segB);
+        segments.add(segC);
+        segments.add(segD);
+
+        return segments;
+    }
+
+    public ArrayList<Point> getPoints() {
+        ArrayList<Point> points = new ArrayList<>();
+
+        points.add(a);
+        points.add(b);
+        points.add(c);
+        points.add(d);
+
+        return points;
+    }
+
+    public double getCenterX() {
+        return centerX;
+    }
+
+    public void setCenterX(double centerX) {
+        this.centerX = centerX;
+    }
+
+    public double getCenterY() {
+        return centerY;
+    }
+
+    public void setCenterY(double centerY) {
+        this.centerY = centerY;
+    }
+
+    public double getWidth() {
+        return width;
+    }
+
+    public void setWidth(double width) {
+        this.width = width;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+    public double getRotation() {
+        return rotation;
+    }
+
+    public void setRotation(double rotation) {
+        this.rotation = rotation;
+    }
+}
+
+class Circle {
+
+    private double centerX, centerY, radius;
+
+    public Circle(double centerX, double centerY, double radius) {
+        this.centerX = centerX;
+        this.centerY = centerY;
+        this.radius = radius;
+    }
+
+    public void setLocation(double centerX, double centerY, double radius) {
+        this.centerX = centerX;
+        this.centerY = centerY;
+        this.radius = radius;
+    }
+
+    public double getCenterX() {
+        return centerX;
+    }
+
+    public void setCenterX(double centerX) {
+        this.centerX = centerX;
+    }
+
+    public double getCenterY() {
+        return centerY;
+    }
+
+    public void setCenterY(double centerY) {
+        this.centerY = centerY;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
+    }
+}
+
+class Polygon { //TODO
+
+    private Point[] points;
+
+    public Polygon(Point... points) {
+        this.points = points;
+    }
+
+    public Point[] getPoints() {
+        return points;
+    }
+
+    public Segment[] getSegments() {
+        Segment[] segments = new Segment[points.length];
+
+        for (int i = 0; i < points.length; i++) {
+            if (i != points.length) {
+                Segment segment = new Segment(points[i], points[i + 1]);
+                segments[i] = segment;
+            } else {
+                Segment segment = new Segment(points[i], points[0]);
+                segments[i] = segment;
+            }
+        }
+
+        return segments;
+    }
+}
+
+class Point {
+
+    private double x, y;
+
+    public Point(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+}
+
+class Segment {
+
+    private Point a, b;
+
+    public Segment(double ax, double ay, double bx, double by) {
+        this.a = new Point(ax, ay);
+        this.b = new Point(bx, by);
+    }
+
+    public Segment(Point a, Point b) {
+        this.a = a;
+        this.b = b;
+    }
+
+    public Point getA() {
+        return a;
+    }
+
+    public void setA(Point a) {
+        this.a = a;
+    }
+
+    public Point getB() {
+        return b;
+    }
+
+    public void setB(Point b) {
+        this.b = b;
+    }
+
+    public double getAngle() {
+        double angle = Math.toDegrees(Math.atan2((b.getY() - a.getY()), (b.getX() - a.getX()))) + 90;
+
+        if (angle < 0) {
+            angle += 360;
+        }
+
+        return angle;
     }
 }

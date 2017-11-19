@@ -8,17 +8,19 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Framework extends Canvas {
+public class Framework extends Pane {
 
     public static double MOUSEX, MOUSEY, SCALE;
     public static boolean OVERLAY;
 
+    private Canvas canvas;
     private GraphicsContext gc;
     private Timeline gameloop;
     private Random random;
@@ -28,16 +30,23 @@ public class Framework extends Canvas {
     private Tank player;
     private ArrayList<Tank> tanks;
     private ArrayList<Bullet> bullets;
-
+    private ArrayList<PickUp> pickUps;
 
     public Framework(int width, int height) {
-        gc = this.getGraphicsContext2D();
+
         this.setWidth(width);
         this.setHeight(height);
         random = new Random();
         bullets = new ArrayList<>();
-        hud = new HUD(this);
         tanks = new ArrayList<>();
+        pickUps = new ArrayList<>();
+        hud = new HUD(this);
+
+        canvas = new Canvas(width, height);
+        gc = canvas.getGraphicsContext2D();
+        canvas.setWidth(width);
+        canvas.setHeight(height);
+        this.getChildren().add(canvas);
 
         //Create Game Loop
         gameloop = new Timeline(new KeyFrame(
@@ -59,10 +68,15 @@ public class Framework extends Canvas {
     public void start() {
         gameloop.play();
 
-        map = new Map(15, 10); //Size can be changed later
+        map = new Map(15, 10, this); //Size can be changed later
+        this.getChildren().add(0, map);
+
         player = new Tank(100, 100, 0, Color.valueOf("#5cb0cc"), ID.PLAYER, this);
 //        tanks.add(new Tank(500, 100, -50, Color.DARKGREEN, ID.ENEMY, this)); Adds second tank
         tanks.add(player);
+
+        PickUp pip = new PickUp(500, 500);
+        pickUps.add(pip);
     }
 
     public void stop() {
@@ -78,15 +92,22 @@ public class Framework extends Canvas {
         gc.clearRect(0, 0, this.getWidth(), this.getHeight());
 
         //Turn turret to current mouse position
-        player.getTurret().setAngle(
-                ((float) Math.toDegrees(Math.atan2((MOUSEY - player.getY()), (MOUSEX - player.getX()))) + 90));
+        float angle = ((float) Math.toDegrees(Math.atan2((MOUSEY - player.getY()), (MOUSEX - player.getX()))) + 90);
+        if (angle < 0) {
+            angle += 360;
+        }
+        player.getTurret().setAngle(angle);
 
         //Check for any collisions before updating
         collision();
 
-
         //Update all the things!
         map.update(gc);
+
+        for (PickUp pickUp : pickUps) {
+            pickUp.update(gc);
+        }
+
         for (Tank tank : tanks) {
             tank.update(gc);
         }
@@ -101,16 +122,17 @@ public class Framework extends Canvas {
     }
 
     private void collision() {
-        ArrayList<Bullet> removedBullets = new ArrayList<>();
 
+        ArrayList<Bullet> removedBullets = new ArrayList<>();
         for (Bullet bullet : bullets) {
 
             //MAP BOUNDARIES
-            for (Segment segment : map.getBoundaries()) {
-                if (Collision.testBulletToSegment(bullet, segment)) {
+            for (Segment segment : map.getBounds().getSegments()) {
+                if (Collision.testCircleToSegment(bullet.getBounds(), segment)) {
                     if (bullet.getRebounds() < bullet.getType().rebounds()) {
                         //Rebound
-                        bullet.setRebound(bullet.getX(), bullet.getY(), segment.isHorizontal());
+                        bullet.setRebound(bullet.getX(), bullet.getY(), (float) segment.getAngle()); //TODO
+                        System.out.println("Map");
                     } else {
                         //Remove
                         removedBullets.add(bullet);
@@ -123,11 +145,12 @@ public class Framework extends Canvas {
             for (Block block : map.getBlocks()) {
                 if (!block.getType().isShootable()) {
 
-                    for (Segment seg : block.getSegments()) {
-                        if (Collision.testBulletToSegment(bullet, seg)) {
+                    for (Segment seg : block.getBounds().getSegments()) {
+                        if (Collision.testCircleToSegment(bullet.getBounds(), seg)) {
                             if (bullet.getRebounds() < bullet.getType().rebounds()) {
                                 //Rebound
-                                bullet.setRebound(bullet.getX(), bullet.getY(), seg.isHorizontal());
+                                bullet.setRebound(bullet.getX(), bullet.getY(), (float) seg.getAngle()); //TODO
+                                System.out.println("Block");
                             } else {
                                 //Remove
                                 removedBullets.add(bullet);
@@ -140,12 +163,11 @@ public class Framework extends Canvas {
 
             //OTHER TANKS
             for (Tank tank : tanks) {
-                if (Collision.testBulletToTank(bullet, tank)) {
+                if (Collision.testCircleToRectangle(bullet.getBounds(), tank.getBounds())) {
                     System.out.println("HIT!");
                 }
             }
         }
-
         bullets.removeAll(removedBullets);
 
         //TODO collision TANK - MAP
@@ -154,6 +176,15 @@ public class Framework extends Canvas {
 //
 //            }
 //        }
+
+        ArrayList<PickUp> removedPickUps = new ArrayList<>();
+        for (PickUp pickUp : pickUps) {
+            if (Collision.testRectangleToCircle(64, 64, player.getAngle(), player.getX(), player.getY(), pickUp.getX(), pickUp.getY(), pickUp.getRadius())) {
+                player.setBulletType(BulletType.ROCKET);
+                removedPickUps.add(pickUp);
+            }
+        }
+        pickUps.removeAll(removedPickUps);
     }
 
     private void setKeyInput() {
@@ -248,6 +279,10 @@ public class Framework extends Canvas {
 
     public Tank getPlayer() {
         return player;
+    }
+
+    public ArrayList<Tank> getTanks() {
+        return tanks;
     }
 
     public Map getMap() {

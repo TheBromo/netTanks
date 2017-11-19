@@ -12,8 +12,8 @@ public class Start extends Application {
     @Override
     public void start(Stage primaryStage) {
         Pane root = new Pane();
-        Framework canvas = new Framework(WIDTH, HEIGHT);
-        root.getChildren().add(canvas);
+        Framework framework = new Framework(WIDTH, HEIGHT);
+        root.getChildren().add(framework);
 
         Scene scene = new Scene(root, WIDTH, HEIGHT);
 
@@ -21,7 +21,7 @@ public class Start extends Application {
         primaryStage.setResizable(false);
         primaryStage.show();
 
-        canvas.start();
+        framework.start();
     }
 
     public static void main(String[] args) {
