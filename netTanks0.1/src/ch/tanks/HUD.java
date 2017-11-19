@@ -52,11 +52,6 @@ public class HUD {
             gc.fillOval(p.getX() - 1, p.getY() - 1, 2, 2);
         }
 
-        gc.setFill(Color.PINK);
-        for (Point p : framework.getPlayer().getFutureBounds().getPoints()) {
-            gc.fillOval(p.getX() - 1, p.getY() - 1, 2, 2);
-        }
-
 
     }
 }
