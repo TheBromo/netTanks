@@ -11,15 +11,18 @@ public class PickUp {
     public PickUp(float x, float y) {
         this.x = x;
         this.y = y;
-        this.radius = 32;
+        this.radius = 16;
 
         time = 60 * 10;
     }
 
     public void update(GraphicsContext gc) {
-        gc.setFill(Color.WHITE);
-        gc.fillOval(x - radius, y - radius, radius, radius);
-        time--;
+        gc.setFill(Color.LIGHTBLUE);
+        gc.fillOval(x - radius, y - radius, radius * 2, radius * 2);
+
+        if (time > 0) {
+            time--;
+        }
     }
 
     public float getX() {

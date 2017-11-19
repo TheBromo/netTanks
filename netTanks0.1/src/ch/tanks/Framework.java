@@ -30,6 +30,7 @@ public class Framework extends Pane {
     private Tank player;
     private ArrayList<Tank> tanks;
     private ArrayList<Bullet> bullets;
+    private ArrayList<Mine> mines;
     private ArrayList<PickUp> pickUps;
 
     public Framework(int width, int height) {
@@ -39,6 +40,7 @@ public class Framework extends Pane {
         random = new Random();
         bullets = new ArrayList<>();
         tanks = new ArrayList<>();
+        mines = new ArrayList<>();
         pickUps = new ArrayList<>();
         hud = new HUD(this);
 
@@ -123,6 +125,7 @@ public class Framework extends Pane {
 
     private void collision() {
 
+        // BULLET -
         ArrayList<Bullet> removedBullets = new ArrayList<>();
         for (Bullet bullet : bullets) {
 
@@ -163,6 +166,15 @@ public class Framework extends Pane {
             for (Tank tank : tanks) {
                 if (Collision.testCircleToRectangle(bullet.getBounds(), tank.getBounds())) {
                     System.out.println("HIT!");
+                }
+            }
+
+            //OTHER BULLETS
+            for (Bullet b : bullets) {
+                if (b != bullet) { //Check whether bullet is the same
+                    if (Collision.testCircleToCircle(b.getBounds(), bullet.getBounds())) {
+                        removedBullets.add(bullet);
+                    }
                 }
             }
         }
@@ -211,8 +223,6 @@ public class Framework extends Pane {
             }
         }
 
-
-
         //PICKUP - TANK
         ArrayList<PickUp> removedPickUps = new ArrayList<>();
         for (PickUp pickUp : pickUps) {
@@ -222,6 +232,19 @@ public class Framework extends Pane {
             }
         }
         pickUps.removeAll(removedPickUps);
+
+        //MINE - TANK
+        ArrayList<Mine> removedMines = new ArrayList<>();
+        for (Mine mine : mines) {
+            if (Collision.testCircleToRectangle(mine.getActivationBounds(), player.getBounds())) {
+                System.out.println("EXPLOSION!");
+                removedMines.add(mine);
+            }
+        }
+        mines.removeAll(removedMines);
+
+        //TODO MINE - BULLET
+
     }
 
     private void setKeyInput() {
@@ -242,10 +265,13 @@ public class Framework extends Pane {
                         player.setRotation(1);
                         break;
                     case SPACE:
-                        player.setColor(new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1));
+                        mines.add(new Mine(player.getX(), player.getY()));
                         break;
                     case F1:
                         OVERLAY = !OVERLAY;
+                        break;
+                    case C:
+                        player.setColor(new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1));
                         break;
                 }
             }

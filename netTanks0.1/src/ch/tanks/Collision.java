@@ -6,6 +6,7 @@ import java.util.Arrays;
 /**
  * Code originally from Stackoverflow by bruce956
  * https://stackoverflow.com/questions/5650032/collision-detection-with-rotated-rectangles
+ * (edited)
  */
 
 public class Collision {
@@ -165,6 +166,22 @@ public class Collision {
         double cy = Math.cos(rectRotation) * rectCenterY + Math.sin(rectRotation) * rectCenterX;
 
         return Math.abs(cx - tx) < rectWidth / 2 && Math.abs(cy - ty) < rectHeight / 2;
+    }
+
+    public static boolean testCircleToCircle(Circle circle1, Circle circle2) {
+        double c1x = circle1.getCenterX();
+        double c1y = circle1.getCenterY();
+        double c1r = circle1.getRadius();
+        double c2x = circle2.getCenterX();
+        double c2y = circle2.getCenterY();
+        double c2r = circle2.getRadius();
+
+        double dy = c2y - c1y;
+        double dx = c2x - c1x;
+
+        double distance = Math.sqrt(Math.pow(dy, 2) + Math.pow(dx, 2));
+
+        return distance - (c1r + c2r) < 0;
     }
 }
 
