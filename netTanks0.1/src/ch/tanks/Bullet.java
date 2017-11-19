@@ -7,8 +7,6 @@ import javafx.scene.transform.Rotate;
 
 public class Bullet {
 
-    private Framework framework;
-
     private float rootX, rootY, angle;
     private float x, y, radius;
     private int ticks, rebounds;
@@ -16,8 +14,7 @@ public class Bullet {
     private ID tankID; //TODO
     private Circle bounds;
 
-    public Bullet(float rootX, float rootY, float angle, BulletType type, Framework framework) {
-        this.framework = framework;
+    public Bullet(float rootX, float rootY, float angle, BulletType type) {
         this.rootX = rootX;
         this.rootY = rootY;
         this.angle = angle;
@@ -26,8 +23,6 @@ public class Bullet {
         this.type = type;
         this.radius = type.radius();
         bounds = new Circle(x, y, radius);
-
-        framework.getBullets().add(this);
     }
 
     public void update(GraphicsContext gc) {
