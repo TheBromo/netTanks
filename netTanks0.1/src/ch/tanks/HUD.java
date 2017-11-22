@@ -5,13 +5,36 @@ import javafx.scene.paint.Color;
 
 public class HUD {
 
-    Framework framework;
+    private Framework framework;
+    private boolean overlayVisibility, playerInfoVisibility;
 
     public HUD(Framework framework) {
         this.framework = framework;
+        this.playerInfoVisibility = false;
+        this.playerInfoVisibility = false;
     }
 
-    //TODO
+    public void render(GraphicsContext gc) {
+
+        if (playerInfoVisibility) {
+            showPlayerInfo(gc);
+        }
+
+        if (overlayVisibility) {
+            showOverlay(gc);
+        }
+    }
+
+    public void showPlayerInfo(GraphicsContext gc) {
+        for (Tank tank : framework.getTanks()) {
+            int width = tank.getId().name().length() * 7 + 10;
+            gc.setFill(Color.LIGHTGRAY);
+            gc.fillRoundRect(tank.getX() - width / 2, tank.getY() - 65, width, 25, 4, 4);
+
+            gc.setFill(Color.WHITESMOKE);
+            gc.fillText(tank.getId().name(), tank.getX() - width / 2 + 5, tank.getY() - 50);
+        }
+    }
 
     public void showOverlay(GraphicsContext gc) {
         int width = 200, height = 100, spacing = 15;
@@ -51,5 +74,21 @@ public class HUD {
         for (Point p : framework.getPlayer().getBounds().getPoints()) {
             gc.fillOval(p.getX() - 1, p.getY() - 1, 2, 2);
         }
+    }
+
+    public void toggleOverlayVisibility() {
+        this.overlayVisibility = !overlayVisibility;
+    }
+
+    public void togglePlayerInfoVisibility() {
+        this.playerInfoVisibility = !playerInfoVisibility;
+    }
+
+    public void setOverlayVisibility(boolean overlayVisibility) {
+        this.overlayVisibility = overlayVisibility;
+    }
+
+    public void setPlayerInfoVisibility(boolean playerInfoVisibility) {
+        this.playerInfoVisibility = playerInfoVisibility;
     }
 }

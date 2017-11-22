@@ -19,8 +19,10 @@ public class Tank {
 
     private Turret turret;
     private ArrayList<Bullet> bullets;
+    private ArrayList<Mine> mines;
 
     private BulletType bulletType;
+    private PickUp currentPickUp;
 
     public Tank(float x, float y, float angle, Color color, ID id, Framework framework) {
         this.framework = framework;
@@ -38,6 +40,7 @@ public class Tank {
         turret = new Turret(this, angle);
         bullets = new ArrayList<>();
         bulletType = BulletType.STANDARD;
+        mines = new ArrayList<>();
         bounds = new Rectangle(x, y, 64, 64, angle);
     }
 
@@ -63,6 +66,11 @@ public class Tank {
 
         //Update turret
         turret.update(gc);
+
+        if (currentPickUp != null && currentPickUp.getTime() == 0) {
+            currentPickUp = null;
+            bulletType = BulletType.STANDARD;
+        }
     }
 
     public void shoot() {
@@ -70,6 +78,12 @@ public class Tank {
         bullets.add(bullet);
         framework.getBullets().add(bullet);
         System.out.println("Pew! " + turret.getAngle());
+    }
+
+    public void place() {
+        Mine mine = new Mine(x, y);
+        mines.add(mine);
+        framework.getMines().add(mine);
     }
 
     public Turret getTurret() {
@@ -147,6 +161,15 @@ public class Tank {
 
         return new Rectangle(x, y, 64, 64, angle);
     }
+
+    public ArrayList<Bullet> getBullets() {
+        return bullets;
+    }
+
+    public ArrayList<Mine> getMines() {
+        return mines;
+    }
+
 }
 
 class Turret {

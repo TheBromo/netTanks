@@ -106,9 +106,14 @@ public class Framework extends Pane {
         //Update all the things!
         map.update(gc);
 
+        PickUp removedPickUp = null;
         for (PickUp pickUp : pickUps) {
             pickUp.update(gc);
+            if (pickUp.isExpired()) {
+                removedPickUp = pickUp;
+            }
         }
+        pickUps.remove(removedPickUp);
 
         for (Tank tank : tanks) {
             tank.update(gc);
@@ -118,9 +123,11 @@ public class Framework extends Pane {
             bullet.update(gc);
         }
 
-        if (OVERLAY) {
-            hud.showOverlay(gc);
+        for (Mine mine : mines) {
+            mine.update(gc);
         }
+
+        hud.render(gc);
     }
 
     private void collision() {
@@ -224,14 +231,13 @@ public class Framework extends Pane {
         }
 
         //PICKUP - TANK
-        ArrayList<PickUp> removedPickUps = new ArrayList<>();
         for (PickUp pickUp : pickUps) {
-            if (Collision.testRectangleToCircle(64, 64, player.getAngle(), player.getX(), player.getY(), pickUp.getX(), pickUp.getY(), pickUp.getRadius())) {
-                player.setBulletType(BulletType.ROCKET);
-                removedPickUps.add(pickUp);
+            if (!pickUp.isPickedUp()) {
+                if (Collision.testCircleToRectangle(pickUp.getBounds(), player.getBounds())) {
+                    pickUp = new PickUp(player);
+                }
             }
         }
-        pickUps.removeAll(removedPickUps);
 
         //MINE - TANK
         ArrayList<Mine> removedMines = new ArrayList<>();
@@ -264,14 +270,9 @@ public class Framework extends Pane {
                     case D:
                         player.setRotation(1);
                         break;
-                    case SPACE:
-                        mines.add(new Mine(player.getX(), player.getY()));
-                        break;
-                    case F1:
-                        OVERLAY = !OVERLAY;
-                        break;
-                    case C:
-                        player.setColor(new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1));
+
+                    case TAB:
+                        hud.setPlayerInfoVisibility(true);
                         break;
                 }
             }
@@ -292,6 +293,18 @@ public class Framework extends Pane {
                         break;
                     case D:
                         player.setRotation(0);
+                        break;
+                    case F1:
+                        hud.toggleOverlayVisibility();
+                        break;
+                    case TAB:
+                        hud.setPlayerInfoVisibility(false);
+                        break;
+                    case SPACE:
+                        player.place();
+                        break;
+                    case C:
+                        player.setColor(new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1));
                         break;
                 }
             }
@@ -354,5 +367,13 @@ public class Framework extends Pane {
 
     public ArrayList<Bullet> getBullets() {
         return bullets;
+    }
+
+    public ArrayList<Mine> getMines() {
+        return mines;
+    }
+
+    public ArrayList<PickUp> getPickUps() {
+        return pickUps;
     }
 }

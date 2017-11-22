@@ -10,8 +10,8 @@ public class Bullet {
     private float rootX, rootY, angle;
     private float x, y, radius;
     private int ticks, rebounds;
+
     private BulletType type;
-    private ID tankID; //TODO
     private Circle bounds;
 
     public Bullet(float rootX, float rootY, float angle, BulletType type) {
