@@ -1,5 +1,11 @@
-package ch.tanks;
+package ch.framework.map;
 
+import ch.framework.Framework;
+import ch.framework.Handler;
+import ch.framework.collision.Rectangle;
+import ch.framework.gameobjects.tank.Tank;
+import ch.framework.map.block.Block;
+import ch.framework.map.block.BlockType;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -10,7 +16,8 @@ import java.util.ArrayList;
 
 public class Map extends Canvas {
 
-    Framework framework;
+    private Framework framework;
+    private Handler handler;
 
     private int updates;
 
@@ -22,6 +29,7 @@ public class Map extends Canvas {
 
     public Map(int width, int height, Framework framework) {
         this.framework = framework;
+        this.handler = framework.getHandler();
         this.setWidth(framework.getWidth());
         this.setHeight(framework.getHeight());
         this.width = width;
@@ -57,9 +65,9 @@ public class Map extends Canvas {
         //Tank tracks
 
         if (updates == 7) {
-            for (Tank tank : framework.getTanks()) {
+            for (Tank tank : handler.getTanks()) {
                 gc.save();
-                gc.transform(new Affine(new Rotate(tank.getAngle(), tank.getX(), tank.getY())));
+                gc.transform(new Affine(new Rotate(tank.getRotation(), tank.getX(), tank.getY())));
                 gc.setFill(Color.rgb(229, 229, 211, 0.8));
                 gc.fillRect(tank.getX() - 32, tank.getY(), 16, 5);
                 gc.fillRect(tank.getX() + 32 - 16, tank.getY(), 16, 5);
@@ -80,6 +88,15 @@ public class Map extends Canvas {
             }
         }
         return null;
+    }
+
+    public boolean isFree(int indexX, int indexY) {
+        for (Block block : blocks) {
+            if (block.getIndexX() == indexX && block.getIndexY() == indexY) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public int getBlockWidth() {

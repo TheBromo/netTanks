@@ -1,5 +1,6 @@
-package ch.tanks;
+package ch.framework.gameobjects;
 
+import ch.framework.collision.Circle;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 

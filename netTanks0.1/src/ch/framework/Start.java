@@ -1,5 +1,8 @@
-package ch.tanks;
+package ch.framework;
 
+import ch.match.GameMode;
+import ch.match.Match;
+import ch.match.Player;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -7,7 +10,7 @@ import javafx.stage.Stage;
 
 public class Start extends Application {
 
-    public static int WIDTH = 960, HEIGHT = 640;
+    public static final int WIDTH = 960, HEIGHT = 640;
 
     @Override
     public void start(Stage primaryStage) {
@@ -21,7 +24,14 @@ public class Start extends Application {
         primaryStage.setResizable(false);
         primaryStage.show();
 
-        framework.start();
+        Match match = new Match(GameMode.FREEFORALL);
+
+        Player player = new Player("My Username");
+        match.addPlayer(new Player("Player 1"));
+        match.addPlayer(player);
+        framework.setPlayer(player); //Me
+
+        framework.start(match);
     }
 
     public static void main(String[] args) {

@@ -1,8 +1,12 @@
-package ch.tanks;
+package ch.framework;
 
+import ch.framework.collision.Point;
+import ch.framework.collision.Segment;
+import ch.framework.gameobjects.bullet.Bullet;
+import ch.framework.map.block.Block;
+import ch.match.Player;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 public class HUD {
 
@@ -30,13 +34,15 @@ public class HUD {
     }
 
     public void showPlayerInfo(GraphicsContext gc) {
-        for (Tank tank : framework.getTanks()) {
-            int width = tank.getId().name().length() * 7 + 10;
-            gc.setFill(Color.LIGHTGRAY);
-            gc.fillRoundRect(tank.getX() - width / 2, tank.getY() - 65, width, 25, 4, 4);
+        for (Player player : framework.getMatch().getPlayers()) {
+            if (player.getTank() != null) {
+                int width = player.getUsername().length() * 7 + 10;
+                gc.setFill(Color.LIGHTGRAY);
+                gc.fillRoundRect(player.getTank().getX() - width / 2, player.getTank().getY() - 65, width, 25, 4, 4);
 
-            gc.setFill(Color.WHITESMOKE);
-            gc.fillText(tank.getId().name(), tank.getX() - width / 2 + 5, tank.getY() - 50);
+                gc.setFill(Color.WHITESMOKE);
+                gc.fillText(player.getUsername(), player.getTank().getX() - width / 2 + 5, player.getTank().getY() - 50);
+            }
         }
     }
 
@@ -47,21 +53,21 @@ public class HUD {
         gc.fillRect(0, 0, width, height);
         gc.setFill(Color.WHITESMOKE);
         gc.fillText("mouse x: " + framework.getMouseX() + "\t mouse y: " + framework.getMouseY(), 15, spacing * 1, width);
-        gc.fillText("x: " + framework.getPlayer().getX() + "\ty: " + framework.getPlayer().getY(), 15, spacing * 2, width);
-        gc.fillText("angle: " + framework.getPlayer().getAngle(), 15, spacing * 3, width);
-        gc.fillText("turret angle: " + framework.getPlayer().getTurret().getAngle(), 15, spacing * 4, width);
-        gc.fillText("bullets: " + framework.getBullets().size(), 15, spacing * 5, width);
+        gc.fillText("x: " + framework.getPlayer().getTank().getX() + "\ty: " + framework.getPlayer().getTank().getY(), 15, spacing * 2, width);
+        gc.fillText("angle: " + framework.getPlayer().getTank().getRotation(), 15, spacing * 3, width);
+        gc.fillText("turret angle: " + framework.getPlayer().getTank().getTurret().getAngle(), 15, spacing * 4, width);
+        gc.fillText("bullets: " + framework.getHandler().getBullets().size(), 15, spacing * 5, width);
 
 
         //LINES & BOUNDS//
 
         //Line
         gc.setStroke(Color.RED);
-        gc.strokeLine(framework.getPlayer().getX(), framework.getPlayer().getY(), framework.getMouseX(), framework.getMouseY());
+        gc.strokeLine(framework.getPlayer().getTank().getX(), framework.getPlayer().getTank().getY(), framework.getMouseX(), framework.getMouseY());
 
         //Bullet bounds
         gc.setStroke(Color.RED);
-        for (Bullet b : framework.getBullets()) {
+        for (Bullet b : framework.getHandler().getBullets()) {
             gc.strokeOval(b.getX() - b.getRadius(), b.getY() - b.getRadius(), b.getRadius() * 2, b.getRadius() * 2);
         }
 
@@ -75,7 +81,7 @@ public class HUD {
 
         //Player Points
         gc.setFill(Color.RED);
-        for (Point p : framework.getPlayer().getBounds().getPoints()) {
+        for (Point p : framework.getPlayer().getTank().getBounds().getPoints()) {
             gc.fillOval(p.getX() - 1, p.getY() - 1, 2, 2);
         }
     }

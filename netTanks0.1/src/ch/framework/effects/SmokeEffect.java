@@ -1,25 +1,15 @@
-package ch.tanks;
+package ch.framework.effects;
 
+import ch.framework.Framework;
+import ch.framework.collision.Circle;
+import ch.framework.gameobjects.bullet.Bullet;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Effect {
-
-}
-
-class ExplosionEffect {
-
-    public ExplosionEffect() {
-
-    }
-
-
-}
-
-class SmokeEffect {
+public class SmokeEffect {
 
     private Random random;
     private ArrayList<Circle> circles;
