@@ -8,6 +8,7 @@ public class Mine {
     private float x, y, radius;
     private float explosionRadius, explosionDamage;
     private int time;
+    private boolean active;
 
     private Circle activationBounds, explosionBounds;
 
@@ -63,5 +64,13 @@ public class Mine {
 
     public Circle getExplosionBounds() {
         return explosionBounds;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

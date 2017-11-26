@@ -13,6 +13,7 @@ public class Bullet {
 
     private BulletType type;
     private Circle bounds;
+    private SmokeEffect smokeEffect;
 
     public Bullet(float rootX, float rootY, float angle, BulletType type) {
         this.rootX = rootX;
@@ -23,6 +24,7 @@ public class Bullet {
         this.type = type;
         this.radius = type.radius();
         bounds = new Circle(x, y, radius);
+        smokeEffect = new SmokeEffect();
     }
 
     public void update(GraphicsContext gc) {
@@ -30,7 +32,9 @@ public class Bullet {
         x -= Math.sin(Math.toRadians(-angle)) * type.speed();
         y -= Math.cos(Math.toRadians(-angle)) * type.speed();
         bounds.setLocation(x, y, radius);
-        type.render(this, gc);
+
+        smokeEffect.render(gc, this);
+        type.render(gc, this);
     }
 
     public void setRebound(float x, float y, float angle) {
@@ -124,7 +128,7 @@ enum BulletType {
         return radius;
     }
 
-    public void render(Bullet bullet, GraphicsContext gc) {
+    public void render(GraphicsContext gc, Bullet bullet) {
         gc.save();
         gc.translate(bullet.getX(), bullet.getY());
         gc.transform(new Affine(new Rotate(bullet.getAngle()))); //Rotate the gc to the angle of the bullet's path

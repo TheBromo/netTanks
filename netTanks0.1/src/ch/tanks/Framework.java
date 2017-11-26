@@ -17,8 +17,8 @@ import java.util.Random;
 
 public class Framework extends Pane {
 
-    public static double MOUSEX, MOUSEY, SCALE;
-    public static boolean OVERLAY;
+    private double mouseX, mouseY, scale;
+    private static int FRAME;
 
     private Canvas canvas;
     private GraphicsContext gc;
@@ -56,8 +56,8 @@ public class Framework extends Pane {
                 ae -> update()));
         gameloop.setCycleCount(Timeline.INDEFINITE);
 
-        //Set SCALE to current scale of Canvas
-        SCALE = this.getScaleX();
+        //Set scale to current scale of Canvas
+        scale = this.getScaleX();
 
         //Make the Canvas register keystrokes
         this.addEventFilter(MouseEvent.ANY, (e) -> this.requestFocus());
@@ -90,11 +90,13 @@ public class Framework extends Pane {
      * Used to update and render objects etc.
      */
     private void update() {
+        FRAME++;
+
         //Clear Canvas (Prevents "smearing" effect)
         gc.clearRect(0, 0, this.getWidth(), this.getHeight());
 
         //Turn turret to current mouse position
-        float angle = ((float) Math.toDegrees(Math.atan2((MOUSEY - player.getY()), (MOUSEX - player.getX()))) + 90);
+        float angle = ((float) Math.toDegrees(Math.atan2((mouseY - player.getY()), (mouseX - player.getX()))) + 90);
         if (angle < 0) {
             angle += 360;
         }
@@ -243,8 +245,10 @@ public class Framework extends Pane {
         ArrayList<Mine> removedMines = new ArrayList<>();
         for (Mine mine : mines) {
             if (Collision.testCircleToRectangle(mine.getActivationBounds(), player.getBounds())) {
-                System.out.println("EXPLOSION!");
-                removedMines.add(mine);
+                if (mine.isActive()) {
+                    System.out.println("EXPLOSION!");
+                    removedMines.add(mine);
+                }
             }
         }
         mines.removeAll(removedMines);
@@ -327,9 +331,9 @@ public class Framework extends Pane {
         }));
 
         this.setOnMouseMoved((event -> {
-            //Tell the Canvas to update MOUSEX and MOUSEY every time the mouse was moved
-            MOUSEX = event.getX();
-            MOUSEY = event.getY();
+            //Tell the Canvas to update mouseX and mouseY every time the mouse was moved
+            mouseX = event.getX();
+            mouseY = event.getY();
         }));
 
 //        this.setOnScroll(se -> {
@@ -337,18 +341,18 @@ public class Framework extends Pane {
 //            double maxSCALE = 3, minSCALE = 0.5;
 //            double zoom = se.getDeltaY() / 320;
 //
-//            if (SCALE + zoom > maxSCALE) {
-//                SCALE = maxSCALE;
-//                gc.getTransform().setMxx(SCALE);
-//                gc.getTransform().setMyy(SCALE);
-//            } else if (SCALE + zoom < minSCALE) {
-//                SCALE = minSCALE;
-//                gc.getTransform().setMxx(SCALE);
-//                gc.getTransform().setMyy(SCALE);
+//            if (scale + zoom > maxSCALE) {
+//                scale = maxSCALE;
+//                gc.getTransform().setMxx(scale);
+//                gc.getTransform().setMyy(scale);
+//            } else if (scale + zoom < minSCALE) {
+//                scale = minSCALE;
+//                gc.getTransform().setMxx(scale);
+//                gc.getTransform().setMyy(scale);
 //            } else {
-//                SCALE += zoom;
-//                gc.getTransform().setMxx(SCALE);
-//                gc.getTransform().setMyy(SCALE);
+//                scale += zoom;
+//                gc.getTransform().setMxx(scale);
+//                gc.getTransform().setMyy(scale);
 //            }
 //        });
     }
@@ -375,5 +379,17 @@ public class Framework extends Pane {
 
     public ArrayList<PickUp> getPickUps() {
         return pickUps;
+    }
+
+    public double getMouseX() {
+        return mouseX;
+    }
+
+    public double getMouseY() {
+        return mouseY;
+    }
+
+    public static int getFRAME() {
+        return FRAME;
     }
 }
