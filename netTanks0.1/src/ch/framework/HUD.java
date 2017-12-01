@@ -1,12 +1,16 @@
 package ch.framework;
 
+import ch.framework.collision.*;
 import ch.framework.collision.Point;
-import ch.framework.collision.Segment;
+import ch.framework.collision.Rectangle;
+import ch.framework.gameobjects.GameObject;
 import ch.framework.gameobjects.bullet.Bullet;
 import ch.framework.map.block.Block;
 import ch.match.Player;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+
+import java.awt.*;
 
 public class HUD {
 
@@ -81,8 +85,20 @@ public class HUD {
 
         //Player Points
         gc.setFill(Color.RED);
-        for (Point p : framework.getPlayer().getTank().getBounds().getPoints()) {
-            gc.fillOval(p.getX() - 1, p.getY() - 1, 2, 2);
+
+        for (GameObject go : framework.getHandler().getGameObjects()) {
+            for (Rectangle rectangle : go.getBounds().getRectangles()) {
+                double x = rectangle.getCenterX() - rectangle.getWidth() / 2;
+                double y = rectangle.getCenterY() - rectangle.getHeight() / 2;
+                gc.strokeRect(x, y, rectangle.getWidth(), rectangle.getHeight());
+            }
+
+            for (Circle circle : go.getBounds().getCircles()) {
+                double x = circle.getCenterX() - circle.getRadius();
+                double y = circle.getCenterY() - circle.getRadius();
+                double r = circle.getRadius();
+                gc.strokeOval(x, y, r * 2, r * 2);
+            }
         }
     }
 

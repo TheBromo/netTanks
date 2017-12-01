@@ -1,18 +1,20 @@
 package ch.framework.gameobjects.tank;
 
+import ch.framework.collision.Bounds;
 import ch.framework.collision.Rectangle;
+import ch.framework.gameobjects.GameObject;
+import ch.framework.gameobjects.Type;
 import ch.framework.gameobjects.bullet.BulletType;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 
-public class Tank {
+public class Tank extends GameObject {
 
-    private float x, y, rotation;
+    private float rotation;
     private float velocity, velRotation;
     private Color color;
-    private Rectangle bounds;
 
     private Turret turret;
     private BulletType bulletType;
@@ -23,10 +25,12 @@ public class Tank {
         this.rotation = rotation;
 
         this.color = Color.valueOf("#babbbc"); //Default color
+        this.type = Type.Tank;
 
         turret = new Turret(this, rotation);
         bulletType = BulletType.STANDARD;
-        bounds = new Rectangle(x, y, 64, 64, rotation);
+        bounds = new Bounds(x, y);
+        bounds.addRectangle(new Rectangle(x, y, 64, 64, rotation));
     }
 
     public void update(GraphicsContext gc) {
@@ -35,7 +39,7 @@ public class Tank {
         x += Math.sin(Math.toRadians(-rotation)) * velocity;
         y += Math.cos(Math.toRadians(-rotation)) * velocity;
 
-        bounds.setLocation(x, y, 64, 64, rotation);
+        bounds.setLocation(x, y, rotation);
 
         //RENDER
         gc.save();
@@ -124,10 +128,6 @@ public class Tank {
 
     public void setBulletType(BulletType bulletType) {
         this.bulletType = bulletType;
-    }
-
-    public Rectangle getBounds() {
-        return bounds;
     }
 
     public Rectangle getFutureBounds() {

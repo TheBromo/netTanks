@@ -39,30 +39,18 @@ public class Rectangle {
         return point;
     }
 
-    public ArrayList<Segment> getSegments() {
-        ArrayList<Segment> segments = new ArrayList<>();
-
-        Segment segA = new Segment(a, b);
-        Segment segB = new Segment(b, c);
-        Segment segC = new Segment(c, d);
-        Segment segD = new Segment(d, a);
-
-        segments.add(segA);
-        segments.add(segB);
-        segments.add(segC);
-        segments.add(segD);
+    public Segment[] getSegments() {
+        Segment[] segments = {
+                new Segment(a, b),
+                new Segment(b, c),
+                new Segment(c, d),
+                new Segment(d, a)};
 
         return segments;
     }
 
-    public ArrayList<Point> getPoints() {
-        ArrayList<Point> points = new ArrayList<>();
-
-        points.add(a);
-        points.add(b);
-        points.add(c);
-        points.add(d);
-
+    public Point[] getPoints() {
+        Point[] points = {a, b, c, d};
         return points;
     }
 

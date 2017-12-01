@@ -4,9 +4,9 @@ import ch.framework.collision.Circle;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class Mine {
+public class Mine extends GameObject { //TODO
 
-    private float x, y, radius;
+    private float radius;
     private float explosionRadius, explosionDamage;
     private int time;
     private boolean active;

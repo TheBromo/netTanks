@@ -3,6 +3,7 @@ package ch.framework;
 import ch.framework.collision.Circle;
 import ch.framework.collision.Collision;
 import ch.framework.collision.Segment;
+import ch.framework.gameobjects.GameObject;
 import ch.framework.gameobjects.Mine;
 import ch.framework.gameobjects.PickUp;
 import ch.framework.gameobjects.bullet.Bullet;
@@ -20,6 +21,8 @@ public class Handler {
     private Player player;
     private Random random;
 
+    private ArrayList<GameObject> gameObjects;
+
     private ArrayList<Tank> tanks;
     private ArrayList<Bullet> bullets;
     private ArrayList<Mine> mines;
@@ -29,6 +32,8 @@ public class Handler {
         this.framework = framework;
         player = framework.getPlayer();
         random = new Random();
+
+        gameObjects = new ArrayList<>();
 
         bullets = new ArrayList<>();
         tanks = new ArrayList<>();
@@ -41,25 +46,8 @@ public class Handler {
         //Check for any collisions before updating
         handleCollision();
 
-        PickUp removedPickUp = null;
-        for (PickUp pickUp : pickUps) {
-            pickUp.update(gc);
-            if (pickUp.isExpired()) {
-                removedPickUp = pickUp;
-            }
-        }
-        pickUps.remove(removedPickUp);
-
-        for (Tank tank : tanks) {
-            tank.update(gc);
-        }
-
-        for (Bullet bullet : bullets) {
-            bullet.update(gc);
-        }
-
-        for (Mine mine : mines) {
-            mine.update(gc);
+        for (GameObject go : gameObjects) {
+            go.update(gc);
         }
     }
 
@@ -73,8 +61,8 @@ public class Handler {
 
             //MAP BOUNDARIES
             for (Segment segment : framework.getMap().getBounds().getSegments()) {
-                if (Collision.testCircleToSegment(bullet.getBounds(), segment)) {
-                    if (bullet.getRebounds() < bullet.getType().rebounds()) {
+                if (Collision.testCircleToSegment(bullet.getBounds().getCircles().get(0), segment)) {
+                    if (bullet.getRebounds() < bullet.getBulletType().rebounds()) {
                         //Rebound
                         bullet.setRebound(bullet.getX(), bullet.getY(), (float) segment.getAngle()); //TODO
                     } else {
@@ -90,8 +78,8 @@ public class Handler {
                 if (!block.getType().isShootable()) {
 
                     for (Segment seg : block.getBounds().getSegments()) {
-                        if (Collision.testCircleToSegment(bullet.getBounds(), seg)) {
-                            if (bullet.getRebounds() < bullet.getType().rebounds()) {
+                        if (Collision.testCircleToSegment(bullet.getBounds().getCircles().get(0), seg)) {
+                            if (bullet.getRebounds() < bullet.getBulletType().rebounds()) {
                                 //Rebound
                                 bullet.setRebound(bullet.getX(), bullet.getY(), (float) seg.getAngle()); //TODO
                             } else {
@@ -106,7 +94,7 @@ public class Handler {
 
             //OTHER TANKS
             for (Tank tank : tanks) {
-                if (Collision.testCircleToRectangle(bullet.getBounds(), tank.getBounds())) {
+                if (tank.getBounds().intersects(bullet.getBounds())) {
                     System.out.println("HIT!");
                 }
             }
@@ -114,7 +102,7 @@ public class Handler {
             //OTHER BULLETS
             for (Bullet b : bullets) {
                 if (b != bullet) { //Check whether bullet is the same
-                    if (Collision.testCircleToCircle(b.getBounds(), bullet.getBounds())) {
+                    if (bullet.getBounds().intersects(b.getBounds())) {
                         removedBullets.add(bullet);
                     }
                 }
@@ -125,7 +113,7 @@ public class Handler {
         //TODO collision TANK - BLOCK
         for (Block block : framework.getMap().getBlocks()) {
             //FRONT LEFT
-            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints().get(0))) {
+            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[0])) {
                 if (player.getVelocity() < 0) {
                     player.setVelocity(0);
                 }
@@ -135,7 +123,7 @@ public class Handler {
             }
 
             //FRONT RIGHT
-            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints().get(1))) {
+            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[1])) {
                 if (player.getVelocity() < 0) {
                     player.setVelocity(0);
                 }
@@ -145,7 +133,7 @@ public class Handler {
             }
 
             //BACK RIGHT
-            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints().get(2))) {
+            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[2])) {
                 if (player.getVelocity() > 0) {
                     player.setVelocity(0);
                 }
@@ -155,7 +143,7 @@ public class Handler {
             }
 
             //BACK LEFT
-            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints().get(3))) {
+            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[3])) {
                 if (player.getVelocity() > 0) {
                     player.setVelocity(0);
                 }
@@ -168,7 +156,7 @@ public class Handler {
         //PICKUP - TANK
         for (PickUp pickUp : pickUps) {
             if (!pickUp.isPickedUp()) {
-                if (Collision.testCircleToRectangle(pickUp.getBounds(), player.getBounds())) {
+                if (Collision.testCircleToRectangle(pickUp.getBounds().getCircles().get(0), player.getBounds().getRectangles().get(0))) {
                     pickUp = new PickUp(player);
                 }
             }
@@ -177,7 +165,7 @@ public class Handler {
         //MINE - TANK
         ArrayList<Mine> removedMines = new ArrayList<>();
         for (Mine mine : mines) {
-            if (Collision.testCircleToRectangle(mine.getActivationBounds(), player.getBounds())) {
+            if (Collision.testCircleToRectangle(mine.getActivationBounds(), player.getBounds().getRectangles().get(0))) {
                 if (mine.isActive()) {
                     System.out.println("EXPLOSION!");
                     removedMines.add(mine);
@@ -247,6 +235,38 @@ public class Handler {
         this.tanks.add(tank);
     }
 
+    public void checkObjects() {
+        for (GameObject gameObject : gameObjects) {
+
+            switch (gameObject.getType()) {
+                case Tank:
+                    if (!tanks.contains(gameObject)) {
+                        tanks.add((Tank) gameObject);
+                    }
+                    break;
+
+                case Bullet:
+                    if (!bullets.contains(gameObject)) {
+                        bullets.add((Bullet) gameObject);
+                    }
+                    break;
+
+                case Mine:
+                    if (!mines.contains(gameObject)) {
+                        mines.add((Mine) gameObject);
+                    }
+                    break;
+
+                case PickUp:
+                    if (!pickUps.contains(gameObject)) {
+                        pickUps.add((PickUp) gameObject);
+                    }
+                    break;
+
+            }
+        }
+    }
+
     public ArrayList<Tank> getTanks() {
         return tanks;
     }
@@ -261,5 +281,21 @@ public class Handler {
 
     public ArrayList<PickUp> getPickUps() {
         return pickUps;
+    }
+
+    public void addGameObject(GameObject gameObject) {
+        this.gameObjects.add(gameObject);
+
+        checkObjects();
+    }
+
+    public void removeGameObject(GameObject gameObject) {
+        this.gameObjects.remove(gameObject);
+
+        checkObjects();
+    }
+
+    public ArrayList<GameObject> getGameObjects() {
+        return gameObjects;
     }
 }

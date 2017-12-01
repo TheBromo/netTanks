@@ -1,39 +1,41 @@
 package ch.framework.gameobjects.bullet;
 
+import ch.framework.collision.Bounds;
 import ch.framework.collision.Circle;
 import ch.framework.effects.SmokeEffect;
+import ch.framework.gameobjects.GameObject;
 import javafx.scene.canvas.GraphicsContext;
 
-public class Bullet {
+public class Bullet extends GameObject {
 
-    private float rootX, rootY, angle;
-    private float x, y, radius;
+    private float rootX, rootY, angle; //TODO rename angle to rotation
+    private float radius;
     private int ticks, rebounds;
 
-    private BulletType type;
-    private Circle bounds;
+    private BulletType bulletType;
     private SmokeEffect smokeEffect;
 
-    public Bullet(float rootX, float rootY, float angle, BulletType type) {
+    public Bullet(float rootX, float rootY, float angle, BulletType bulletType) {
         this.rootX = rootX;
         this.rootY = rootY;
         this.angle = angle;
         x = rootX;
         y = rootY;
-        this.type = type;
-        this.radius = type.radius();
-        bounds = new Circle(x, y, radius);
+        this.bulletType = bulletType;
+        this.radius = bulletType.radius();
+        bounds = new Bounds(x, y);
+        bounds.addCircle(new Circle(x, y, radius));
         smokeEffect = new SmokeEffect();
     }
 
     public void update(GraphicsContext gc) {
         ticks++;
-        x -= Math.sin(Math.toRadians(-angle)) * type.speed();
-        y -= Math.cos(Math.toRadians(-angle)) * type.speed();
-        bounds.setLocation(x, y, radius);
+        x -= Math.sin(Math.toRadians(-angle)) * bulletType.speed();
+        y -= Math.cos(Math.toRadians(-angle)) * bulletType.speed();
+        bounds.setLocation(x, y, angle);
 
         smokeEffect.render(gc, this);
-        type.render(gc, this);
+        bulletType.render(gc, this);
     }
 
     public void setRebound(float x, float y, float angle) {
@@ -66,8 +68,8 @@ public class Bullet {
         return angle;
     }
 
-    public BulletType getType() {
-        return type;
+    public BulletType getBulletType() {
+        return bulletType;
     }
 
     public float getX() {
@@ -79,11 +81,11 @@ public class Bullet {
     }
 
     public float getNextX() {
-        return (float) (x - Math.sin(Math.toRadians(-angle)) * type.speed());
+        return (float) (x - Math.sin(Math.toRadians(-angle)) * bulletType.speed());
     }
 
     public float getNextY() {
-        return (float) (y - Math.cos(Math.toRadians(-angle)) * type.speed());
+        return (float) (y - Math.cos(Math.toRadians(-angle)) * bulletType.speed());
     }
 
     public float getRadius() {
@@ -92,9 +94,5 @@ public class Bullet {
 
     public int getRebounds() {
         return rebounds;
-    }
-
-    public Circle getBounds() {
-        return bounds;
     }
 }
