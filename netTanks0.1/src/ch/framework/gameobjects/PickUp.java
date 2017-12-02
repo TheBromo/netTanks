@@ -1,11 +1,7 @@
 package ch.framework.gameobjects;
 
-import ch.framework.collision.Bounds;
 import ch.framework.collision.Circle;
-import ch.framework.gameobjects.bullet.BulletType;
 import ch.framework.gameobjects.tank.Tank;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 
 public class PickUp extends GameObject {
 
@@ -20,8 +16,7 @@ public class PickUp extends GameObject {
         this.x = x;
         this.y = y;
         this.radius = 16;
-        this.bounds = new Bounds(x, y);
-        bounds.addCircle(new Circle(x, y, radius));
+        this.bounds = new Circle(x, y, radius);
 
         time = 60 * 10;
     }
@@ -31,12 +26,10 @@ public class PickUp extends GameObject {
 
         time = 60 * 20;
         pickedUp = true;
-        tank.setBulletType(BulletType.ROCKET);
+        tank.setBulletType(Bullet.Type.ROCKET);
     }
 
-    public void update(GraphicsContext gc) {
-        gc.setFill(Color.LIGHTBLUE);
-        gc.fillOval(x - radius, y - radius, radius * 2, radius * 2);
+    public void update() {
 
         if (time > 0) {
             time--;

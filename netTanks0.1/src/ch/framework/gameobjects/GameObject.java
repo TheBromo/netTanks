@@ -1,15 +1,13 @@
 package ch.framework.gameobjects;
 
-import ch.framework.collision.Bounds;
-import javafx.scene.canvas.GraphicsContext;
+import ch.framework.collision.Shape;
 
-public abstract class GameObject { //TODO
+public abstract class GameObject {
 
     protected float x, y;
-    protected Bounds bounds;
-    protected Type type;
+    protected Shape bounds;
 
-    public abstract void update(GraphicsContext gc);
+    public abstract void update();
 
     public float getX() {
         return x;
@@ -27,11 +25,7 @@ public abstract class GameObject { //TODO
         this.y = y;
     }
 
-    public Bounds getBounds() {
+    public Shape getBounds() {
         return bounds;
-    }
-
-    public Type getType() {
-        return type;
     }
 }

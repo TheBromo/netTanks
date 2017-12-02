@@ -26,10 +26,7 @@ public class Mine extends GameObject { //TODO
         explosionBounds = new Circle(x, y, explosionRadius);
     }
 
-    public void update(GraphicsContext gc) {
-        gc.setFill(Color.YELLOW);
-        gc.fillOval(x - radius, y - radius, radius * 2, radius * 2);
-
+    public void update() {
         if (time > 0) {
             time--;
         }

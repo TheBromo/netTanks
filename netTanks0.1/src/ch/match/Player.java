@@ -9,8 +9,8 @@ public class Player {
     private Tank tank;
     private String username;
     private Color color;
-//    private IPwhatever ipAdress; //TODO
-private PlayerState currentPlayerState;
+    //    private IPwhatever ipAdress; //TODO
+    private PlayerState currentPlayerState;
 
     public Player(String username) {
         this.username = username;
@@ -24,7 +24,7 @@ private PlayerState currentPlayerState;
         if (angle < 0) {
             angle += 360;
         }
-        tank.getTurret().setAngle(angle);
+        tank.getTurret().setRotation(angle);
 
         tank.setX(playerState.getX());
         tank.setY(playerState.getY());
@@ -38,6 +38,7 @@ private PlayerState currentPlayerState;
 
     public void setTank(Tank tank) {
         this.tank = tank;
+        tank.setColor(color);
     }
 
     public String getUsername() {

@@ -1,43 +1,54 @@
 package ch.framework;
 
 import ch.framework.collision.*;
-import ch.framework.collision.Point;
 import ch.framework.collision.Rectangle;
 import ch.framework.gameobjects.GameObject;
-import ch.framework.gameobjects.bullet.Bullet;
-import ch.framework.map.block.Block;
+import ch.framework.gameobjects.Bullet;
+import ch.framework.map.Block;
 import ch.match.Player;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 
-import java.awt.*;
-
-public class HUD {
+public class HUD extends AnchorPane {
 
     private Framework framework;
     private boolean overlayVisibility, playerInfoVisibility;
+
+    private Canvas canvas;
+    private GraphicsContext gc;
 
     public HUD(Framework framework) {
         this.framework = framework;
         this.playerInfoVisibility = false;
         this.playerInfoVisibility = false;
+
+        canvas = new Canvas();
+        canvas.setWidth(Framework.getWIDTH());
+        canvas.setHeight(Framework.getHEIGHT());
+        this.gc = canvas.getGraphicsContext2D();
+        this.getChildren().add(canvas);
+        this.setTopAnchor(canvas, 0d);
+        this.setLeftAnchor(canvas, 0d);
     }
 
-    public void render(GraphicsContext gc) {
+    public void render() {
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
 //        gc.setStroke(Color.LIGHTGRAY);
-//        gc.strokeLine(framework.getPlayer().getX(), framework.getPlayer().getY(), framework.getMouseX(), framework.getMouseY());
+//        gc.strokeLine(framework.getPlayer().getCx(), framework.getPlayer().getCy(), framework.getMouseX(), framework.getMouseY());
 
         if (playerInfoVisibility) {
-            showPlayerInfo(gc);
+            showPlayerInfo();
         }
 
         if (overlayVisibility) {
-            showOverlay(gc);
+            showOverlay();
         }
     }
 
-    public void showPlayerInfo(GraphicsContext gc) {
+    public void showPlayerInfo() { //TODO
         for (Player player : framework.getMatch().getPlayers()) {
             if (player.getTank() != null) {
                 int width = player.getUsername().length() * 7 + 10;
@@ -50,16 +61,16 @@ public class HUD {
         }
     }
 
-    public void showOverlay(GraphicsContext gc) {
+    public void showOverlay() {
         int width = 200, height = 100, spacing = 15;
 
         gc.setFill(Color.rgb(100, 100, 100, 0.5));
         gc.fillRect(0, 0, width, height);
         gc.setFill(Color.WHITESMOKE);
-        gc.fillText("mouse x: " + framework.getMouseX() + "\t mouse y: " + framework.getMouseY(), 15, spacing * 1, width);
-        gc.fillText("x: " + framework.getPlayer().getTank().getX() + "\ty: " + framework.getPlayer().getTank().getY(), 15, spacing * 2, width);
+        gc.fillText("mouse cx: " + framework.getMouseX() + "\t mouse cy: " + framework.getMouseY(), 15, spacing * 1, width);
+        gc.fillText("cx: " + framework.getPlayer().getTank().getX() + "\tcy: " + framework.getPlayer().getTank().getY(), 15, spacing * 2, width);
         gc.fillText("angle: " + framework.getPlayer().getTank().getRotation(), 15, spacing * 3, width);
-        gc.fillText("turret angle: " + framework.getPlayer().getTank().getTurret().getAngle(), 15, spacing * 4, width);
+        gc.fillText("turret angle: " + framework.getPlayer().getTank().getTurret().getRotation(), 15, spacing * 4, width);
         gc.fillText("bullets: " + framework.getHandler().getBullets().size(), 15, spacing * 5, width);
 
 
@@ -77,7 +88,7 @@ public class HUD {
 
         //Block bounds
         gc.setStroke(Color.RED);
-        for (Block b : framework.getMap().getBlocks()) {
+        for (Block b : framework.getHandler().getMap().getBlocks()) {
             for (Segment s : b.getBounds().getSegments()) {
                 gc.strokeLine(s.getA().getX(), s.getA().getY(), s.getB().getX(), s.getB().getY());
             }
@@ -86,20 +97,21 @@ public class HUD {
         //Player Points
         gc.setFill(Color.RED);
 
-        for (GameObject go : framework.getHandler().getGameObjects()) {
-            for (Rectangle rectangle : go.getBounds().getRectangles()) {
-                double x = rectangle.getCenterX() - rectangle.getWidth() / 2;
-                double y = rectangle.getCenterY() - rectangle.getHeight() / 2;
-                gc.strokeRect(x, y, rectangle.getWidth(), rectangle.getHeight());
-            }
-
-            for (Circle circle : go.getBounds().getCircles()) {
-                double x = circle.getCenterX() - circle.getRadius();
-                double y = circle.getCenterY() - circle.getRadius();
-                double r = circle.getRadius();
-                gc.strokeOval(x, y, r * 2, r * 2);
-            }
-        }
+//        for (GameObject go : framework.getHandler().getGameObjects()) {
+//            for (Rectangle rectangle : go.getBounds().getRectangles()) {
+//                double x = rectangle.getCenterX() - rectangle.getWidth() / 2;
+//                double y = rectangle.getCenterY() - rectangle.getHeight() / 2;
+//                gc.strokeRect(x, y, rectangle.getWidth(), rectangle.getHeight());
+//                gc.fillOval(rectangle.getCenterX() - 2, rectangle.getCenterY() - 2, 4, 4);
+//            }
+//
+//            for (Circle circle : go.getBounds().getCircles()) {
+//                double x = circle.getCenterX() - circle.getRadius();
+//                double y = circle.getCenterY() - circle.getRadius();
+//                double r = circle.getRadius();
+//                gc.strokeOval(x, y, r * 2, r * 2);
+//            }
+//        }
     }
 
     public void toggleOverlayVisibility() {

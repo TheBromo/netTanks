@@ -1,35 +1,18 @@
 package ch.framework.collision;
 
-public class Circle {
+public class Circle extends Shape {
 
-    private double centerX, centerY, radius;
+    private double radius;
 
-    public Circle(double centerX, double centerY, double radius) {
-        this.centerX = centerX;
-        this.centerY = centerY;
+    public Circle(double cx, double cy, double radius) {
+        super(cx, cy, 0);
+        this.type = Type.Circle;
         this.radius = radius;
     }
 
-    public void setLocation(double centerX, double centerY, double radius) {
-        this.centerX = centerX;
-        this.centerY = centerY;
-        this.radius = radius;
-    }
-
-    public double getCenterX() {
-        return centerX;
-    }
-
-    public void setCenterX(double centerX) {
-        this.centerX = centerX;
-    }
-
-    public double getCenterY() {
-        return centerY;
-    }
-
-    public void setCenterY(double centerY) {
-        this.centerY = centerY;
+    public void setLocation(double cx, double cy, double rotation) {
+        this.cx = cx;
+        this.cy = cy;
     }
 
     public double getRadius() {

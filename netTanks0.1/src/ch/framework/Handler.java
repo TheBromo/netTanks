@@ -2,67 +2,84 @@ package ch.framework;
 
 import ch.framework.collision.Circle;
 import ch.framework.collision.Collision;
+import ch.framework.collision.Rectangle;
 import ch.framework.collision.Segment;
 import ch.framework.gameobjects.GameObject;
 import ch.framework.gameobjects.Mine;
 import ch.framework.gameobjects.PickUp;
-import ch.framework.gameobjects.bullet.Bullet;
+import ch.framework.gameobjects.Bullet;
 import ch.framework.gameobjects.tank.Tank;
-import ch.framework.map.block.Block;
+import ch.framework.map.Map;
+import ch.framework.map.Block;
 import ch.match.Player;
-import javafx.scene.canvas.GraphicsContext;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 public class Handler {
 
-    private Framework framework;
-    private Player player;
     private Random random;
-
-    private ArrayList<GameObject> gameObjects;
 
     private ArrayList<Tank> tanks;
     private ArrayList<Bullet> bullets;
     private ArrayList<Mine> mines;
     private ArrayList<PickUp> pickUps;
 
-    public Handler(Framework framework) {
-        this.framework = framework;
-        player = framework.getPlayer();
-        random = new Random();
+    private HashMap<Tank, Bullet> bulletHashMap;
 
-        gameObjects = new ArrayList<>();
+    private Map map;
+
+    public Handler() {
+        random = new Random();
 
         bullets = new ArrayList<>();
         tanks = new ArrayList<>();
         mines = new ArrayList<>();
         pickUps = new ArrayList<>();
+
+        bulletHashMap = new HashMap<>();
+
+        this.map = new Map(Map.Maps.MAP1);
     }
 
-    public void update(GraphicsContext gc) {
-
+    public void update() {
         //Check for any collisions before updating
         handleCollision();
 
-        for (GameObject go : gameObjects) {
-            go.update(gc);
+        for (Tank tank : tanks) {
+            tank.update();
         }
+
+        for (Bullet bullet : bullets) {
+            bullet.update();
+        }
+
+        for (Mine mine : mines) {
+            mine.update();
+        }
+
+        PickUp removedPickUp = null;
+        for (PickUp pickUp : pickUps) {
+            pickUp.update();
+            if (pickUp.isExpired()) {
+                removedPickUp = pickUp;
+            }
+        }
+        pickUps.remove(removedPickUp);
+
     }
 
     private void handleCollision() {
-
-        Tank player = this.player.getTank();
 
         // BULLET -
         ArrayList<Bullet> removedBullets = new ArrayList<>();
         for (Bullet bullet : bullets) {
 
             //MAP BOUNDARIES
-            for (Segment segment : framework.getMap().getBounds().getSegments()) {
-                if (Collision.testCircleToSegment(bullet.getBounds().getCircles().get(0), segment)) {
-                    if (bullet.getRebounds() < bullet.getBulletType().rebounds()) {
+            for (Segment segment : map.getBounds().getSegments()) {
+                if (Collision.testCircleToSegment((Circle) bullet.getBounds(), segment)) {
+                    if (bullet.getRebounds() < bullet.getType().rebounds()) {
                         //Rebound
                         bullet.setRebound(bullet.getX(), bullet.getY(), (float) segment.getAngle()); //TODO
                     } else {
@@ -74,12 +91,12 @@ public class Handler {
             }
 
             //MAP BLOCKS
-            for (Block block : framework.getMap().getBlocks()) {
+            for (Block block : map.getBlocks()) {
                 if (!block.getType().isShootable()) {
 
                     for (Segment seg : block.getBounds().getSegments()) {
-                        if (Collision.testCircleToSegment(bullet.getBounds().getCircles().get(0), seg)) {
-                            if (bullet.getRebounds() < bullet.getBulletType().rebounds()) {
+                        if (Collision.testCircleToSegment((Circle) bullet.getBounds(), seg)) {
+                            if (bullet.getRebounds() < bullet.getType().rebounds()) {
                                 //Rebound
                                 bullet.setRebound(bullet.getX(), bullet.getY(), (float) seg.getAngle()); //TODO
                             } else {
@@ -94,7 +111,7 @@ public class Handler {
 
             //OTHER TANKS
             for (Tank tank : tanks) {
-                if (tank.getBounds().intersects(bullet.getBounds())) {
+                if (Collision.testCircleToRectangle((Circle) bullet.getBounds(), (Rectangle) tank.getBounds())) {
                     System.out.println("HIT!");
                 }
             }
@@ -102,7 +119,7 @@ public class Handler {
             //OTHER BULLETS
             for (Bullet b : bullets) {
                 if (b != bullet) { //Check whether bullet is the same
-                    if (bullet.getBounds().intersects(b.getBounds())) {
+                    if (Collision.testCircleToCircle((Circle) bullet.getBounds(), (Circle) b.getBounds())) {
                         removedBullets.add(bullet);
                     }
                 }
@@ -110,70 +127,72 @@ public class Handler {
         }
         bullets.removeAll(removedBullets);
 
-        //TODO collision TANK - BLOCK
-        for (Block block : framework.getMap().getBlocks()) {
-            //FRONT LEFT
-            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[0])) {
-                if (player.getVelocity() < 0) {
-                    player.setVelocity(0);
+        //TODO collision TANK -
+        for (Tank player : tanks) {
+            for (Block block : map.getBlocks()) {
+                //FRONT LEFT
+                if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[0])) {
+                    if (player.getVelocity() < 0) {
+                        player.setVelocity(0);
+                    }
+                    if (player.getVelRotation() < 0) { //TODO
+                        player.setVelRotation(0);
+                    }
                 }
-                if (player.getVelRotation() < 0) { //TODO
-                    player.setVelRotation(0);
+
+                //FRONT RIGHT
+                if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[1])) {
+                    if (player.getVelocity() < 0) {
+                        player.setVelocity(0);
+                    }
+                    if (player.getVelRotation() > 0) { //TODO
+                        player.setVelRotation(0);
+                    }
+                }
+
+                //BACK RIGHT
+                if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[2])) {
+                    if (player.getVelocity() > 0) {
+                        player.setVelocity(0);
+                    }
+                    if (player.getVelRotation() > 0) { //TODO
+                        player.setVelRotation(0);
+                    }
+                }
+
+                //BACK LEFT
+                if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[3])) {
+                    if (player.getVelocity() > 0) {
+                        player.setVelocity(0);
+                    }
+                    if (player.getVelRotation() < 0) { //TODO
+                        player.setVelRotation(0);
+                    }
                 }
             }
 
-            //FRONT RIGHT
-            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[1])) {
-                if (player.getVelocity() < 0) {
-                    player.setVelocity(0);
-                }
-                if (player.getVelRotation() > 0) { //TODO
-                    player.setVelRotation(0);
-                }
-            }
-
-            //BACK RIGHT
-            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[2])) {
-                if (player.getVelocity() > 0) {
-                    player.setVelocity(0);
-                }
-                if (player.getVelRotation() > 0) { //TODO
-                    player.setVelRotation(0);
+            //PICKUP
+            for (PickUp pickUp : pickUps) {
+                if (!pickUp.isPickedUp()) {
+                    if (Collision.testCircleToRectangle((Circle) pickUp.getBounds(), (Rectangle) player.getBounds())) {
+                        pickUp = new PickUp(player);
+                    }
                 }
             }
 
-            //BACK LEFT
-            if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[3])) {
-                if (player.getVelocity() > 0) {
-                    player.setVelocity(0);
-                }
-                if (player.getVelRotation() < 0) { //TODO
-                    player.setVelRotation(0);
+            //MINE
+            ArrayList<Mine> removedMines = new ArrayList<>();
+            for (Mine mine : mines) {
+                if (Collision.testCircleToRectangle(mine.getActivationBounds(), (Rectangle) player.getBounds())) {
+                    if (mine.isActive()) {
+                        System.out.println("EXPLOSION!");
+                        removedMines.add(mine);
+                    }
                 }
             }
+            mines.removeAll(removedMines);
+
         }
-
-        //PICKUP - TANK
-        for (PickUp pickUp : pickUps) {
-            if (!pickUp.isPickedUp()) {
-                if (Collision.testCircleToRectangle(pickUp.getBounds().getCircles().get(0), player.getBounds().getRectangles().get(0))) {
-                    pickUp = new PickUp(player);
-                }
-            }
-        }
-
-        //MINE - TANK
-        ArrayList<Mine> removedMines = new ArrayList<>();
-        for (Mine mine : mines) {
-            if (Collision.testCircleToRectangle(mine.getActivationBounds(), player.getBounds().getRectangles().get(0))) {
-                if (mine.isActive()) {
-                    System.out.println("EXPLOSION!");
-                    removedMines.add(mine);
-                }
-            }
-        }
-        mines.removeAll(removedMines);
-
         //TODO MINE - BULLET
 
     }
@@ -182,23 +201,28 @@ public class Handler {
 
     }
 
-    private void handleShot() {
-
-    }
-
-    private void handleMinePlaced() {
-
-    }
-
     private void handlePickUp() {
 
     }
+
+    public void handleShot(Tank tank) {
+        Bullet bullet = new Bullet(tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation(), tank.getBulletType());
+        bullets.add(bullet);
+        bulletHashMap.put(tank, bullet);
+//        System.out.println("Pew! " + turret.getRotation());
+    }
+
+    public void handleMinePlaced() {
+
+    }
+
+
 
     public void spawnTank(float x, float y, float rotation, Player player) {
         Circle circle = new Circle(x, y, 45);
 
         boolean valid = true;
-        for (Block block : framework.getMap().getBlocks()) {
+        for (Block block : map.getBlocks()) {
             if (Collision.testCircleToRectangle(circle, block.getBounds())) {
                 valid = false;
             }
@@ -223,7 +247,7 @@ public class Handler {
 
             Circle circle = new Circle(x, y, 45);
 
-            for (Block block : framework.getMap().getBlocks()) {
+            for (Block block : map.getBlocks()) {
                 if (!Collision.testCircleToRectangle(circle, block.getBounds())) {
                     valid = false;
                 }
@@ -233,38 +257,6 @@ public class Handler {
         Tank tank = new Tank(x, y, 0);
         player.setTank(tank);
         this.tanks.add(tank);
-    }
-
-    public void checkObjects() {
-        for (GameObject gameObject : gameObjects) {
-
-            switch (gameObject.getType()) {
-                case Tank:
-                    if (!tanks.contains(gameObject)) {
-                        tanks.add((Tank) gameObject);
-                    }
-                    break;
-
-                case Bullet:
-                    if (!bullets.contains(gameObject)) {
-                        bullets.add((Bullet) gameObject);
-                    }
-                    break;
-
-                case Mine:
-                    if (!mines.contains(gameObject)) {
-                        mines.add((Mine) gameObject);
-                    }
-                    break;
-
-                case PickUp:
-                    if (!pickUps.contains(gameObject)) {
-                        pickUps.add((PickUp) gameObject);
-                    }
-                    break;
-
-            }
-        }
     }
 
     public ArrayList<Tank> getTanks() {
@@ -283,19 +275,18 @@ public class Handler {
         return pickUps;
     }
 
-    public void addGameObject(GameObject gameObject) {
-        this.gameObjects.add(gameObject);
-
-        checkObjects();
-    }
-
-    public void removeGameObject(GameObject gameObject) {
-        this.gameObjects.remove(gameObject);
-
-        checkObjects();
-    }
-
     public ArrayList<GameObject> getGameObjects() {
+        ArrayList<GameObject> gameObjects = new ArrayList<>();
+
+        gameObjects.addAll(tanks);
+        gameObjects.addAll(bullets);
+        gameObjects.addAll(mines);
+        gameObjects.addAll(pickUps);
+
         return gameObjects;
+    }
+
+    public Map getMap() {
+        return map;
     }
 }

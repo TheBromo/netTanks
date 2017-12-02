@@ -1,40 +1,41 @@
 package ch.framework.collision;
 
-import java.util.ArrayList;
+public class Rectangle extends Shape {
 
-public class Rectangle {
-
-    private double centerX, centerY, width, height, rotation;
+    private double width, height;
     private Point a, b, c, d;
 
-    public Rectangle(double centerX, double centerY, double width, double height, double rotation) {
-        setLocation(centerX, centerY, width, height, rotation);
-    }
+    public Rectangle(double cx, double cy, double width, double height, double rotation) {
+        super(cx, cy, rotation);
+        this.type = Type.Rectangle;
 
-    public void setLocation(double centerX, double centerY, double width, double height, double rotation) {
-        this.centerX = centerX;
-        this.centerY = centerY;
         this.width = width;
         this.height = height;
+        setLocation(cx, cy, rotation);
+    }
+
+    public void setLocation(double cx, double cy, double rotation) {
+        this.cx = cx;
+        this.cy = cy;
         this.rotation = rotation;
 
 
-        a = setPoints(centerX - (width / 2), centerY - (height / 2));
-        b = setPoints(centerX + (width / 2), centerY - (height / 2));
-        c = setPoints(centerX + (width / 2), centerY + (height / 2));
-        d = setPoints(centerX - (width / 2), centerY + (height / 2));
+        a = setPoints(cx - (width / 2), cy - (height / 2));
+        b = setPoints(cx + (width / 2), cy - (height / 2));
+        c = setPoints(cx + (width / 2), cy + (height / 2));
+        d = setPoints(cx - (width / 2), cy + (height / 2));
     }
 
     private Point setPoints(double x, double y) {
         Point point;
 
-        double tempX = x - centerX;
-        double tempY = y - centerY;
+        double tempX = x - cx;
+        double tempY = y - cy;
 
         double rotatedX = tempX * Math.cos(Math.toRadians(rotation)) - tempY * Math.sin(Math.toRadians(rotation));
         double rotatedY = tempX * Math.sin(Math.toRadians(rotation)) + tempY * Math.cos(Math.toRadians(rotation));
 
-        point = new Point(rotatedX + centerX, rotatedY + centerY);
+        point = new Point(rotatedX + cx, rotatedY + cy);
 
         return point;
     }
@@ -54,22 +55,6 @@ public class Rectangle {
         return points;
     }
 
-    public double getCenterX() {
-        return centerX;
-    }
-
-    public void setCenterX(double centerX) {
-        this.centerX = centerX;
-    }
-
-    public double getCenterY() {
-        return centerY;
-    }
-
-    public void setCenterY(double centerY) {
-        this.centerY = centerY;
-    }
-
     public double getWidth() {
         return width;
     }
@@ -84,13 +69,5 @@ public class Rectangle {
 
     public void setHeight(double height) {
         this.height = height;
-    }
-
-    public double getRotation() {
-        return rotation;
-    }
-
-    public void setRotation(double rotation) {
-        this.rotation = rotation;
     }
 }

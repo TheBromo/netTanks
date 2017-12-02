@@ -1,7 +1,6 @@
 package ch.framework;
 
 import ch.match.GameMode;
-import ch.match.Match;
 import ch.match.Player;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -24,14 +23,14 @@ public class Start extends Application {
         primaryStage.setResizable(false);
         primaryStage.show();
 
-        Match match = new Match(GameMode.FREEFORALL);
+        //Match match = new Match(GameMode.FREEFORALL);
 
         Player player = new Player("My Username");
-        match.addPlayer(new Player("Player 1"));
-        match.addPlayer(player);
-        framework.setPlayer(player); //Me
+//        match.addPlayer(new Player("Player 1"));
+//        match.addPlayer(player);
 
-        framework.start(match);
+        framework.setPlayer(player);
+        framework.start();
     }
 
     public static void main(String[] args) {

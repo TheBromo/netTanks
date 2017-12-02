@@ -1,39 +1,30 @@
 package ch.framework.gameobjects.tank;
 
-import ch.framework.collision.Bounds;
 import ch.framework.collision.Rectangle;
+import ch.framework.gameobjects.Bullet;
 import ch.framework.gameobjects.GameObject;
-import ch.framework.gameobjects.Type;
-import ch.framework.gameobjects.bullet.BulletType;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.transform.Affine;
-import javafx.scene.transform.Rotate;
 
 public class Tank extends GameObject {
 
     private float rotation;
     private float velocity, velRotation;
-    private Color color;
 
     private Turret turret;
-    private BulletType bulletType;
+    private Bullet.Type bulletType;
+    private Color color;
 
     public Tank(float x, float y, float rotation) {
         this.x = x;
         this.y = y;
         this.rotation = rotation;
 
-        this.color = Color.valueOf("#babbbc"); //Default color
-        this.type = Type.Tank;
-
         turret = new Turret(this, rotation);
-        bulletType = BulletType.STANDARD;
-        bounds = new Bounds(x, y);
-        bounds.addRectangle(new Rectangle(x, y, 64, 64, rotation));
+        bulletType = Bullet.Type.STANDARD;
+        bounds = new Rectangle(x, y, 64, 64, rotation);
     }
 
-    public void update(GraphicsContext gc) {
+    public void update() {
 
         rotation += velRotation;
         x += Math.sin(Math.toRadians(-rotation)) * velocity;
@@ -41,20 +32,8 @@ public class Tank extends GameObject {
 
         bounds.setLocation(x, y, rotation);
 
-        //RENDER
-        gc.save();
-
-        Affine transform = new Affine(new Rotate(rotation, x, y));
-        gc.transform(transform);
-        gc.setFill(Color.GREY);
-        gc.fillRoundRect(x - 32, y - 32, 64, 64, 3, 3);
-        gc.setFill(color);
-        gc.fillRect(x - 32 + 12, y - 32, 64 - 24, 64);
-
-        gc.restore();
-
         //Update turret
-        turret.update(gc);
+        turret.update();
     }
 
 //    public void shoot() {
@@ -65,7 +44,7 @@ public class Tank extends GameObject {
 //    }
 //
 //    public void place() {
-//        Mine mine = new Mine(x, y);
+//        Mine mine = new Mine(cx, cy);
 //        mines.add(mine);
 //        framework.getMines().add(mine);
 //    }
@@ -90,22 +69,6 @@ public class Tank extends GameObject {
         this.velRotation = velRotation;
     }
 
-    public float getX() {
-        return x;
-    }
-
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public void setY(float y) {
-        this.y = y;
-    }
-
     public float getRotation() {
         return rotation;
     }
@@ -114,20 +77,20 @@ public class Tank extends GameObject {
         this.rotation = rotation;
     }
 
+    public Bullet.Type getBulletType() {
+        return bulletType;
+    }
+
+    public void setBulletType(Bullet.Type bulletType) {
+        this.bulletType = bulletType;
+    }
+
     public Color getColor() {
         return color;
     }
 
     public void setColor(Color color) {
         this.color = color;
-    }
-
-    public BulletType getBulletType() {
-        return bulletType;
-    }
-
-    public void setBulletType(BulletType bulletType) {
-        this.bulletType = bulletType;
     }
 
     public Rectangle getFutureBounds() {

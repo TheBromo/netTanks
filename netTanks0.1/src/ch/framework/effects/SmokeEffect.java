@@ -2,7 +2,7 @@ package ch.framework.effects;
 
 import ch.framework.Framework;
 import ch.framework.collision.Circle;
-import ch.framework.gameobjects.bullet.Bullet;
+import ch.framework.gameobjects.Bullet;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 

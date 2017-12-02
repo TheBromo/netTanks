@@ -1,46 +1,33 @@
 package ch.framework.gameobjects.tank;
 
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import javafx.scene.transform.Affine;
-import javafx.scene.transform.Rotate;
-
 public class Turret {
 
-    private float angle, barrelLength;
+    private float rotation, barrelLength;
     private Tank tank;
 
-    public Turret(Tank tank, float angle) {
+    public Turret(Tank tank, float rotation) {
         this.tank = tank;
-        this.angle = angle;
+        this.rotation = rotation;
         this.barrelLength = 40;
     }
 
-    public void update(GraphicsContext gc) {
-        gc.save();
+    public void update() {
 
-        gc.transform(new Affine(new Rotate(angle, tank.getX(), tank.getY())));
-        gc.setFill(tank.getColor().brighter());
-        gc.fillRoundRect(tank.getX() - 16, tank.getY() - 16, 32, 32, 7, 7);
-        gc.setFill(Color.LIGHTGRAY);
-        gc.fillRect(tank.getX() - 2, tank.getY() - 40, 4, 25);
-
-        gc.restore();
     }
 
-    public float getAngle() {
-        return angle;
+    public float getRotation() {
+        return rotation;
     }
 
-    public void setAngle(float angle) {
-        this.angle = angle;
+    public void setRotation(float rotation) {
+        this.rotation = rotation;
     }
 
     public float getMuzzleX() {
-        return (float) (tank.getX() - Math.sin(Math.toRadians(-angle)) * barrelLength);
+        return (float) (tank.getX() - Math.sin(Math.toRadians(-rotation)) * barrelLength);
     }
 
     public float getMuzzleY() {
-        return (float) (tank.getY() - Math.cos(Math.toRadians(-angle)) * barrelLength);
+        return (float) (tank.getY() - Math.cos(Math.toRadians(-rotation)) * barrelLength);
     }
 }

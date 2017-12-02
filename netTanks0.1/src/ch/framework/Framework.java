@@ -1,8 +1,10 @@
 package ch.framework;
 
+import ch.framework.gameobjects.Bullet;
+import ch.framework.gameobjects.Mine;
+import ch.framework.gameobjects.PickUp;
 import ch.framework.gameobjects.tank.Tank;
-import ch.framework.map.Map;
-import ch.match.Match;
+import ch.framework.map.Block;
 import ch.match.Player;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -14,6 +16,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Affine;
+import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 
 import java.util.Random;
@@ -21,33 +25,42 @@ import java.util.Random;
 public class Framework extends Pane {
 
     private double mouseX, mouseY, scale;
-    private static int FRAME;
+    private static int FRAME, WIDTH, HEIGHT;
 
     private Canvas canvas;
+    private Canvas ground;
     private GraphicsContext gc;
+    private GraphicsContext groundGc;
     private Timeline gameloop;
     private Random random;
     private HUD hud;
 
     private Match match;
-
-    private Map map;
     private Handler handler;
 
     private Player player;
 
     public Framework(int width, int height) {
+        this.WIDTH = width;
+        this.HEIGHT = height;
 
-        this.setWidth(width);
-        this.setHeight(height);
+        this.setWidth(WIDTH);
+        this.setHeight(HEIGHT);
         random = new Random();
-        //player = new Player("My Username"); //
 
-        canvas = new Canvas(width, height);
+        ground = new Canvas(WIDTH, HEIGHT);
+        groundGc = ground.getGraphicsContext2D();
+        this.getChildren().add(ground);
+        groundGc.setFill(Color.BEIGE);
+        groundGc.fillRect(0, 0, this.getWidth(), this.getHeight());
+
+
+        canvas = new Canvas(WIDTH, HEIGHT);
         gc = canvas.getGraphicsContext2D();
-        canvas.setWidth(width);
-        canvas.setHeight(height);
         this.getChildren().add(canvas);
+
+        hud = new HUD(this);
+        this.getChildren().add(hud);
 
         //Create Game Loop
         gameloop = new Timeline(new KeyFrame(
@@ -62,13 +75,11 @@ public class Framework extends Pane {
         this.addEventFilter(MouseEvent.ANY, (e) -> this.requestFocus());
     }
 
-    public void start(Match match) {
-        this.match = match;
+    public void start() {
+//        this.match = match;
 
-        hud = new HUD(this);
-        handler = new Handler(this);
-        map = new Map(15, 10, this); //Size can be changed later
-        this.getChildren().add(0, map);
+        handler = new Handler();
+        spawnPlayer(player);
 
 //        player = new Tank(100, 100, 0, Color.valueOf("#5cb0cc"), this);
 ////        framework.add(new Tank(500, 100, -50, Color.DARKGREEN, ID.ENEMY, this)); Adds second tank
@@ -77,10 +88,10 @@ public class Framework extends Pane {
 //        PickUp pip = new PickUp(500, 500);
 //        pickUps.add(pip);
 
-        for (Player player : match.getPlayers()) {
-            //handler.spawnTank(100, 100, 0, player);
-            handler.spawnTankRandom(player);
-        }
+//        for (Player player : match.getPlayers()) {
+//            //handler.spawnTank(100, 100, 0, player);
+//            handler.spawnTankRandom(player);
+//        }
 
         //Set Inputs
         setKeyInput();
@@ -99,20 +110,125 @@ public class Framework extends Pane {
      */
     private void update() {
         FRAME++;
-        //Clear Canvas (Prevents "smearing" effect)
-        gc.clearRect(0, 0, this.getWidth(), this.getHeight());
 
-        //Turn turret to current mouse position
-        float angle = ((float) Math.toDegrees(Math.atan2((mouseY - player.getTank().getY()), (mouseX - player.getTank().getX()))) + 90);
-        if (angle < 0) {
-            angle += 360;
+        if (player.getTank() != null) {
+            //Turn turret to current mouse position
+            float angle = ((float) Math.toDegrees(Math.atan2((mouseY - player.getTank().getY()), (mouseX - player.getTank().getX()))) + 90);
+            if (angle < 0) {
+                angle += 360;
+            }
+            player.getTank().getTurret().setRotation(angle);
         }
-        player.getTank().getTurret().setAngle(angle);
 
         //Update all the things!
-        map.update(gc);
-        handler.update(gc);
-        hud.render(gc);
+        handler.update();
+
+        render();
+    }
+
+    private void render() {
+        //Clear Canvas (Prevents "smearing" effect)
+        gc.clearRect(0, 0, WIDTH, HEIGHT);
+
+        //Background
+        if (FRAME % 7 == 0) {
+            for (Tank tank : handler.getTanks()) {
+                groundGc.save();
+                groundGc.transform(new Affine(new Rotate(tank.getRotation(), tank.getX(), tank.getY())));
+                groundGc.setFill(Color.rgb(229, 229, 211, 0.8));
+                groundGc.fillRect(tank.getX() - 32, tank.getY(), 16, 5);
+                groundGc.fillRect(tank.getX() + 32 - 16, tank.getY(), 16, 5);
+                groundGc.restore();
+            }
+        }
+
+        //Blocks
+        for (Block block : handler.getMap().getBlocks()) {
+            if (block.getType() == Block.Type.STANDARD) {
+                gc.setFill(Color.valueOf("#debf89"));
+                gc.fillRoundRect(block.getX(), block.getY(), 64, 64, 10, 10);
+            } else if (block.getType() == Block.Type.CORK) {
+                gc.setFill(Color.valueOf("#debf89").brighter().brighter());
+                gc.fillRoundRect(block.getX(), block.getY(), 64, 64, 10, 10);
+            } else if (block.getType() == Block.Type.HOLE) {
+                gc.setFill(Color.GRAY.brighter());
+                gc.fillOval(block.getX(), block.getY(), 64, 64);
+            }
+        }
+
+        //Tanks
+        for (Tank tank : handler.getTanks()) {
+            Color color = Color.valueOf("#babbbc"); //Default color
+            if (tank.getColor() != null) {
+                color = tank.getColor();
+            }
+
+            gc.save();
+
+            Affine transform = new Affine(new Rotate(tank.getRotation(), tank.getX(), tank.getY()));
+            gc.transform(transform);
+            gc.setFill(Color.GREY);
+            gc.fillRoundRect(tank.getX() - 32, tank.getY() - 32, 64, 64, 3, 3);
+            gc.setFill(color);
+            gc.fillRect(tank.getX() - 32 + 12, tank.getY() - 32, 64 - 24, 64);
+
+            gc.restore();
+
+            //TURRET
+            gc.save();
+
+            gc.transform(new Affine(new Rotate(tank.getTurret().getRotation(), tank.getX(), tank.getY())));
+            gc.setFill(color.brighter());
+            gc.fillRoundRect(tank.getX() - 16, tank.getY() - 16, 32, 32, 7, 7);
+            gc.setFill(Color.LIGHTGRAY);
+            gc.fillRect(tank.getX() - 2, tank.getY() - 40, 4, 25);
+
+            gc.restore();
+        }
+
+        //Mines TODO
+        for (Mine mine : handler.getMines()) {
+            gc.setFill(Color.YELLOW);
+            gc.fillOval(mine.getX() - mine.getRadius(), mine.getY() - mine.getRadius(), mine.getRadius() * 2, mine.getRadius() * 2);
+        }
+
+        //PickUps
+        for (PickUp pickUp : handler.getPickUps()) {
+            gc.setFill(Color.LIGHTBLUE);
+            gc.fillOval(pickUp.getX() - pickUp.getRadius(), pickUp.getY() - pickUp.getRadius(), pickUp.getRadius() * 2, pickUp.getRadius() * 2);
+        }
+
+        //Bullets
+        for (Bullet bullet : handler.getBullets()) {
+            gc.save();
+            gc.translate(bullet.getX(), bullet.getY());
+            gc.transform(new Affine(new Rotate(bullet.getRotation()))); //Rotate the gc to the angle of the bullet's path
+
+            //TODO increase bullet size in general
+
+            if (bullet.getType() == Bullet.Type.STANDARD) {
+                gc.translate(-2, -3); //Move SVG to center of Bullet
+                gc.setFill(Color.GRAY);
+                gc.beginPath();
+                gc.appendSVGPath("M 0 3 Q 0 1 2 0 Q 4 1 4 3 L 4 7 L 0 7 Z"); //SVG PATH OF BULLET
+                gc.fill();
+                gc.closePath();
+            } else if (bullet.getType() == Bullet.Type.ROCKET) {
+                //TODO create rocket SVG
+                gc.setFill(Color.GRAY);
+                gc.beginPath();
+                gc.appendSVGPath("M 0 3 Q 0 1 2 0 Q 4 1 4 3 L 4 7 L 0 7 Z"); //SVG PATH OF BULLET
+                gc.fill();
+                gc.closePath();
+            } else if (bullet.getType() == Bullet.Type.BOUNCY) {
+                gc.setFill(Color.GRAY);
+                gc.fillOval(bullet.getX() - bullet.getRadius(), bullet.getY() - bullet.getRadius(), bullet.getRadius() * 2, bullet.getRadius() * 2);
+            }
+
+            gc.restore();
+        }
+
+        hud.render();
     }
 
     private void setKeyInput() {
@@ -183,19 +299,27 @@ public class Framework extends Pane {
             }
         });
 
-        this.setOnMousePressed((event -> {
+        this.setOnMousePressed(event -> {
+            if (event.getButton() == MouseButton.PRIMARY) {
+                handler.handleShot(player.getTank());
+            }
+        });
 
-        }));
+        this.setOnMouseReleased(event -> {
 
-        this.setOnMouseReleased((event -> {
+        });
 
-        }));
-
-        this.setOnMouseMoved((event -> {
+        this.setOnMouseMoved(event -> {
             //Tell the Canvas to update mouseX and mouseY every time the mouse was moved
             mouseX = event.getX();
             mouseY = event.getY();
-        }));
+        });
+
+        this.setOnMouseDragged(event -> {
+            //Still update mouse position even if the mouse buttons are down...
+            mouseX = event.getX();
+            mouseY = event.getY();
+        });
 
 //        this.setOnScroll(se -> {
 //
@@ -218,9 +342,12 @@ public class Framework extends Pane {
 //        });
     }
 
-    public Map getMap() {
-        return map;
+    public void spawnPlayer(Player player) {
+        Tank tank = new Tank(100, 100, 0);
+        player.setTank(tank);
+        handler.getTanks().add(tank);
     }
+
 
     public double getMouseX() {
         return mouseX;
@@ -232,6 +359,14 @@ public class Framework extends Pane {
 
     public static int getFRAME() {
         return FRAME;
+    }
+
+    public static int getWIDTH() {
+        return WIDTH;
+    }
+
+    public static int getHEIGHT() {
+        return HEIGHT;
     }
 
     public Match getMatch() {

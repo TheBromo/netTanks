@@ -1,79 +1,29 @@
 package ch.framework.map;
 
-import ch.framework.Framework;
-import ch.framework.Handler;
 import ch.framework.collision.Rectangle;
-import ch.framework.gameobjects.tank.Tank;
-import ch.framework.map.block.Block;
-import ch.framework.map.block.BlockType;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import javafx.scene.transform.Affine;
-import javafx.scene.transform.Rotate;
 
 import java.util.ArrayList;
 
-public class Map extends Canvas {
-
-    private Framework framework;
-    private Handler handler;
-
-    private int updates;
-
-    private GraphicsContext gc;
+public class Map {
 
     private int width, height;
     private Rectangle bounds;
     private ArrayList<Block> blocks;
 
-    public Map(int width, int height, Framework framework) {
-        this.framework = framework;
-        this.handler = framework.getHandler();
-        this.setWidth(framework.getWidth());
-        this.setHeight(framework.getHeight());
+    public Map(Map.Maps map) {
         this.width = width;
         this.height = height;
         blocks = new ArrayList<>();
 
-        gc = this.getGraphicsContext2D();
-
         bounds = new Rectangle(960 / 2, 640 / 2, 960, 640, 0);
 
         //Create Map
-        blocks.add(new Block(4, 3, BlockType.STANDARD));
-        blocks.add(new Block(4, 4, BlockType.CORK));
-        blocks.add(new Block(4, 5, BlockType.HOLE));
-
-
-        gc.setFill(Color.BEIGE);
-        gc.fillRect(0, 0, this.getWidth(), this.getHeight());
+        blocks = map.loadBlocks();
     }
 
-    public void update(GraphicsContext gc) {
-
-        render();
-
+    public void update() {
         for (Block b : blocks) {
-            b.update(gc);
-        }
-
-        updates++;
-    }
-
-    public void render() {
-        //Tank tracks
-
-        if (updates == 7) {
-            for (Tank tank : handler.getTanks()) {
-                gc.save();
-                gc.transform(new Affine(new Rotate(tank.getRotation(), tank.getX(), tank.getY())));
-                gc.setFill(Color.rgb(229, 229, 211, 0.8));
-                gc.fillRect(tank.getX() - 32, tank.getY(), 16, 5);
-                gc.fillRect(tank.getX() + 32 - 16, tank.getY(), 16, 5);
-                gc.restore();
-            }
-            updates = 0;
+            b.update();
         }
     }
 
@@ -109,5 +59,61 @@ public class Map extends Canvas {
 
     public Rectangle getBounds() {
         return bounds;
+    }
+
+    public enum Maps {
+
+        MAP0(new int[][]{
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        }),
+
+        MAP1(new int[][]{
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+                new int[]{0, 0, 3, 0, 0, 1, 0, 0, 0, 0},
+                new int[]{0, 0, 3, 0, 0, 2, 0, 0, 0, 0},
+                new int[]{0, 0, 3, 0, 0, 2, 0, 0, 0, 0},
+                new int[]{0, 0, 3, 0, 0, 1, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        });
+
+        private final int[][] field;
+
+        Maps(int[][] field) {
+            this.field = field;
+        }
+
+        public ArrayList<Block> loadBlocks() {
+            ArrayList<Block> blocks = new ArrayList<>();
+            for (int i = 0; i < field.length; i++) {
+                for (int j = 0; j < field[i].length; j++) {
+
+                    int block = field[j][i];
+
+                    if (block == 0) {
+
+                    } else if (block == 1) {
+                        blocks.add(new Block(i, j, Block.Type.STANDARD));
+                    } else if (block == 2) {
+                        blocks.add(new Block(i, j, Block.Type.CORK));
+                    } else if (block == 3) {
+                        blocks.add(new Block(i, j, Block.Type.HOLE));
+                    }
+                }
+            }
+            return blocks;
+        }
     }
 }
