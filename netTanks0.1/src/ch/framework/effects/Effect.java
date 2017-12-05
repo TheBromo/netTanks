@@ -1,15 +1,10 @@
 package ch.framework.effects;
 
-public class Effect {
+import javafx.scene.canvas.GraphicsContext;
 
-}
+public abstract class Effect {
 
-class ExplosionEffect {
-
-    public ExplosionEffect() {
-
-    }
-
+    public abstract void render(GraphicsContext gc);
 
 }
 

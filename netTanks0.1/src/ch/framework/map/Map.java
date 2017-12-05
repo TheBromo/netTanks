@@ -6,13 +6,10 @@ import java.util.ArrayList;
 
 public class Map {
 
-    private int width, height;
     private Rectangle bounds;
     private ArrayList<Block> blocks;
 
     public Map(Map.Maps map) {
-        this.width = width;
-        this.height = height;
         blocks = new ArrayList<>();
 
         bounds = new Rectangle(960 / 2, 640 / 2, 960, 640, 0);
@@ -47,14 +44,6 @@ public class Map {
             }
         }
         return true;
-    }
-
-    public int getBlockWidth() {
-        return width;
-    }
-
-    public int getBlockHeight() {
-        return height;
     }
 
     public Rectangle getBounds() {

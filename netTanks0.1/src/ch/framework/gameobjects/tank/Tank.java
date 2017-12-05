@@ -9,6 +9,7 @@ public class Tank extends GameObject {
 
     private float rotation;
     private float velocity, velRotation;
+    private boolean alive;
 
     private Turret turret;
     private Bullet.Type bulletType;
@@ -18,6 +19,7 @@ public class Tank extends GameObject {
         this.x = x;
         this.y = y;
         this.rotation = rotation;
+        alive = true;
 
         turret = new Turret(this, rotation);
         bulletType = Bullet.Type.STANDARD;
@@ -35,19 +37,6 @@ public class Tank extends GameObject {
         //Update turret
         turret.update();
     }
-
-//    public void shoot() {
-//        Bullet bullet = new Bullet(turret.getMuzzleX(), turret.getMuzzleY(), turret.getRotation(), bulletType);
-//        bullets.add(bullet);
-//        framework.getBullets().add(bullet);
-//        System.out.println("Pew! " + turret.getRotation());
-//    }
-//
-//    public void place() {
-//        Mine mine = new Mine(cx, cy);
-//        mines.add(mine);
-//        framework.getMines().add(mine);
-//    }
 
     public Turret getTurret() {
         return turret;
@@ -91,6 +80,14 @@ public class Tank extends GameObject {
 
     public void setColor(Color color) {
         this.color = color;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
     }
 
     public Rectangle getFutureBounds() {

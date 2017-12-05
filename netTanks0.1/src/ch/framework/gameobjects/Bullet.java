@@ -7,6 +7,7 @@ public class Bullet extends GameObject {
     private float rootX, rootY, rotation;
     private float radius;
     private int ticks, rebounds;
+    private boolean active;
 
     private Type type;
 
@@ -19,6 +20,7 @@ public class Bullet extends GameObject {
         this.type = type;
         this.radius = type.radius();
         bounds = new Circle(x, y, radius);
+        active = false;
     }
 
     public void update() {
@@ -84,6 +86,14 @@ public class Bullet extends GameObject {
 
     public int getRebounds() {
         return rebounds;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public enum Type {

@@ -1,10 +1,10 @@
 package ch.framework;
 
-import ch.match.GameMode;
 import ch.match.Player;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class Start extends Application {
@@ -13,11 +13,9 @@ public class Start extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Pane root = new Pane();
-        Framework framework = new Framework(WIDTH, HEIGHT);
-        root.getChildren().add(framework);
 
-        Scene scene = new Scene(root, WIDTH, HEIGHT);
+        Framework framework = new Framework(WIDTH, HEIGHT);
+        Scene scene = new Scene(framework, WIDTH, HEIGHT);
 
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
@@ -26,6 +24,7 @@ public class Start extends Application {
         //Match match = new Match(GameMode.FREEFORALL);
 
         Player player = new Player("My Username");
+        player.setColor(Color.valueOf("#5cb0cc"));
 //        match.addPlayer(new Player("Player 1"));
 //        match.addPlayer(player);
 

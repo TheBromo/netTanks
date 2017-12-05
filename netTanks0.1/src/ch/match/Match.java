@@ -1,5 +1,6 @@
-package ch.framework;
+package ch.match;
 
+import ch.framework.Handler;
 import ch.framework.gameobjects.tank.Tank;
 import ch.framework.map.Map;
 import ch.match.GameMode;

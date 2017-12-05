@@ -9,24 +9,25 @@ import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class SmokeEffect {
+public class Smoke extends Effect {
 
     private Random random;
     private ArrayList<Circle> circles;
     private double rate;
+    private double x, y;
 
-    public SmokeEffect() {
+    public Smoke() {
         circles = new ArrayList<>();
         rate = 0.2;
         random = new Random();
     }
 
-    public void render(GraphicsContext gc, Bullet bullet) {
+    public void render(GraphicsContext gc) {
 
         gc.setFill(Color.LIGHTGRAY);
 
         if (Framework.getFRAME() % 5 == 0) {
-            circles.add(new Circle(bullet.getX(), bullet.getY(), random.nextDouble() * 6));
+            circles.add(new Circle(x, y, random.nextDouble() * 6));
         }
 
         ArrayList<Circle> removedCircles = new ArrayList<>();
@@ -40,6 +41,12 @@ public class SmokeEffect {
             gc.fillOval(circle.getCenterX() - circle.getRadius(), circle.getCenterY() - circle.getRadius(), circle.getRadius() * 2, circle.getRadius() * 2);
         }
         circles.remove(removedCircles);
-
     }
+
+    public void setLocation(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+
 }

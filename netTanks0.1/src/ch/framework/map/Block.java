@@ -7,6 +7,7 @@ public class Block {
     private int indexX, indexY;
     private Type type;
     private Rectangle bounds;
+    private boolean destroyed;
 
     public Block(int indexX, int indexY, Type type) {
         this.indexX = indexX;
@@ -48,6 +49,14 @@ public class Block {
 
     public Rectangle getBounds() {
         return bounds;
+    }
+
+    public boolean isDestroyed() {
+        return destroyed;
+    }
+
+    public void setDestroyed(boolean destroyed) {
+        this.destroyed = destroyed;
     }
 
     public enum Type {
