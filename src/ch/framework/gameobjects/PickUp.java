@@ -1,16 +1,15 @@
-package ch.tanks;
+package ch.framework.gameobjects;
 
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
+import ch.framework.collision.Circle;
+import ch.framework.gameobjects.tank.Tank;
 
-public class PickUp {
+public class PickUp extends GameObject {
 
-    private float x, y, radius;
+    private float radius;
     private int time;
     private boolean pickedUp, expired;
 
-    private Circle bounds;
-    private PickUpType type;
+    //private PickUpType pickUpType;
     private Tank tank;
 
     public PickUp(float x, float y) {
@@ -27,12 +26,10 @@ public class PickUp {
 
         time = 60 * 20;
         pickedUp = true;
-        tank.setBulletType(BulletType.ROCKET);
+        tank.setBulletType(Bullet.Type.ROCKET);
     }
 
-    public void update(GraphicsContext gc) {
-        gc.setFill(Color.LIGHTBLUE);
-        gc.fillOval(x - radius, y - radius, radius * 2, radius * 2);
+    public void update() {
 
         if (time > 0) {
             time--;
@@ -90,19 +87,7 @@ public class PickUp {
         this.tank = tank;
     }
 
-    public Circle getBounds() {
-        return bounds;
-    }
-
-    public PickUpType getType() {
-        return type;
-    }
-
     public Tank getTank() {
         return tank;
     }
-}
-
-enum PickUpType {
-
 }
