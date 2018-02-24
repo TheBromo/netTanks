@@ -117,7 +117,7 @@ public class Mainframe extends Pane {
 
     private void setMouseInput() {
         this.setOnMouseClicked(event -> {
-
+            session.shoot();
         });
 
 

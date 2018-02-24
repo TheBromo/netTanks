@@ -1,14 +1,10 @@
 package ch.network;
 
 import ch.framework.Handler;
-import ch.framework.Mainframe;
 import ch.framework.gameobjects.tank.Tank;
 import ch.framework.gameobjects.tank.Turret;
-import ch.network.packets.Lobby;
-import ch.network.packets.Move;
+import ch.network.packets.*;
 import ch.framework.Player;
-import ch.network.packets.Hello;
-import ch.network.packets.Spawn;
 import com.jmr.wrapper.common.Connection;
 import com.jmr.wrapper.common.listener.SocketListener;
 import com.jmr.wrapper.client.Client;
@@ -47,17 +43,19 @@ public class Session implements SocketListener {
         client.connect();
 
         if (client.isConnected()) {
-            Hello hello = new Hello(player.getUsername(), player.getColor(), player.getId());
-            client.getServerConnection().sendTcp(hello);
+            Connect connect = new Connect(player.getUsername(), player.getColor(), player.getId());
+            client.getServerConnection().sendTcp(connect);
         }
     }
 
     public void tick() {
         handler.update();
 
-        Tank tank = player.getTank();
-        Move move = new Move(player.getId(), tank.getX(), tank.getY(), tank.getRotation(), (float) mouseX, (float) mouseY);
-        client.getServerConnection().sendUdp(move);
+        if (player.getTank() != null) {
+            Tank tank = player.getTank();
+            Move move = new Move(player.getId(), tank.getX(), tank.getY(), tank.getRotation(), (float) mouseX, (float) mouseY);
+            client.getServerConnection().sendUdp(move);
+        }
     }
 
     public void handleMoveEvent(Move move) {
@@ -79,6 +77,10 @@ public class Session implements SocketListener {
         turret.setRotation(rot);
 
     }
+
+
+    // PLAYER MOVEMENT /////////////////////////////////////////////////////
+
     public void test() {
         Spawn spawn = new Spawn(player.getId(), 100, 100, 0);
         client.getServerConnection().sendUdp(spawn);
@@ -97,6 +99,14 @@ public class Session implements SocketListener {
             player.getTank().setVelRotation(velocity);
         }
     }
+
+    public void shoot() {
+        Tank tank = player.getTank();
+        Shoot shoot = new Shoot(player.getId(), tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation());
+        client.getServerConnection().sendUdp(shoot);
+    }
+
+    // LISTENERS //////////////////////////////////////////////////////////
 
     @Override
     public void connected(Connection con) {
@@ -117,24 +127,24 @@ public class Session implements SocketListener {
             //System.out.println("x: " + move.x + " y: " + move.y + " rot: " + move.rot);
         }
 
-        if (object instanceof Hello) {
-            Hello hello = (Hello) object;
+        if (object instanceof Connect) {
+            Connect connect = (Connect) object;
 
             // Check whether it's us
-            if (hello.id.compareTo(player.getId()) != 0) {
+            if (connect.id.compareTo(player.getId()) != 0) {
                 //If not -> add Player:
-                Player player = new Player(hello.username, hello.color, hello.id);
+                Player player = new Player(connect.username, connect.color, connect.id);
                 players.add(player);
             }
         }
 
         if (object instanceof Lobby) {
             Lobby lobby = (Lobby) object;
-            Hello[] hellos = lobby.hellos;
+            Connect[] connects = lobby.connects;
 
-            for (Hello hello : hellos) {
-                if (hello.id.compareTo(player.getId()) != 0) {
-                    Player player = new Player(hello.username, hello.color, hello.id);
+            for (Connect connect : connects) {
+                if (connect.id.compareTo(player.getId()) != 0) {
+                    Player player = new Player(connect.username, connect.color, connect.id);
                     players.add(player);
                 }
             }
@@ -147,6 +157,13 @@ public class Session implements SocketListener {
             Tank tank = handler.spawnTank(spawn.x, spawn.y, spawn.rot);
             player.setTank(tank);
 
+        }
+
+        if (object instanceof Shoot) {
+            Shoot shoot = (Shoot) object;
+
+            Player player = getPlayer(shoot.id);
+            handler.handleShot(player.getTank());
         }
     }
 

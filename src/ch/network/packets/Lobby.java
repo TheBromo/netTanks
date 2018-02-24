@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public class Lobby implements Serializable {
 
-    public Hello[] hellos;
+    public Connect[] connects;
 
-    public Lobby(Hello[] hellos) {
-        this.hellos = hellos;
+    public Lobby(Connect[] connects) {
+        this.connects = connects;
     }
 }
