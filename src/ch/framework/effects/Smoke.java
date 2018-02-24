@@ -1,8 +1,7 @@
 package ch.framework.effects;
 
-import ch.framework.Framework;
+import ch.framework.Mainframe;
 import ch.framework.collision.Circle;
-import ch.framework.gameobjects.Bullet;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -26,7 +25,7 @@ public class Smoke extends Effect {
 
         gc.setFill(Color.LIGHTGRAY);
 
-        if (Framework.getFRAME() % 5 == 0) {
+        if (Mainframe.getFPS() % 5 == 0) {
             circles.add(new Circle(x, y, random.nextDouble() * 6));
         }
 

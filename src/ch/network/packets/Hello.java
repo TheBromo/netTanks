@@ -1,6 +1,4 @@
-package ch.network.packet;
-
-import javafx.scene.paint.Color;
+package ch.network.packets;
 
 import java.io.Serializable;
 import java.util.UUID;

@@ -359,10 +359,10 @@ public class Handler {
         bulletTrails.remove(bullet);
     }
 
-    public void spawnPlayer(Player player) {
-        Tank tank = new Tank(100, 100, 0);
-        player.setTank(tank);
+    public Tank spawnTank(float x, float y, float rotation) {
+        Tank tank = new Tank(x, y, rotation);
         addTank(tank);
+        return tank;
     }
 
     public void addTank(Tank tank) {

@@ -1,4 +1,4 @@
-package ch.session;
+package ch.framework.session;
 
 public enum GameMode {
 

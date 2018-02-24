@@ -1,8 +1,9 @@
-package ch.network.packet;
+package ch.network.packets;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Hit {
+public class Hit implements Serializable {
 
     public UUID id;
     public float x, y;

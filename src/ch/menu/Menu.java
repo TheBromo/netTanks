@@ -1,6 +1,5 @@
 package ch.menu;
 
-import ch.framework.Framework;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;

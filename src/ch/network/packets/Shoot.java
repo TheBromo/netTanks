@@ -1,6 +1,8 @@
-package ch.network.packet;
+package ch.network.packets;
 
-public class Shoot {
+import java.io.Serializable;
+
+public class Shoot implements Serializable {
 
     public int x, y, rot;
 

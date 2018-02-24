@@ -7,42 +7,40 @@ import ch.framework.gameobjects.tank.Tank;
 import ch.framework.map.Block;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 
 
-public class Render extends Pane {
+public class Render {
 
     private Canvas primary;
     private Canvas ground;
     private GraphicsContext primaryGc;
     private GraphicsContext groundGc;
 
-    public Render(int width, int height) {
+    private Handler handler;
 
-        this.setFocusTraversable(false);
-        ground = new Canvas(width, height);
+    public Render(Mainframe mainframe, Handler handler) {
+        this.handler = handler;
+        ground = new Canvas(mainframe.getWidth(), mainframe.getHeight());
         groundGc = ground.getGraphicsContext2D();
-        this.getChildren().add(ground);
+        mainframe.getChildren().add(ground);
         groundGc.setFill(Color.BEIGE);
-        groundGc.fillRect(0, 0, width, height);
+        groundGc.fillRect(0, 0, ground.getWidth(), ground.getHeight());
 
-        primary = new Canvas(width, height);
+        primary = new Canvas(mainframe.getWidth(), mainframe.getHeight());
         primaryGc = primary.getGraphicsContext2D();
-        this.getChildren().add(primary);
+        mainframe.getChildren().add(primary);
     }
 
-    public void render(Framework framework) {
-
-        Handler handler = framework.getHandler();
+    public void render() {
 
         //Clear Canvas (Prevents "smearing" effect)
         primaryGc.clearRect(0, 0, primary.getWidth(), primary.getHeight());
 
         //Background
-        if (Framework.getFRAME() % 7 == 0) {
+        if (Mainframe.getFPS() % 7 == 0) {
             for (Tank tank : handler.getTanks()) {
                 groundGc.save();
                 groundGc.transform(new Affine(new Rotate(tank.getRotation(), tank.getX(), tank.getY())));

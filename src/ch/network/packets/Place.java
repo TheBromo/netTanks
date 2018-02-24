@@ -1,6 +1,8 @@
-package ch.network.packet;
+package ch.network.packets;
 
-public class Place {
+import java.io.Serializable;
+
+public class Place implements Serializable {
 
     public float x, y;
 

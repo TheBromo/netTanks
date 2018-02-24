@@ -12,10 +12,10 @@ public class Player {
     private String username;
     private String color;
 
-    public Player(String username, String color) {
+    public Player(String username, String color, UUID id) {
         this.username = username;
         this.color = color;
-        id = UUID.randomUUID();
+        this.id = id;
     }
 
     public Tank getTank() {

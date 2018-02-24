@@ -1,4 +1,4 @@
-package ch.session;
+package ch.framework.session;
 
 import ch.framework.Handler;
 import ch.framework.Player;

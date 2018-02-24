@@ -10,14 +10,14 @@ import javafx.scene.paint.Color;
 
 public class HUD extends AnchorPane {
 
-    private Framework framework;
+    private Mainframe mainframe;
     private boolean overlayVisibility, playerInfoVisibility;
 
     private Canvas canvas;
     private GraphicsContext gc;
 
-    public HUD(Framework framework) {
-        this.framework = framework;
+    public HUD(Mainframe mainframe) {
+        this.mainframe = mainframe;
         this.playerInfoVisibility = false;
         this.playerInfoVisibility = false;
 
@@ -34,7 +34,7 @@ public class HUD extends AnchorPane {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
 //        gc.setStroke(Color.LIGHTGRAY);
-//        gc.strokeLine(framework.getPlayer().getCx(), framework.getPlayer().getCy(), framework.getMouseX(), framework.getMouseY());
+//        gc.strokeLine(mainframe.getPlayer().getCx(), mainframe.getPlayer().getCy(), mainframe.getMouseX(), mainframe.getMouseY());
 
 //        if (playerInfoVisibility) {
 //            showPlayerInfo();
@@ -46,7 +46,7 @@ public class HUD extends AnchorPane {
     }
 
 //    public void showPlayerInfo() { //TODO
-//        for (Player player : framework.getMatch().getPlayers()) {
+//        for (Player player : mainframe.getMatch().getPlayers()) {
 //            if (player.getTank() != null) {
 //                int width = player.getUsername().length() * 7 + 10;
 //                gc.setFill(Color.LIGHTGRAY);
@@ -64,28 +64,28 @@ public class HUD extends AnchorPane {
         gc.setFill(Color.rgb(100, 100, 100, 0.5));
         gc.fillRect(0, 0, width, height);
         gc.setFill(Color.WHITESMOKE);
-//        gc.fillText("mouse cx: " + framework.getMouseX() + "\t mouse cy: " + framework.getMouseY(), 15, spacing * 1, width);
-//        gc.fillText("cx: " + framework.getPlayer().getTank().getX() + "\tcy: " + framework.getPlayer().getTank().getY(), 15, spacing * 2, width);
-//        gc.fillText("angle: " + framework.getPlayer().getTank().getRotation(), 15, spacing * 3, width);
-//        gc.fillText("turret angle: " + framework.getPlayer().getTank().getTurret().getRotation(), 15, spacing * 4, width);
-//        gc.fillText("bullets: " + framework.getHandler().getBullets().size(), 15, spacing * 5, width);
+//        gc.fillText("mouse cx: " + mainframe.getMouseX() + "\t mouse cy: " + mainframe.getMouseY(), 15, spacing * 1, width);
+//        gc.fillText("cx: " + mainframe.getPlayer().getTank().getX() + "\tcy: " + mainframe.getPlayer().getTank().getY(), 15, spacing * 2, width);
+//        gc.fillText("angle: " + mainframe.getPlayer().getTank().getRotation(), 15, spacing * 3, width);
+//        gc.fillText("turret angle: " + mainframe.getPlayer().getTank().getTurret().getRotation(), 15, spacing * 4, width);
+//        gc.fillText("bullets: " + mainframe.getHandler().getBullets().size(), 15, spacing * 5, width);
 
 
         //LINES & BOUNDS//
 
         //Line
         gc.setStroke(Color.RED);
-        //gc.strokeLine(framework.getPlayer().getTank().getX(), framework.getPlayer().getTank().getY(), framework.getMouseX(), framework.getMouseY());
+        //gc.strokeLine(mainframe.getPlayer().getTank().getX(), mainframe.getPlayer().getTank().getY(), mainframe.getMouseX(), mainframe.getMouseY());
 
         //Bullet bounds
         gc.setStroke(Color.RED);
-        for (Bullet b : framework.getHandler().getBullets()) {
+        for (Bullet b : mainframe.getSession().getHandler().getBullets()) {
             gc.strokeOval(b.getX() - b.getRadius(), b.getY() - b.getRadius(), b.getRadius() * 2, b.getRadius() * 2);
         }
 
         //Block bounds
         gc.setStroke(Color.RED);
-        for (Block b : framework.getHandler().getMap().getBlocks()) {
+        for (Block b : mainframe.getSession().getHandler().getMap().getBlocks()) {
             for (Segment s : b.getBounds().getSegments()) {
                 gc.strokeLine(s.getA().getX(), s.getA().getY(), s.getB().getX(), s.getB().getY());
             }
@@ -94,7 +94,7 @@ public class HUD extends AnchorPane {
         //Player Points
         gc.setFill(Color.RED);
 
-//        for (GameObject go : framework.getHandler().getGameObjects()) {
+//        for (GameObject go : mainframe.getHandler().getGameObjects()) {
 //            for (Rectangle rectangle : go.getBounds().getRectangles()) {
 //                double x = rectangle.getCenterX() - rectangle.getWidth() / 2;
 //                double y = rectangle.getCenterY() - rectangle.getHeight() / 2;

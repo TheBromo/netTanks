@@ -1,4 +1,4 @@
-package ch.network.packet;
+package ch.network.packets;
 
 import java.io.Serializable;
 import java.util.UUID;
