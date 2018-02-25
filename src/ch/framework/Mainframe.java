@@ -77,6 +77,7 @@ public class Mainframe extends Pane {
             if (tank != null) {
                 float rot = ((float) Math.toDegrees(Math.atan2(-(-mouseY + tank.getY() + camera.getCy()), -(-mouseX + tank.getX() + camera.getCx()))) + 90);
                 if (rot < 0) {
+                    rot += 360;
                 }
                 session.mouseMoved(rot);
             }
