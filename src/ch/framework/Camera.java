@@ -1,6 +1,7 @@
 package ch.framework;
 
 import ch.framework.gameobjects.Bullet;
+import ch.framework.gameobjects.GameObject;
 import ch.framework.gameobjects.Mine;
 import ch.framework.gameobjects.PickUp;
 import ch.framework.gameobjects.tank.Tank;
@@ -12,16 +13,21 @@ import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 
 
-public class Render {
+public class Camera {
+
+    private float cx, cy;
+    private GameObject target;
 
     private Canvas primary;
     private Canvas ground;
     private GraphicsContext primaryGc;
     private GraphicsContext groundGc;
 
+    private Mainframe mainframe;
     private Handler handler;
 
-    public Render(Mainframe mainframe, Handler handler) {
+    public Camera(Mainframe mainframe, Handler handler) {
+        this.mainframe = mainframe;
         this.handler = handler;
         ground = new Canvas(mainframe.getWidth(), mainframe.getHeight());
         groundGc = ground.getGraphicsContext2D();
@@ -38,6 +44,17 @@ public class Render {
 
         //Clear Canvas (Prevents "smearing" effect)
         primaryGc.clearRect(0, 0, primary.getWidth(), primary.getHeight());
+
+//        primaryGc.save();
+//        groundGc.save();
+//
+//        if (target != null) {
+//            this.cx = (float) (-target.getX() + mainframe.getWidth() / 2);
+//            this.cy = (float) (-target.getY() + mainframe.getHeight() / 2);
+//        }
+
+//        primaryGc.translate(cx, cy);
+//        groundGc.translate(cx - mainframe.getWidth() / 2, cy - mainframe.getWidth() / 2);
 
         //Background
         if (Mainframe.getFPS() % 7 == 0) {
@@ -89,6 +106,9 @@ public class Render {
         for (Mine mine : handler.getMineExplosions().keySet()) {
             handler.getMineExplosions().get(mine).render(primaryGc);
         }
+
+//        groundGc.restore();
+//        primaryGc.restore();
     }
 
     private void renderBlock(Block block) {
@@ -141,7 +161,7 @@ public class Render {
         //TODO increase bullet size in general
 
         if (bullet.getType() == Bullet.Type.STANDARD) {
-            primaryGc.translate(-2, -3); //MovePacket SVG to center of Bullet
+            primaryGc.translate(-2, -3); //CorrectionPacket SVG to center of Bullet
             primaryGc.setFill(Color.GRAY);
             primaryGc.beginPath();
             primaryGc.appendSVGPath("M 0 3 Q 0 1 2 0 Q 4 1 4 3 L 4 7 L 0 7 Z"); //SVG PATH OF BULLET
@@ -172,4 +192,36 @@ public class Render {
         primaryGc.fillOval(pickUp.getX() - pickUp.getRadius(), pickUp.getY() - pickUp.getRadius(), pickUp.getRadius() * 2, pickUp.getRadius() * 2);
     }
 
+    public void setTarget(GameObject target) {
+        this.target = target;
+    }
+
+    public GameObject getTarget() {
+        return target;
+    }
+
+    public void removeTarget() {
+        this.target = null;
+    }
+
+    public float getCx() {
+        return cx;
+    }
+
+    public void setCx(float cx) {
+        this.cx = cx;
+    }
+
+    public float getCy() {
+        return cy;
+    }
+
+    public void setCy(float cy) {
+        this.cy = cy;
+    }
+
+    public void setLocation(float cx, float cy) {
+        this.cx = cx;
+        this.cy = cy;
+    }
 }

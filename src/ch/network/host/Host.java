@@ -1,6 +1,7 @@
 package ch.network.host;
 
 import ch.network.PacketHandler;
+import ch.network.PacketListener;
 import ch.network.packets.*;
 import com.jmr.wrapper.common.Connection;
 import com.jmr.wrapper.common.exceptions.NNCantStartServer;
@@ -9,7 +10,7 @@ import com.jmr.wrapper.server.Server;
 
 import java.util.ArrayList;
 
-public class Host implements SocketListener, PacketHandler.PackageListener {
+public class Host implements SocketListener, PacketListener {
 
     private Server server;
     private ArrayList<JoinPacket> joinPackets;
@@ -60,7 +61,7 @@ public class Host implements SocketListener, PacketHandler.PackageListener {
     }
 
     @Override
-    public void handleMove(MovePacket packet) {
+    public void handleMove(CorrectionPacket packet) {
         redirect(packet);
     }
 
@@ -86,6 +87,21 @@ public class Host implements SocketListener, PacketHandler.PackageListener {
 
     @Override
     public void handleSpawn(SpawnPacket packet) {
+        redirect(packet);
+    }
+
+    @Override
+    public void handleDestroy(DestroyPacket packet) {
+        redirect(packet);
+    }
+
+    @Override
+    public void handleVelocity(VelocityPacket packet) {
+        redirect(packet);
+    }
+
+    @Override
+    public void handleMouse(MousePacket packet) {
         redirect(packet);
     }
 

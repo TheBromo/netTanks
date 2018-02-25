@@ -143,12 +143,12 @@ public class Handler {
                 {
 
                     //MAP BOUNDARIES
-                    for (Segment segment : map.getBounds().getSegments()) {
-                        if (Collision.testCircleToSegment((Circle) bullet.getBounds(), segment)) {
-                            handleRebound(segment, bullet);
-                            break collision;
-                        }
-                    }
+//                    for (Segment segment : map.getBounds().getSegments()) {
+//                        if (Collision.testCircleToSegment((Circle) bullet.getBounds(), segment)) {
+//                            handleRebound(segment, bullet);
+//                            break collision;
+//                        }
+//                    }
 
                     //MAP BLOCKS
                     for (Block block : map.getBlocks()) {
@@ -190,7 +190,7 @@ public class Handler {
                     //TANKS
                     for (Tank tank : tanks) {
                         if (Collision.testCircleToRectangle((Circle) bullet.getBounds(), (Rectangle) tank.getBounds())) {
-                            handleHit(bullet, tank);
+                            actionListener.onHit(tank, bullet);
                             break collision;
                         }
                     }
@@ -199,7 +199,7 @@ public class Handler {
                     for (Bullet b : bullets) {
                         if (b != bullet) { //Check whether bullet is the same
                             if (Collision.testCircleToCircle((Circle) bullet.getBounds(), (Circle) b.getBounds())) {
-                                removeBullet(bullet);
+                                actionListener.onBulletBreak(bullet);
                                 break collision;
                             }
                         }
@@ -209,7 +209,7 @@ public class Handler {
                     for (Mine mine : mines) {
                         if (Collision.testCircleToCircle((Circle) bullet.getBounds(), (Circle) mine.getBounds())) {
                             removeBullet(bullet);
-                            handleExplosion(mine);
+                            actionListener.onExplosion(bullet, mine);
                             break collision;
                         }
                     }
@@ -292,13 +292,14 @@ public class Handler {
         }
     }
 
-    public void handleHit(Bullet bullet, Tank tank) {
-        if (bullet.isActive()) {
-            removedTanks.add(tank);
-            removeBullet(bullet);
-            actionListener.onHit(tank, bullet);
-        }
-    }
+    // PUBLIC HANDLERS ////////////////////////////////////////////////////////////////////////
+
+//    public void handleHit(Bullet bullet, Tank tank) {
+//        if (bullet.isActive()) {
+//            removedTanks.add(tank);
+//            removeBullet(bullet);
+//        }
+//    }
 
     public void handleExplosion(Mine mine) {
         if (mine.isActive()) {
@@ -331,13 +332,13 @@ public class Handler {
         }
     }
 
-    public void handlePickUp() {
+    public void handlePickUp(Tank tank, PickUp pickUp) {
 
     }
 
-    public void handleShot(Tank tank) {
+    public void handleShot(Tank tank, Bullet bullet) {
         if (tank.isAlive()) {
-            Bullet bullet = new Bullet(tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation(), tank.getBulletType());
+            //Bullet bullet = new Bullet(tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation(), tank.getBulletType());
             bullets.add(bullet);
             bulletHashMap.get(tank).add(bullet);
             bulletTrails.put(bullet, new BulletTrail(bullet));
@@ -353,7 +354,7 @@ public class Handler {
         }
     }
 
-    private void removeBullet(Bullet bullet) {
+    public void removeBullet(Bullet bullet) {
         removedBullets.add(bullet);
         bulletTrails.remove(bullet);
     }
@@ -369,6 +370,12 @@ public class Handler {
         mineHashMap.put(tank, new ArrayList<>());
         tanks.add(tank);
     }
+
+    public void removeTank(Tank tank) {
+        removedTanks.add(tank);
+    }
+
+    // GETTERS & SETTERS //////////////////////////////////////////////////////
 
     public ArrayList<Tank> getTanks() {
         return tanks;

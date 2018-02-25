@@ -4,63 +4,61 @@ import ch.network.packets.*;
 
 public class PacketHandler {
 
-    public interface PackageListener {
-
-        void handleJoin(JoinPacket packet);
-        void handleLeave(LeavePacket packet);
-        void handleLobby(LobbyPacket packet);
-        void handleMove(MovePacket packet);
-        void handleHit(HitPacket packet);
-        void handlePickUp(PickUpPacket packet);
-        void handlePlace(PlacePacket packet);
-        void handleShoot(ShootPacket packet);
-        void handleSpawn(SpawnPacket packet);
-    }
-
-    private PackageListener packageListener;
+    private PacketListener packetListener;
     private int packetsReceived;
 
-    public PacketHandler(PackageListener packageListener) {
-        this.packageListener = packageListener;
+    public PacketHandler(PacketListener packetListener) {
+        this.packetListener = packetListener;
     }
 
     public void handlePacket(Object object) {
 
         if (object instanceof JoinPacket) {
-            packageListener.handleJoin((JoinPacket) object);
+            packetListener.handleJoin((JoinPacket) object);
         }
 
         if (object instanceof LeavePacket) {
-            packageListener.handleLeave((LeavePacket) object);
+            packetListener.handleLeave((LeavePacket) object);
         }
 
         if (object instanceof LobbyPacket) {
-            packageListener.handleLobby((LobbyPacket) object);
+            packetListener.handleLobby((LobbyPacket) object);
         }
 
-        if (object instanceof MovePacket) {
-            packageListener.handleMove((MovePacket) object);
+        if (object instanceof CorrectionPacket) {
+            packetListener.handleMove((CorrectionPacket) object);
         }
 
         if (object instanceof HitPacket) {
-            packageListener.handleHit((HitPacket) object);
+            packetListener.handleHit((HitPacket) object);
         }
 
         if (object instanceof PickUpPacket) {
-            packageListener.handlePickUp((PickUpPacket) object);
+            packetListener.handlePickUp((PickUpPacket) object);
         }
 
         if (object instanceof PlacePacket) {
-            packageListener.handlePlace((PlacePacket) object);
+            packetListener.handlePlace((PlacePacket) object);
         }
 
         if (object instanceof ShootPacket) {
-            packageListener.handleShoot((ShootPacket) object);
+            packetListener.handleShoot((ShootPacket) object);
         }
 
         if (object instanceof SpawnPacket) {
-            packageListener.handleSpawn((SpawnPacket) object);
-            System.out.println("Packet received");
+            packetListener.handleSpawn((SpawnPacket) object);
+        }
+
+        if (object instanceof DestroyPacket) {
+            packetListener.handleDestroy((DestroyPacket) object);
+        }
+
+        if (object instanceof VelocityPacket) {
+            packetListener.handleVelocity((VelocityPacket) object);
+        }
+
+        if (object instanceof MousePacket) {
+            packetListener.handleMouse((MousePacket) object);
         }
 
         packetsReceived++;
@@ -71,7 +69,7 @@ public class PacketHandler {
         return packetsReceived;
     }
 
-    public void setPackageListener(PackageListener packageListener) {
-        this.packageListener = packageListener;
+    public void setPacketListener(PacketListener packetListener) {
+        this.packetListener = packetListener;
     }
 }

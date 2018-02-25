@@ -2,22 +2,24 @@ package ch.network;
 
 import ch.framework.ActionListener;
 import ch.framework.Handler;
+import ch.framework.Player;
 import ch.framework.gameobjects.Bullet;
+import ch.framework.gameobjects.GameObject;
 import ch.framework.gameobjects.Mine;
 import ch.framework.gameobjects.tank.Tank;
 import ch.framework.gameobjects.tank.Turret;
 import ch.network.packets.*;
-import ch.framework.Player;
+import com.jmr.wrapper.client.Client;
 import com.jmr.wrapper.common.Connection;
 import com.jmr.wrapper.common.listener.SocketListener;
-import com.jmr.wrapper.client.Client;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class Session implements SocketListener, ActionListener, PacketHandler.PackageListener {
+public class Session implements SocketListener, ActionListener, PacketListener {
 
-    private double mouseX, mouseY;
+    private float mx, my;
+    private int ticks;
     private Player player;
     private ArrayList<Player> players;
 
@@ -35,7 +37,7 @@ public class Session implements SocketListener, ActionListener, PacketHandler.Pa
 
         packetHandler = new PacketHandler(this);
 
-        System.out.println(player.getId());
+        System.out.println("ID: " + player.getId());
     }
 
     public void connectTo(String host) {
@@ -56,11 +58,16 @@ public class Session implements SocketListener, ActionListener, PacketHandler.Pa
     public void tick() {
         handler.update();
 
-        if (player.getTank() != null) {
-            Tank tank = player.getTank();
-            MovePacket movePacket = new MovePacket(player.getId(), tank.getX(), tank.getY(), tank.getRotation(), (float) mouseX, (float) mouseY);
-            client.getServerConnection().sendUdp(movePacket);
+        if (ticks >= 60) { // Once per second. Send Player's position for correction.
+            if (player.getTank() != null) {
+                Tank tank = player.getTank();
+                CorrectionPacket correctionPacket = new CorrectionPacket(player.getId(), tank.getX(), tank.getY(), tank.getRotation(), tank.getTurret().getRotation());
+                client.getServerConnection().sendUdp(correctionPacket);
+            }
+
+            ticks = 0;
         }
+        ticks++;
     }
 
 
@@ -72,23 +79,44 @@ public class Session implements SocketListener, ActionListener, PacketHandler.Pa
     }
 
     public void setVelocity(float velocity) {
-        if (player.getTank() != null) {
-            player.getTank().setVelocity(velocity);
+        Tank tank = player.getTank();
+
+        if (tank != null) {
+            tank.setVelocity(velocity);
+            VelocityPacket velocityPacket = new VelocityPacket(player.getId(), tank.getVelocity(), tank.getVelRotation());
+            client.getServerConnection().sendUdp(velocityPacket);
         }
-//        System.out.println("Notified");
-//        handleMoveEvent(new MovePacket(player.getId(), player.getTank().getX(), player.getTank().getY(), player.getTank().getRotation(), (float) mainframe.getMouseX(), (float) mainframe.getMouseY()));
     }
 
     public void setVelRotation(float velocity) {
+        Tank tank = player.getTank();
+
+        if (tank != null) {
+            tank.setVelRotation(velocity);
+            VelocityPacket velocityPacket = new VelocityPacket(player.getId(), tank.getVelocity(), tank.getVelRotation());
+            client.getServerConnection().sendUdp(velocityPacket);
+        }
+    }
+
+    public void mouseMoved(float rot) {
+
         if (player.getTank() != null) {
-            player.getTank().setVelRotation(velocity);
+            Tank tank = player.getTank();
+            Turret turret = tank.getTurret();
+            turret.setRotation(rot);
+
+            MousePacket mousePacket = new MousePacket(player.getId(), turret.getRotation());
+            client.getServerConnection().sendUdp(mousePacket);
         }
     }
 
     public void shoot() {
         Tank tank = player.getTank();
-        ShootPacket shootPacket = new ShootPacket(player.getId(), tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation());
-        client.getServerConnection().sendUdp(shootPacket);
+        if (tank != null) {
+            Bullet bullet = new Bullet(tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation(), tank.getBulletType());
+            ShootPacket shootPacket = new ShootPacket(player.getId(), tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation(), bullet.getId(), bullet.getType());
+            client.getServerConnection().sendUdp(shootPacket);
+        }
     }
 
     public void place() {
@@ -107,7 +135,18 @@ public class Session implements SocketListener, ActionListener, PacketHandler.Pa
     }
 
     @Override
-    public void onExplosion(Tank tank, Mine mine) {
+    public void onExplosion(GameObject trigger, Mine mine) {
+        if (trigger instanceof Bullet) {
+
+        }
+
+        if (trigger instanceof Tank) {
+
+        }
+    }
+
+    @Override
+    public void onBulletBreak(Bullet b1) {
 
     }
 
@@ -142,29 +181,27 @@ public class Session implements SocketListener, ActionListener, PacketHandler.Pa
     }
 
     @Override
-    public void handleMove(MovePacket packet) {
+    public void handleMove(CorrectionPacket packet) {
         //System.out.println("x: " + packet.x + " y: " + packet.y + " rot: " + packet.rot + " mx: " + packet.mx + " my: " + packet.my);
-        Player player = getPlayer(packet.id);
+        if (packet.id.compareTo(player.getId()) != 0) {
+            Player player = getPlayer(packet.id);
 
-        // MovePacket Tank
-        Tank tank = player.getTank();
-        tank.setX(packet.x);
-        tank.setY(packet.y);
-        tank.setRotation(packet.rot);
+            // CorrectionPacket Tank
+            Tank tank = player.getTank();
+            tank.setX(packet.x);
+            tank.setY(packet.y);
+            tank.setRotation(packet.rot);
 
-        // Rotate Turret
-        Turret turret = tank.getTurret();
-        float rot = ((float) Math.toDegrees(Math.atan2((packet.my - tank.getY()), (packet.mx - tank.getX()))) + 90);
-        if (rot < 0) {
-            rot += 360;
+            // Rotate Turret
+            Turret turret = tank.getTurret();
+            turret.setRotation(packet.trot);
         }
-        turret.setRotation(rot);
     }
 
     @Override
     public void handleHit(HitPacket packet) {
         Player player = getPlayer(packet.id);
-        handler.handleHit(getBullet(packet.oid), player.getTank());
+        handler.removeTank(player.getTank());
     }
 
     @Override
@@ -180,7 +217,7 @@ public class Session implements SocketListener, ActionListener, PacketHandler.Pa
     @Override
     public void handleShoot(ShootPacket packet) {
         Player player = getPlayer(packet.id);
-        handler.handleShot(player.getTank());
+        handler.handleShot(player.getTank(), new Bullet(packet.bullet, packet.x, packet.y, packet.rot, packet.type));
     }
 
     @Override
@@ -190,6 +227,27 @@ public class Session implements SocketListener, ActionListener, PacketHandler.Pa
         player.setTank(tank);
     }
 
+    @Override
+    public void handleDestroy(DestroyPacket packet) {
+        Bullet bullet = getBullet(packet.id);
+        if (bullet != null) {
+            handler.removeBullet(bullet);
+        }
+
+        // TODO: BLOCK, MINE
+    }
+
+    @Override
+    public void handleVelocity(VelocityPacket packet) {
+        Tank tank = getTank(packet.id);
+        tank.setVelocity(packet.vel);
+        tank.setVelRotation(packet.velRot);
+    }
+
+    @Override
+    public void handleMouse(MousePacket packet) {
+        getTank(packet.id).getTurret().setRotation(packet.rot);
+    }
 
     // NETWORK ACTIONS //////////////////////////////////////////////////////////
 
@@ -236,22 +294,6 @@ public class Session implements SocketListener, ActionListener, PacketHandler.Pa
 
     public Tank getTank(UUID id) {
         return getPlayer(id).getTank();
-    }
-
-    public double getMouseX() {
-        return mouseX;
-    }
-
-    public void setMouseX(double mouseX) {
-        this.mouseX = mouseX;
-    }
-
-    public double getMouseY() {
-        return mouseY;
-    }
-
-    public void setMouseY(double mouseY) {
-        this.mouseY = mouseY;
     }
 
     public Handler getHandler() {

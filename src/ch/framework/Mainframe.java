@@ -1,5 +1,6 @@
 package ch.framework;
 
+import ch.framework.gameobjects.tank.Tank;
 import ch.network.Session;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -11,9 +12,11 @@ import javafx.util.Duration;
 public class Mainframe extends Pane {
 
     private static int FPS;
+    private float mouseX, mouseY;
 
     private Timeline gameloop;
-    private Render render;
+    private Camera camera;
+    private boolean follow;
     private Session session;
 
     public Mainframe() {
@@ -33,13 +36,14 @@ public class Mainframe extends Pane {
         setKeyInput();
         setMouseInput();
 
+        follow = false;
+
         this.addEventFilter(MouseEvent.ANY, (e) -> this.requestFocus());
     }
 
     public void start(Session session) {
         this.session = session;
-        render = new Render(this, session.getHandler());
-
+        camera = new Camera(this, session.getHandler());
         gameloop.play();
     }
 
@@ -53,14 +57,35 @@ public class Mainframe extends Pane {
 
     /**
      * Gets called 60 times per second by the gameloop.
-     * Used to update and render objects etc.
+     * Used to update and camera objects etc.
      */
     private void update() {
         FPS++;
 
         //Update all the things!
-        render.render();
+        camera.render();
         session.tick();
+
+        if (follow) {
+            float rot = ((float) Math.toDegrees(Math.atan2((-mouseY + camera.getCx()), (-mouseX + camera.getCx()))) + 90);
+            if (rot < 0) {
+                rot += 360;
+            }
+            session.mouseMoved(rot);
+        } else {
+            Tank tank = session.getPlayer().getTank();
+            if (tank != null) {
+                float rot = ((float) Math.toDegrees(Math.atan2(-(-mouseY + tank.getY() + camera.getCy()), -(-mouseX + tank.getX() + camera.getCx()))) + 90);
+                if (rot < 0) {
+                }
+                session.mouseMoved(rot);
+            }
+        }
+
+//        Tank tank = session.getPlayer().getTank();
+//        if (tank != null) {
+//            camera.setTarget(tank);
+//        }
     }
 
     private void setKeyInput() {
@@ -132,15 +157,14 @@ public class Mainframe extends Pane {
         });
 
         this.setOnMouseMoved(event -> {
-            //Tell the Canvas to update mouseX and mouseY every time the mouse was moved
-            session.setMouseX(event.getX());
-            session.setMouseY(event.getY());
+            mouseX = (float) event.getX();
+            mouseY = (float) event.getY();
         });
 
         this.setOnMouseDragged(event -> {
             //Still update mouse position even if the mouse buttons are down...
-            session.setMouseX(event.getX());
-            session.setMouseY(event.getY());
+            mouseX = (float) event.getX();
+            mouseY = (float) event.getY();
         });
 
 //        this.setOnScroll(se -> {
@@ -168,8 +192,8 @@ public class Mainframe extends Pane {
         return FPS;
     }
 
-    public Render getRender() {
-        return render;
+    public Camera getCamera() {
+        return camera;
     }
 
     public Session getSession() {
