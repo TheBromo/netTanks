@@ -141,7 +141,7 @@ public class Render {
         //TODO increase bullet size in general
 
         if (bullet.getType() == Bullet.Type.STANDARD) {
-            primaryGc.translate(-2, -3); //Move SVG to center of Bullet
+            primaryGc.translate(-2, -3); //MovePacket SVG to center of Bullet
             primaryGc.setFill(Color.GRAY);
             primaryGc.beginPath();
             primaryGc.appendSVGPath("M 0 3 Q 0 1 2 0 Q 4 1 4 3 L 4 7 L 0 7 Z"); //SVG PATH OF BULLET

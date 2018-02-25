@@ -30,13 +30,12 @@ public class NetTanks extends Application {
         Mainframe mainframe = new Mainframe();
         root.getChildren().add(mainframe);
 
-        session = new Session("192.168.3.75:13013", "blubber", "#666666");
+        session = new Session("blubber", "#666666");
+        session.connectTo("localhost:13013");
 
         mainframe.start(session);
 
     }
-
-
 
     public Session getSession() {
         return session;

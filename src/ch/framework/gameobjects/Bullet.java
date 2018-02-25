@@ -2,7 +2,11 @@ package ch.framework.gameobjects;
 
 import ch.framework.collision.Circle;
 
+import java.util.UUID;
+
 public class Bullet extends GameObject {
+
+    private UUID id;
 
     private float rootX, rootY, rotation;
     private float radius;
@@ -12,6 +16,16 @@ public class Bullet extends GameObject {
     private Type type;
 
     public Bullet(float rootX, float rootY, float rotation, Type type) {
+        init(rootX, rootY, rotation, type);
+        id = UUID.randomUUID();
+    }
+
+    public Bullet(UUID id, float rootX, float rootY, float rotation, Type type) {
+        init(rootX, rootY, rotation, type);
+        this.id = id;
+    }
+
+    private void init(float rootX, float rootY, float rotation, Type type) {
         this.rootX = rootX;
         this.rootY = rootY;
         this.rotation = rotation;
@@ -94,6 +108,10 @@ public class Bullet extends GameObject {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public enum Type {

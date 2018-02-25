@@ -109,7 +109,7 @@ public class Mainframe extends Pane {
                     break;
                 case C:
                     //player.setColor(new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1));
-                    session.test();
+                    session.spawn();
                     break;
             }
         });

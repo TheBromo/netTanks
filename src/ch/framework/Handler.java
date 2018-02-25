@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class Handler {
 
-    private Random random;
+    private ActionListener actionListener;
 
     private ArrayList<Tank> tanks;
     private ArrayList<Bullet> bullets;
@@ -39,7 +39,6 @@ public class Handler {
     private HashMap<Mine, Explosion> mineExplosions;
 
     public Handler() {
-        random = new Random();
 
         bullets = new ArrayList<>();
         tanks = new ArrayList<>();
@@ -293,15 +292,15 @@ public class Handler {
         }
     }
 
-    private void handleHit(Bullet bullet, Tank tank) {
+    public void handleHit(Bullet bullet, Tank tank) {
         if (bullet.isActive()) {
             removedTanks.add(tank);
             removeBullet(bullet);
-            System.out.println("Boom!");
+            actionListener.onHit(tank, bullet);
         }
     }
 
-    private void handleExplosion(Mine mine) {
+    public void handleExplosion(Mine mine) {
         if (mine.isActive()) {
 
             // CHECK FOR RADIUS
@@ -332,7 +331,7 @@ public class Handler {
         }
     }
 
-    private void handlePickUp() {
+    public void handlePickUp() {
 
     }
 
@@ -426,4 +425,7 @@ public class Handler {
         return mineExplosions;
     }
 
+    public void setActionListener(ActionListener actionListener) {
+        this.actionListener = actionListener;
+    }
 }
