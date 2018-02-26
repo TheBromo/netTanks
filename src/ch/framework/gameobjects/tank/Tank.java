@@ -23,7 +23,7 @@ public class Tank extends GameObject {
 
         turret = new Turret(this, rotation);
         bulletType = Bullet.Type.STANDARD;
-        bounds = new Rectangle(x, y, 64, 64, rotation);
+        bounds = new Rectangle(x, y, 48, 48, rotation);
     }
 
     public void update() {
@@ -95,7 +95,7 @@ public class Tank extends GameObject {
         double x = this.x + Math.sin(Math.toRadians(-rotation + velRotation)) * (velocity);
         double y = this.y + Math.cos(Math.toRadians(-rotation + velRotation)) * (velocity);
 
-        return new Rectangle(x, y, 64, 64, rotation);
+        return new Rectangle(x, y, 48, 48, rotation);
     }
 }
 

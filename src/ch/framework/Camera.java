@@ -45,25 +45,30 @@ public class Camera {
         //Clear Canvas (Prevents "smearing" effect)
         primaryGc.clearRect(0, 0, primary.getWidth(), primary.getHeight());
 
-//        primaryGc.save();
-//        groundGc.save();
+        primaryGc.save();
+        groundGc.save();
+
 //
 //        if (target != null) {
 //            this.cx = (float) (-target.getX() + mainframe.getWidth() / 2);
 //            this.cy = (float) (-target.getY() + mainframe.getHeight() / 2);
 //        }
 
-//        primaryGc.translate(cx, cy);
-//        groundGc.translate(cx - mainframe.getWidth() / 2, cy - mainframe.getWidth() / 2);
+        primaryGc.translate(cx + (mainframe.getWidth() / 2), cy + (mainframe.getHeight() / 2));
+        groundGc.translate(cx + (mainframe.getWidth() / 2), cy + (mainframe.getHeight() / 2));
 
-        //Background
+        // Center
+        primaryGc.setFill(Color.LIGHTGRAY);
+        primaryGc.fillOval(-1.5, -1.5, 3, 3);
+
+        // Ground
         if (Mainframe.getFPS() % 7 == 0) {
             for (Tank tank : handler.getTanks()) {
                 groundGc.save();
                 groundGc.transform(new Affine(new Rotate(tank.getRotation(), tank.getX(), tank.getY())));
                 groundGc.setFill(Color.rgb(229, 229, 211, 0.8));
-                groundGc.fillRect(tank.getX() - 32, tank.getY(), 16, 5);
-                groundGc.fillRect(tank.getX() + 32 - 16, tank.getY(), 16, 5);
+                groundGc.fillRect(tank.getX() - 24, tank.getY(), 12, 5);
+                groundGc.fillRect(tank.getX() + 24 - 12, tank.getY(), 12, 5);
                 groundGc.restore();
             }
         }
@@ -107,8 +112,8 @@ public class Camera {
             handler.getMineExplosions().get(mine).render(primaryGc);
         }
 
-//        groundGc.restore();
-//        primaryGc.restore();
+        groundGc.restore();
+        primaryGc.restore();
     }
 
     private void renderBlock(Block block) {
@@ -135,9 +140,9 @@ public class Camera {
         Affine transform = new Affine(new Rotate(tank.getRotation(), tank.getX(), tank.getY()));
         primaryGc.transform(transform);
         primaryGc.setFill(Color.GREY);
-        primaryGc.fillRoundRect(tank.getX() - 32, tank.getY() - 32, 64, 64, 3, 3);
+        primaryGc.fillRoundRect(tank.getX() - 24, tank.getY() - 24, 48, 48, 3, 3);
         primaryGc.setFill(color);
-        primaryGc.fillRect(tank.getX() - 32 + 12, tank.getY() - 32, 64 - 24, 64);
+        primaryGc.fillRect(tank.getX() - 24 + 9, tank.getY() - 24, 48 - 18, 48);
 
         primaryGc.restore();
 
@@ -146,9 +151,9 @@ public class Camera {
 
         primaryGc.transform(new Affine(new Rotate(tank.getTurret().getRotation(), tank.getX(), tank.getY())));
         primaryGc.setFill(color.brighter());
-        primaryGc.fillRoundRect(tank.getX() - 16, tank.getY() - 16, 32, 32, 7, 7);
+        primaryGc.fillRoundRect(tank.getX() - 12, tank.getY() - 12, 24, 24, 7, 7);
         primaryGc.setFill(Color.LIGHTGRAY);
-        primaryGc.fillRect(tank.getX() - 2, tank.getY() - 40, 4, 25);
+        primaryGc.fillRect(tank.getX() - 2, tank.getY() - 30, 4, 20);
 
         primaryGc.restore();
     }

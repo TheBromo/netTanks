@@ -48,14 +48,14 @@ public class Bullet extends GameObject {
         this.x = x;
         this.y = y;
         this.rebounds++;
-        System.out.println("Rotation: " + this.rotation);
+        //System.out.println("Rotation: " + this.rotation);
         if (rotation == 90 || rotation == 270) { //TODO make a general statement for reflection rotation
             this.rotation = 180 - this.rotation;
         } else {
             this.rotation = -this.rotation;
         }
-        System.out.println("Rebound rotation: " + this.rotation);
-        System.out.println(rotation);
+        //System.out.println("Rebound rotation: " + this.rotation);
+        //System.out.println(rotation);
     }
 
     public int getTicks() {

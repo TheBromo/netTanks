@@ -2,12 +2,12 @@ package ch.network;
 
 import ch.network.packets.*;
 
-public class PacketHandler {
+public class PacketManager {
 
     private PacketListener packetListener;
     private int packetsReceived;
 
-    public PacketHandler(PacketListener packetListener) {
+    public PacketManager(PacketListener packetListener) {
         this.packetListener = packetListener;
     }
 

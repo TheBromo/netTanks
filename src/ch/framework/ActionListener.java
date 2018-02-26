@@ -4,10 +4,12 @@ import ch.framework.gameobjects.Bullet;
 import ch.framework.gameobjects.GameObject;
 import ch.framework.gameobjects.Mine;
 import ch.framework.gameobjects.tank.Tank;
+import ch.framework.map.Block;
 
 public interface ActionListener {
 
-    void onHit(Tank tank, Bullet bullet);
+    void onKill(GameObject trigger, Tank tank);
+    void onBlockDestroyed(GameObject trigger, Block block);
     //void onRebound(Bullet bullet);
     void onBulletBreak(Bullet b1);
     void onExplosion(GameObject trigger, Mine mine);

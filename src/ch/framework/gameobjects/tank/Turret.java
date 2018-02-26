@@ -8,7 +8,7 @@ public class Turret {
     public Turret(Tank tank, float rotation) {
         this.tank = tank;
         this.rotation = rotation;
-        this.barrelLength = 40;
+        this.barrelLength = 30;
     }
 
     public void update() {

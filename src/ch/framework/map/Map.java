@@ -6,13 +6,13 @@ import java.util.ArrayList;
 
 public class Map {
 
-    private Rectangle bounds;
+    //private Rectangle bounds;
     private ArrayList<Block> blocks;
 
     public Map(Map.Maps map) {
         blocks = new ArrayList<>();
 
-        bounds = new Rectangle(960 / 2, 640 / 2, 960, 640, 0);
+        //bounds = new Rectangle(960 / 2, 640 / 2, 960, 640, 0);
 
         //Create Map
         blocks = map.loadBlocks();
@@ -46,9 +46,9 @@ public class Map {
         return true;
     }
 
-    public Rectangle getBounds() {
-        return bounds;
-    }
+//    public Rectangle getBounds() {
+//        return bounds;
+//    }
 
     public enum Maps {
 
@@ -66,16 +66,27 @@ public class Map {
         }),
 
         MAP1(new int[][]{
-                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                new int[]{0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-                new int[]{0, 0, 3, 0, 0, 1, 0, 0, 0, 0},
-                new int[]{0, 0, 3, 0, 0, 2, 0, 0, 0, 0},
-                new int[]{0, 0, 3, 0, 0, 2, 0, 0, 0, 0},
-                new int[]{0, 0, 3, 0, 0, 1, 0, 0, 0, 0},
-                new int[]{0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                new int[]{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 3, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 3, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 3, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 3, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                new int[]{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
         });
 
         private final int[][] field;
@@ -89,7 +100,7 @@ public class Map {
             for (int i = 0; i < field.length; i++) {
                 for (int j = 0; j < field[i].length; j++) {
 
-                    int block = field[j][i];
+                    int block = field[i][j];
 
                     if (block == 0) {
 

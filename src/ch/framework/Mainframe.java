@@ -1,7 +1,6 @@
 package ch.framework;
 
 import ch.framework.gameobjects.tank.Tank;
-import ch.network.Session;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.input.MouseButton;
@@ -19,12 +18,10 @@ public class Mainframe extends Pane {
     private boolean follow;
     private Session session;
 
-    public Mainframe() {
+    public Mainframe(int width, int height) {
 
-        NetTanks nt = NetTanks.getInstance();
-
-        this.setWidth(nt.getWidth());
-        this.setHeight(nt.getHeight());
+        this.setWidth(width);
+        this.setHeight(height);
 
         //Create Game Loop
         gameloop = new Timeline(new KeyFrame(
@@ -36,14 +33,13 @@ public class Mainframe extends Pane {
         setKeyInput();
         setMouseInput();
 
-        follow = false;
-
         this.addEventFilter(MouseEvent.ANY, (e) -> this.requestFocus());
     }
 
     public void start(Session session) {
         this.session = session;
         camera = new Camera(this, session.getHandler());
+        camera.setLocation( (float) - this.getWidth() / 2 - 32, (float) - this.getHeight() / 2 - 32);
         gameloop.play();
     }
 
@@ -66,22 +62,22 @@ public class Mainframe extends Pane {
         camera.render();
         session.tick();
 
-        if (follow) {
-            float rot = ((float) Math.toDegrees(Math.atan2((-mouseY + camera.getCx()), (-mouseX + camera.getCx()))) + 90);
-            if (rot < 0) {
-                rot += 360;
-            }
-            session.mouseMoved(rot);
-        } else {
+//        if (follow) {
+//            float rot = ((float) Math.toDegrees(Math.atan2((-mouseY + camera.getCx()), (-mouseX + camera.getCx()))) + 90);
+//            if (rot < 0) {
+//                rot += 360;
+//            }
+//            session.mouseMoved(rot);
+//        } else {
             Tank tank = session.getPlayer().getTank();
             if (tank != null) {
-                float rot = ((float) Math.toDegrees(Math.atan2(-(-mouseY + tank.getY() + camera.getCy()), -(-mouseX + tank.getX() + camera.getCx()))) + 90);
+                float rot = ((float) Math.toDegrees(Math.atan2(((mouseY - this.getHeight()/2) - camera.getCy() - tank.getY()), ((mouseX - this.getWidth()/2) - camera.getCx() - tank.getX()))) + 90);
                 if (rot < 0) {
                     rot += 360;
                 }
                 session.mouseMoved(rot);
             }
-        }
+//        }
 
 //        Tank tank = session.getPlayer().getTank();
 //        if (tank != null) {
@@ -97,15 +93,14 @@ public class Mainframe extends Pane {
                     session.setVelocity(-1.5f);
                     break;
                 case A:
-                    session.setVelRotation(-1);
+                    session.setVelRotation(-1.2f);
                     break;
                 case S:
                     session.setVelocity(1.5f);
                     break;
                 case D:
-                    session.setVelRotation(1);
+                    session.setVelRotation(1.2f);
                     break;
-
                 case TAB:
                     //hud.setPlayerInfoVisibility(true);
                     break;
@@ -136,6 +131,9 @@ public class Mainframe extends Pane {
                 case C:
                     //player.setColor(new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1));
                     session.spawn();
+                    break;
+                case SPACE:
+                    session.place();
                     break;
             }
         });

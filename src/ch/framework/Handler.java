@@ -13,7 +13,6 @@ import ch.framework.map.Block;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 public class Handler {
 
@@ -88,10 +87,11 @@ public class Handler {
             }
         }
 
+        // HANDLE MINE
         for (Mine mine : mines) {
             mine.tick();
-            if (mine.getCounter() == 0) {
-                handleExplosion(mine);
+            if (mine.getCounter() <= 0) {
+                handleExplosion(null, mine);
                 break;
             }
 
@@ -111,13 +111,14 @@ public class Handler {
             }
         }
 
+
+        // ANIMATIONS
         for (Mine mine : mineExplosions.keySet()) {
             mineExplosions.get(mine).tick();
             if (mineExplosions.get(mine).isExpired()) {
                 mineExplosions.remove(mine);
             }
         }
-
 
         for (PickUp pickUp : pickUps) {
             pickUp.update();
@@ -126,6 +127,7 @@ public class Handler {
             }
         }
 
+        // REMOVE REMOVED OBJECTS
         tanks.removeAll(removedTanks);
         bullets.removeAll(removedBullets);
         mines.removeAll(removedMines);
@@ -190,7 +192,7 @@ public class Handler {
                     //TANKS
                     for (Tank tank : tanks) {
                         if (Collision.testCircleToRectangle((Circle) bullet.getBounds(), (Rectangle) tank.getBounds())) {
-                            actionListener.onHit(tank, bullet);
+                            actionListener.onKill(bullet, tank);
                             break collision;
                         }
                     }
@@ -208,8 +210,8 @@ public class Handler {
                     //MINES
                     for (Mine mine : mines) {
                         if (Collision.testCircleToCircle((Circle) bullet.getBounds(), (Circle) mine.getBounds())) {
-                            removeBullet(bullet);
-                            actionListener.onExplosion(bullet, mine);
+                            actionListener.onBulletBreak(bullet);
+                            handleExplosion(bullet, mine);
                             break collision;
                         }
                     }
@@ -218,63 +220,56 @@ public class Handler {
         }
 
         //TODO collision TANK -
-        for (Tank player : tanks) {
+        for (Tank tank : tanks) {
+
+            // MAP
             for (Block block : map.getBlocks()) {
                 //FRONT LEFT
-                if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[0])) {
-                    if (player.getVelocity() < 0) {
-                        player.setVelocity(0);
+                if (Collision.testRectangleToPoint(block.getBounds(), tank.getFutureBounds().getPoints()[0])) {
+                    if (tank.getVelocity() < 0) {
+                        tank.setVelocity(0);
                     }
-                    if (player.getVelRotation() < 0) { //TODO
-                        player.setVelRotation(0);
+                    if (tank.getVelRotation() < 0) { //TODO
+                        tank.setVelRotation(0);
                     }
                 }
 
                 //FRONT RIGHT
-                if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[1])) {
-                    if (player.getVelocity() < 0) {
-                        player.setVelocity(0);
+                if (Collision.testRectangleToPoint(block.getBounds(), tank.getFutureBounds().getPoints()[1])) {
+                    if (tank.getVelocity() < 0) {
+                        tank.setVelocity(0);
                     }
-                    if (player.getVelRotation() > 0) { //TODO
-                        player.setVelRotation(0);
+                    if (tank.getVelRotation() > 0) { //TODO
+                        tank.setVelRotation(0);
                     }
                 }
 
                 //BACK RIGHT
-                if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[2])) {
-                    if (player.getVelocity() > 0) {
-                        player.setVelocity(0);
+                if (Collision.testRectangleToPoint(block.getBounds(), tank.getFutureBounds().getPoints()[2])) {
+                    if (tank.getVelocity() > 0) {
+                        tank.setVelocity(0);
                     }
-                    if (player.getVelRotation() > 0) { //TODO
-                        player.setVelRotation(0);
+                    if (tank.getVelRotation() > 0) { //TODO
+                        tank.setVelRotation(0);
                     }
                 }
 
                 //BACK LEFT
-                if (Collision.testRectangleToPoint(block.getBounds(), player.getFutureBounds().getPoints()[3])) {
-                    if (player.getVelocity() > 0) {
-                        player.setVelocity(0);
+                if (Collision.testRectangleToPoint(block.getBounds(), tank.getFutureBounds().getPoints()[3])) {
+                    if (tank.getVelocity() > 0) {
+                        tank.setVelocity(0);
                     }
-                    if (player.getVelRotation() < 0) { //TODO
-                        player.setVelRotation(0);
-                    }
-                }
-            }
-
-            //PICKUP
-            for (PickUp pickUp : pickUps) {
-                if (!pickUp.isPickedUp()) {
-                    if (Collision.testCircleToRectangle((Circle) pickUp.getBounds(), (Rectangle) player.getBounds())) {
-                        pickUp = new PickUp(player);
+                    if (tank.getVelRotation() < 0) { //TODO
+                        tank.setVelRotation(0);
                     }
                 }
             }
 
             //MINE
             for (Mine mine : mines) {
-                if (Collision.testCircleToRectangle((Circle) mine.getBounds(), (Rectangle) player.getBounds())) {
+                if (Collision.testCircleToRectangle((Circle) mine.getBounds(), (Rectangle) tank.getBounds())) {
                     if (mine.isActive()) {
-                        handleExplosion(mine);
+                        handleExplosion(tank, mine);
                     }
                 }
             }
@@ -283,13 +278,38 @@ public class Handler {
 
     }
 
-    private void handleRebound(Segment segment, Bullet bullet) {
-        if (bullet.getRebounds() < bullet.getType().rebounds()) {
-            //Rebound
-            bullet.rebound(bullet.getX(), bullet.getY(), (float) segment.getAngle()); //TODO
-        } else {
-            removeBullet(bullet);
+    private void handleExplosion(GameObject trigger, Mine mine) {
+
+        if (mine.isActive()) {
+
+            // CHECK FOR RADIUS
+            for (Tank tank : tanks) {
+                if (Collision.testCircleToRectangle(mine.getExplosionBounds(), (Rectangle) tank.getBounds())) {
+                    actionListener.onKill(mine, tank);
+                }
+            }
+
+            for (Bullet bullet : bullets) {
+                if (Collision.testCircleToCircle(mine.getExplosionBounds(), (Circle) bullet.getBounds())) {
+                    actionListener.onBulletBreak(bullet);
+                }
+            }
+
+            for (Block block : map.getBlocks()) {
+                if (block.getType().isExplosionDamage()) {
+                    if (Collision.testCircleToRectangle(mine.getExplosionBounds(), (Rectangle) block.getBounds())) {
+                        block.setDestroyed(true);
+                        actionListener.onBlockDestroyed(mine, block);
+                    }
+                }
+            }
+
+            actionListener.onExplosion(trigger, mine);
+
+//                mineExplosions.put(mine, new Explosion(mine.getX(), mine.getY()));
+//                removedMines.add(mine);
         }
+
     }
 
     // PUBLIC HANDLERS ////////////////////////////////////////////////////////////////////////
@@ -301,34 +321,12 @@ public class Handler {
 //        }
 //    }
 
-    public void handleExplosion(Mine mine) {
-        if (mine.isActive()) {
-
-            // CHECK FOR RADIUS
-            for (Tank tank : tanks) {
-                if (Collision.testCircleToRectangle(mine.getExplosionBounds(), (Rectangle) tank.getBounds())) {
-                    System.out.println("This guy is dead...");
-                    removedTanks.add(tank);
-                }
-            }
-
-            for (Bullet bullet : bullets) {
-                if (Collision.testCircleToCircle(mine.getExplosionBounds(), (Circle) bullet.getBounds())) {
-                    removeBullet(bullet);
-                }
-            }
-
-            for (Block block : map.getBlocks()) {
-                if (block.getType().isExplosionDamage()) {
-                    if (Collision.testCircleToRectangle(mine.getExplosionBounds(), (Rectangle) block.getBounds())) {
-                        block.setDestroyed(true);
-                        removedBlocks.add(block);
-                    }
-                }
-            }
-
-            mineExplosions.put(mine, new Explosion(mine.getX(), mine.getY()));
-            removedMines.add(mine);
+    public void handleRebound(Segment segment, Bullet bullet) {
+        if (bullet.getRebounds() < bullet.getType().rebounds()) {
+            //Rebound
+            bullet.rebound(bullet.getX(), bullet.getY(), (float) segment.getAngle()); //TODO
+        } else {
+            removeBullet(bullet);
         }
     }
 
@@ -346,9 +344,8 @@ public class Handler {
         }
     }
 
-    public void handleMinePlaced(Tank tank) {
+    public void handleMinePlaced(Tank tank, Mine mine) {
         if (tank.isAlive()) {
-            Mine mine = new Mine(tank.getX(), tank.getY());
             mines.add(mine);
             mineHashMap.get(tank).add(mine);
         }
