@@ -18,19 +18,21 @@ import com.jmr.wrapper.common.listener.SocketListener;
 import com.jmr.wrapper.server.Server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Host implements SocketListener, PacketListener, ActionListener {
 
     private Server server;
-    private ArrayList<JoinPacket> joinPackets;
     private PacketManager packetManager;
 
     private Handler handler;
     private ArrayList<Player> players;
+    private HashMap<Player, Connection> playerConnetions;
+    private ArrayList<Connection> connections;
 
     public Host(int port) {
-        joinPackets = new ArrayList<>();
         packetManager = new PacketManager(this);
+        connections = new HashMap<>();
 
         try {
             server = new Server(port, port);
@@ -44,7 +46,7 @@ public class Host implements SocketListener, PacketListener, ActionListener {
     }
 
     private void redirect(Object object) {
-        for (Connection c : ConnectionManager.getInstance().getConnections()) {
+        for (Connection c : connections) {
             c.sendUdp(object);
         }
     }
@@ -58,18 +60,17 @@ public class Host implements SocketListener, PacketListener, ActionListener {
 
     @Override
     public void handleJoin(JoinPacket packet) {
-        joinPackets.add(packet);
         System.out.println("User: " + packet.username + " Color: " + packet.color + " ID: " + packet.id + " connected!");
-        JoinPacket[] temp = joinPackets.toArray(new JoinPacket[joinPackets.size()]);
+
         LobbyPacket lobbyPacket = new LobbyPacket(temp);
-        for (Connection c : ConnectionManager.getInstance().getConnections()) {
+        for (Connection c : connections.values()) {
             c.sendUdp(lobbyPacket);
         }
     }
 
     @Override
     public void handleLeave(LeavePacket packet) {
-        redirect(packet);
+        //redirect(packet);
     }
 
     @Override
@@ -79,7 +80,7 @@ public class Host implements SocketListener, PacketListener, ActionListener {
 
     @Override
     public void handleMove(CorrectionPacket packet) {
-        redirect(packet);
+        //redirect(packet);
     }
 
     @Override
@@ -127,13 +128,14 @@ public class Host implements SocketListener, PacketListener, ActionListener {
     @Override
     public void connected(Connection con) {
         System.out.println("Session connected.");
-        ConnectionManager.getInstance().addConnection(con);
+        Player pLayer = new Player()
     }
 
     @Override
     public void disconnected(Connection con) {
         System.out.println("Session disconnected.");
-
+        ConnectionManager.getInstance().removeConnection(con);
+        this.
     }
 
     @Override
