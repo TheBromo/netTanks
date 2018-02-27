@@ -30,30 +30,27 @@ public class OnlineSession extends Session implements SocketListener, PacketList
         client.connect();
 
         if (client.isConnected()) {
-            JoinPacket joinPacket = new JoinPacket(player.getId(), player.getUsername(), player.getColor());
+            JoinPacket joinPacket = new JoinPacket(player.getUsername(), player.getColor());
             client.getServerConnection().sendTcp(joinPacket);
         }
     }
 
     @Override
-    public void tick() {
-        handler.update();
-
+    public void update() {
         if (ticks >= 60) { // Once per second. Send Player's position for correction.
             if (player.getTank() != null) {
                 Tank tank = player.getTank();
-                CorrectionPacket correctionPacket = new CorrectionPacket(player.getId(), tank.getX(), tank.getY(), tank.getRotation(), tank.getTurret().getRotation());
+                CorrectionPacket correctionPacket = new CorrectionPacket(tank.getX(), tank.getY(), tank.getRotation(), tank.getTurret().getRotation());
                 client.getServerConnection().sendUdp(correctionPacket);
             }
 
             ticks = 0;
         }
-        ticks++;
     }
 
     @Override
     public void spawn() {
-        SpawnPacket spawnPacket = new SpawnPacket(player.getId(), 100, 100, 0);
+        SpawnPacket spawnPacket = new SpawnPacket(100, 100, 0);
         client.getServerConnection().sendUdp(spawnPacket);
     }
 
@@ -63,7 +60,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
 
         if (tank != null) {
             tank.setVelocity(velocity);
-            VelocityPacket velocityPacket = new VelocityPacket(player.getId(), tank.getVelocity(), tank.getVelRotation());
+            VelocityPacket velocityPacket = new VelocityPacket(tank.getVelocity(), tank.getVelRotation());
             client.getServerConnection().sendUdp(velocityPacket);
         }
     }
@@ -74,7 +71,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
 
         if (tank != null) {
             tank.setVelRotation(velocity);
-            VelocityPacket velocityPacket = new VelocityPacket(player.getId(), tank.getVelocity(), tank.getVelRotation());
+            VelocityPacket velocityPacket = new VelocityPacket(tank.getVelocity(), tank.getVelRotation());
             client.getServerConnection().sendUdp(velocityPacket);
         }
     }
@@ -86,7 +83,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
             Turret turret = tank.getTurret();
             turret.setRotation(rot);
 
-            MousePacket mousePacket = new MousePacket(player.getId(), turret.getRotation());
+            MousePacket mousePacket = new MousePacket(turret.getRotation());
             client.getServerConnection().sendUdp(mousePacket);
         }
     }
@@ -96,7 +93,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
         Tank tank = player.getTank();
         if (tank != null) {
             Bullet bullet = new Bullet(tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation(), tank.getBulletType());
-            ShootPacket shootPacket = new ShootPacket(player.getId(), tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation(), bullet.getId(), bullet.getType());
+            ShootPacket shootPacket = new ShootPacket(tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation(), bullet.getId(), bullet.getType());
             client.getServerConnection().sendUdp(shootPacket);
         }
     }
@@ -106,7 +103,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
         Tank tank = player.getTank();
         if (tank != null) {
             Mine mine = new Mine(tank.getX(), tank.getY());
-            PlacePacket placePacket = new PlacePacket(player.getId(), mine.getX(), mine.getY(), mine.getId());
+            PlacePacket placePacket = new PlacePacket(mine.getX(), mine.getY(), mine.getId());
             client.getServerConnection().sendUdp(placePacket);
         }
     }
@@ -122,7 +119,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     @Override
     public void handleJoin(JoinPacket packet) {
         // Check whether it's us
-        if (packet.id.compareTo(player.getId()) != 0) {
+        if (packet.id != player.getId()) {
             //If not -> add Player:
             Player player = new Player(packet.username, packet.color, packet.id);
             players.add(player);
@@ -140,7 +137,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
         JoinPacket[] joinPackets = packet.joinPackets;
 
         for (JoinPacket joinPacket : joinPackets) {
-            if (joinPacket.id.compareTo(player.getId()) != 0) {
+            if (joinPacket.id != player.getId()) {
                 Player player = new Player(joinPacket.username, joinPacket.color, joinPacket.id);
                 players.add(player);
             }
@@ -150,7 +147,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     @Override
     public void handleMove(CorrectionPacket packet) {
         //System.out.println("x: " + packet.x + " y: " + packet.y + " rot: " + packet.rot + " mx: " + packet.mx + " my: " + packet.my);
-        if (packet.id.compareTo(player.getId()) != 0) {
+        if (packet.id != player.getId()) {
             Player player = getPlayer(packet.id);
 
             // CorrectionPacket Tank

@@ -10,8 +10,7 @@ public class ShootPacket extends Packet {
     public UUID bullet;
     public Type type;
 
-    public ShootPacket(UUID id, float x, float y, float rot, UUID bullet, Type type) {
-        super(id);
+    public ShootPacket(float x, float y, float rot, UUID bullet, Type type) {
         this.x = x;
         this.y = y;
         this.rot = rot;

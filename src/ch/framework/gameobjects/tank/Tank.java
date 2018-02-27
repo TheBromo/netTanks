@@ -5,7 +5,11 @@ import ch.framework.gameobjects.Bullet;
 import ch.framework.gameobjects.GameObject;
 import javafx.scene.paint.Color;
 
+import java.util.UUID;
+
 public class Tank extends GameObject {
+
+    private UUID id;
 
     private float rotation;
     private float velocity, velRotation;
@@ -15,10 +19,11 @@ public class Tank extends GameObject {
     private Bullet.Type bulletType;
     private Color color;
 
-    public Tank(float x, float y, float rotation) {
+    public Tank(UUID id, float x, float y, float rotation) {
         this.x = x;
         this.y = y;
         this.rotation = rotation;
+        this.id = id;
         alive = true;
 
         turret = new Turret(this, rotation);
@@ -88,6 +93,10 @@ public class Tank extends GameObject {
 
     public void setAlive(boolean alive) {
         this.alive = alive;
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public Rectangle getFutureBounds() {

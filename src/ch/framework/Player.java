@@ -3,16 +3,14 @@ package ch.framework;
 import ch.framework.gameobjects.tank.Tank;
 import javafx.scene.paint.Color;
 
-import java.util.UUID;
-
 public class Player {
 
-    private UUID id;
+    private int id;
     private Tank tank;
     private String username;
     private String color;
 
-    public Player(String username, String color, UUID id) {
+    public Player(String username, String color, int id) {
         this.username = username;
         this.color = color;
         this.id = id;
@@ -43,11 +41,11 @@ public class Player {
         this.color = color;
     }
 
-    public UUID getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(int id) {
         this.id = id;
     }
 }

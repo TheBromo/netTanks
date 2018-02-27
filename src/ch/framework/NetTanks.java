@@ -43,22 +43,16 @@ public class NetTanks extends Application {
         return HEIGHT;
     }
 
-
     public Pane getRoot() {
         return root;
     }
 
-//    public HUD getHud() {
-//        return hud;
-//    }
-
+    public static NetTanks getInstance() {
+        return instance;
+    }
 
     public static void main(String[] args) {
         NetTanks netTanks = NetTanks.getInstance();
         netTanks.launch(args);
-    }
-
-    public static NetTanks getInstance() {
-        return instance;
     }
 }

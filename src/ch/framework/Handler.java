@@ -3,13 +3,13 @@ package ch.framework;
 import ch.framework.collision.*;
 import ch.framework.effects.BulletTrail;
 import ch.framework.effects.Explosion;
+import ch.framework.gameobjects.Bullet;
 import ch.framework.gameobjects.GameObject;
 import ch.framework.gameobjects.Mine;
 import ch.framework.gameobjects.PickUp;
-import ch.framework.gameobjects.Bullet;
 import ch.framework.gameobjects.tank.Tank;
-import ch.framework.map.Map;
 import ch.framework.map.Block;
+import ch.framework.map.Map;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -427,6 +427,14 @@ public class Handler {
 
     public HashMap<Mine, Explosion> getMineExplosions() {
         return mineExplosions;
+    }
+
+    public HashMap<Tank, ArrayList<Bullet>> getBulletHashMap() {
+        return bulletHashMap;
+    }
+
+    public HashMap<Tank, ArrayList<Mine>> getMineHashMap() {
+        return mineHashMap;
     }
 
     public void setActionListener(ActionListener actionListener) {

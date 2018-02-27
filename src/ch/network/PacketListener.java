@@ -1,10 +1,11 @@
 package ch.network;
 
 import ch.network.packets.*;
+import com.jmr.wrapper.common.Connection;
 
 public interface PacketListener {
 
-    void handleJoin(JoinPacket packet);
+    void handleJoin(JoinPacket packet, Connection con);
     void handleLeave(LeavePacket packet);
     void handleLobby(LobbyPacket packet);
     void handleMove(CorrectionPacket packet);

@@ -15,17 +15,7 @@ public class Bullet extends GameObject {
 
     private Type type;
 
-    public Bullet(float rootX, float rootY, float rotation, Type type) {
-        init(rootX, rootY, rotation, type);
-        id = UUID.randomUUID();
-    }
-
     public Bullet(UUID id, float rootX, float rootY, float rotation, Type type) {
-        init(rootX, rootY, rotation, type);
-        this.id = id;
-    }
-
-    private void init(float rootX, float rootY, float rotation, Type type) {
         this.rootX = rootX;
         this.rootY = rootY;
         this.rotation = rotation;
@@ -35,6 +25,7 @@ public class Bullet extends GameObject {
         this.radius = type.radius();
         bounds = new Circle(x, y, radius);
         active = false;
+        this.id = id;
     }
 
     public void update() {

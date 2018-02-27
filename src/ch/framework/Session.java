@@ -9,7 +9,7 @@ import ch.framework.map.Block;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class Session implements ActionListener {
+public abstract class Session implements ActionListener {
 
     protected int ticks;
     protected Player player;
@@ -19,50 +19,37 @@ public class Session implements ActionListener {
 
     public Session(String username, String color) {
         players = new ArrayList<>();
-        this.player = new Player(username, color, UUID.randomUUID());
+        this.player = new Player(username, color, 0);
         players.add(player);
 
         handler = new Handler();
         handler.setActionListener(this);
-
-        System.out.println("ID: " + player.getId());
     }
 
     public void tick() {
         handler.update();
         ticks++;
+        update();
     }
+
+    public abstract void update();
 
 
     // PLAYER MOVEMENT /////////////////////////////////////////////////////
 
-    public void spawn() {
+    public abstract void spawn();
 
-    }
+    public abstract void setVelocity(float velocity);
 
-    public void setVelocity(float velocity) {
+    public abstract void setVelRotation(float velocity);
 
-    }
+    public abstract void mouseMoved(float rot);
 
-    public void setVelRotation(float velocity) {
+    public abstract void shoot();
 
-    }
+    public abstract void place();
 
-    public void mouseMoved(float rot) {
-
-    }
-
-    public void shoot() {
-
-    }
-
-    public void place() {
-
-    }
-
-    public void pickUp() {
-
-    }
+    public abstract void pickUp();
 
     // HANDLER ACTIONS //////////////////////////////////////////////////////////
 
@@ -95,7 +82,7 @@ public class Session implements ActionListener {
 
     @Override
     public void onBlockDestroyed(GameObject trigger, Block block) {
-        System.out.println("Muahahaha");
+
     }
 
     // GETTERS & SETTERS ////////////////////////////////////////////////////////
@@ -104,9 +91,9 @@ public class Session implements ActionListener {
         return player;
     }
 
-    public Player getPlayer(UUID id) {
+    public Player getPlayer(int id) {
         for (Player player : players) {
-            if (id.compareTo(player.getId()) == 0) {
+            if (id == player.getId()) {
                 return player;
             }
         }
@@ -125,7 +112,13 @@ public class Session implements ActionListener {
     }
 
     public Tank getTank(UUID id) {
-        return getPlayer(id).getTank();
+        for (Tank tank : handler.getTanks()) {
+            if (id.compareTo(tank.getId()) == 0) {
+                return tank;
+            }
+        }
+
+        return null;
     }
 
     public Handler getHandler() {

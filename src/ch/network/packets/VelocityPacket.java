@@ -1,13 +1,10 @@
 package ch.network.packets;
 
-import java.util.UUID;
-
 public class VelocityPacket extends Packet {
 
     public float vel, velRot;
 
-    public VelocityPacket(UUID id, float vel, float velRot) {
-        super(id);
+    public VelocityPacket(float vel, float velRot) {
         this.vel = vel;
         this.velRot = velRot;
     }
