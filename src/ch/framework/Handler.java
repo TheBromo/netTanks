@@ -13,6 +13,8 @@ import ch.framework.map.Map;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 public class Handler {
 
@@ -356,11 +358,13 @@ public class Handler {
         bulletTrails.remove(bullet);
     }
 
+    /*
     public Tank spawnTank(float x, float y, float rotation) {
         Tank tank = new Tank(x, y, rotation);
         addTank(tank);
         return tank;
     }
+    */
 
     public void addTank(Tank tank) {
         bulletHashMap.put(tank, new ArrayList<>());
@@ -373,6 +377,60 @@ public class Handler {
     }
 
     // GETTERS & SETTERS //////////////////////////////////////////////////////
+
+    public Tank getTank(UUID id) {
+        for (Tank tank : tanks) {
+            if (tank.getId().compareTo(id) == 0) {
+                return tank;
+            }
+        }
+
+        return null;
+    }
+
+    public Bullet getBullet(UUID id) {
+        for (Bullet bullet : bullets) {
+            if (bullet.getId().compareTo(id) == 0) {
+                return bullet;
+            }
+        }
+
+        return null;
+    }
+
+    public List<Bullet> getBullets(ArrayList<UUID> ids) {
+        ArrayList<Bullet> bullets = new ArrayList<>();
+        for (UUID id : ids) {
+            Bullet bullet = getBullet(id);
+            if (bullet != null) {
+                bullets.add(bullet);
+            }
+        }
+        return bullets;
+    }
+
+    public Mine getMine(UUID id) {
+        for (Mine mine : mines) {
+            if (mine.getId().compareTo(id) == 0) {
+                return mine;
+            }
+        }
+
+        return null;
+    }
+
+    public List<Mine> getMines(ArrayList<UUID> ids) {
+        ArrayList<Mine> mines = new ArrayList<>();
+        for (UUID id : ids) {
+            Mine mine = getMine(id);
+            if (mine != null) {
+                mines.add(mine);
+            }
+        }
+        return mines;
+    }
+
+
 
     public ArrayList<Tank> getTanks() {
         return tanks;

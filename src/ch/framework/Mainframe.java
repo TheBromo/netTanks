@@ -69,14 +69,14 @@ public class Mainframe extends Pane {
 //            }
 //            session.mouseMoved(rot);
 //        } else {
-            Tank tank = session.getPlayer().getTank();
-            if (tank != null) {
-                float rot = ((float) Math.toDegrees(Math.atan2(((mouseY - this.getHeight()/2) - camera.getCy() - tank.getY()), ((mouseX - this.getWidth()/2) - camera.getCx() - tank.getX()))) + 90);
-                if (rot < 0) {
-                    rot += 360;
-                }
-                session.mouseMoved(rot);
-            }
+//            Tank tank = session.getPlayer().getTank();
+//            if (tank != null) {
+//                float rot = ((float) Math.toDegrees(Math.atan2(((mouseY - this.getHeight()/2) - camera.getCy() - tank.getY()), ((mouseX - this.getWidth()/2) - camera.getCx() - tank.getX()))) + 90);
+//                if (rot < 0) {
+//                    rot += 360;
+//                }
+//                session.mouseMoved(rot);
+//            }
 //        }
 
 //        Tank tank = session.getPlayer().getTank();

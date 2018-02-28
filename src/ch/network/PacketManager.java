@@ -1,6 +1,7 @@
 package ch.network;
 
 import ch.network.packets.*;
+import com.jmr.wrapper.common.Connection;
 
 public class PacketManager {
 
@@ -11,10 +12,10 @@ public class PacketManager {
         this.packetListener = packetListener;
     }
 
-    public void handlePacket(Object object) {
+    public void handlePacket(Object object, Connection con) {
 
         if (object instanceof JoinPacket) {
-            packetListener.handleJoin((JoinPacket) object);
+            packetListener.handleJoin((JoinPacket) object, con);
         }
 
         if (object instanceof LeavePacket) {

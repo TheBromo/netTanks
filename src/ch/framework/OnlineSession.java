@@ -11,6 +11,8 @@ import com.jmr.wrapper.client.Client;
 import com.jmr.wrapper.common.Connection;
 import com.jmr.wrapper.common.listener.SocketListener;
 
+import java.util.UUID;
+
 public class OnlineSession extends Session implements SocketListener, PacketListener {
 
     private PacketManager packetManager;
@@ -39,7 +41,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     public void update() {
         if (ticks >= 60) { // Once per second. Send Player's position for correction.
             if (player.getTank() != null) {
-                Tank tank = player.getTank();
+                Tank tank = handler.getTank(player.getTank());
                 CorrectionPacket correctionPacket = new CorrectionPacket(tank.getX(), tank.getY(), tank.getRotation(), tank.getTurret().getRotation());
                 client.getServerConnection().sendUdp(correctionPacket);
             }
@@ -50,13 +52,13 @@ public class OnlineSession extends Session implements SocketListener, PacketList
 
     @Override
     public void spawn() {
-        SpawnPacket spawnPacket = new SpawnPacket(100, 100, 0);
+        SpawnPacket spawnPacket = new SpawnPacket(UUID.randomUUID(),100, 100, 0);
         client.getServerConnection().sendUdp(spawnPacket);
     }
 
     @Override
     public void setVelocity(float velocity) {
-        Tank tank = player.getTank();
+        Tank tank = handler.getTank(player.getTank());
 
         if (tank != null) {
             tank.setVelocity(velocity);
@@ -67,7 +69,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
 
     @Override
     public void setVelRotation(float velocity) {
-        Tank tank = player.getTank();
+        Tank tank = handler.getTank(player.getTank());
 
         if (tank != null) {
             tank.setVelRotation(velocity);
@@ -79,7 +81,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     @Override
     public void mouseMoved(float rot) {
         if (player.getTank() != null) {
-            Tank tank = player.getTank();
+            Tank tank = handler.getTank(player.getTank());
             Turret turret = tank.getTurret();
             turret.setRotation(rot);
 
@@ -90,9 +92,9 @@ public class OnlineSession extends Session implements SocketListener, PacketList
 
     @Override
     public void shoot() {
-        Tank tank = player.getTank();
+        Tank tank = handler.getTank(player.getTank());
         if (tank != null) {
-            Bullet bullet = new Bullet(tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation(), tank.getBulletType());
+            Bullet bullet = new Bullet(UUID.randomUUID(), tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation(), tank.getBulletType());
             ShootPacket shootPacket = new ShootPacket(tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation(), bullet.getId(), bullet.getType());
             client.getServerConnection().sendUdp(shootPacket);
         }
@@ -100,7 +102,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
 
     @Override
     public void place() {
-        Tank tank = player.getTank();
+        Tank tank = handler.getTank(player.getTank());
         if (tank != null) {
             Mine mine = new Mine(tank.getX(), tank.getY());
             PlacePacket placePacket = new PlacePacket(mine.getX(), mine.getY(), mine.getId());
@@ -117,7 +119,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     // NETWORK PACKETS //////////////////////////////////////////////////////////
 
     @Override
-    public void handleJoin(JoinPacket packet) {
+    public void handleJoin(JoinPacket packet, Connection connection) {
         // Check whether it's us
         if (packet.id != player.getId()) {
             //If not -> add Player:
@@ -151,7 +153,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
             Player player = getPlayer(packet.id);
 
             // CorrectionPacket Tank
-            Tank tank = player.getTank();
+            Tank tank = handler.getTank(player.getTank());
             tank.setX(packet.x);
             tank.setY(packet.y);
             tank.setRotation(packet.rot);
@@ -165,7 +167,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     @Override
     public void handleHit(HitPacket packet) {
         Player player = getPlayer(packet.id);
-        handler.removeTank(player.getTank());
+        handler.removeTank(handler.getTank(player.getTank()));
     }
 
     @Override
@@ -178,7 +180,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
         Player player = getPlayer(packet.id);
         if (player.getTank() != null) {
             Mine mine = new Mine(packet.x, packet.y);
-            handler.handleMinePlaced(player.getTank(), mine);
+            handler.handleMinePlaced(handler.getTank(player.getTank()), mine);
         }
     }
 
@@ -187,7 +189,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
         Player player = getPlayer(packet.id);
         if (player.getTank() != null) {
             Bullet bullet = new Bullet(packet.bullet, packet.x, packet.y, packet.rot, packet.type);
-            handler.handleShot(player.getTank(), bullet);
+            handler.handleShot(handler.getTank(player.getTank()), bullet);
         }
     }
 
@@ -197,26 +199,28 @@ public class OnlineSession extends Session implements SocketListener, PacketList
 
         // If player for some reason already has a spawned Tank:
         if (player.getTank() != null) {
-            handler.removeTank(player.getTank());
+            handler.removeTank(handler.getTank(player.getTank()));
         }
 
-        Tank tank = handler.spawnTank(packet.x, packet.y, packet.rot);
-        player.setTank(tank);
+        Tank tank = new Tank(packet.tank, packet.x, packet.y, packet.rot);
+        player.setTank(tank.getId());
+        handler.addTank(tank);
     }
 
     @Override
     public void handleDestroy(DestroyPacket packet) {
-        Bullet bullet = getBullet(packet.id);
-        if (bullet != null) {
-            handler.removeBullet(bullet);
-        }
+        //Bullet bullet = getBullet(packet.id);
+        //if (bullet != null) {
+        //    handler.removeBullet(bullet);
+        //}
 
         // TODO: BLOCK, MINE
     }
 
     @Override
     public void handleVelocity(VelocityPacket packet) {
-        Tank tank = getTank(packet.id);
+        Player player = getPlayer(packet.id);
+        Tank tank = getTank(player.getTank());
         if (tank != null) {
             tank.setVelocity(packet.vel);
             tank.setVelRotation(packet.velRot);
@@ -225,7 +229,8 @@ public class OnlineSession extends Session implements SocketListener, PacketList
 
     @Override
     public void handleMouse(MousePacket packet) {
-        Tank tank = getTank(packet.id);
+        Player player = getPlayer(packet.id);
+        Tank tank = getTank(player.getTank());
         if (tank != null) {
             tank.getTurret().setRotation(packet.rot);
         }
@@ -245,6 +250,6 @@ public class OnlineSession extends Session implements SocketListener, PacketList
 
     @Override
     public void received(Connection con, Object object) {
-        packetManager.handlePacket(object);
+        packetManager.handlePacket(object, con);
     }
 }
