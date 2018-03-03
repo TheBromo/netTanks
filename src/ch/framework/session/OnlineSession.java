@@ -160,8 +160,6 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     @Override
     public void handleWelcome(WelcomePacket packet, Connection con) {
         player.setId(packet.id);
-        JoinPacket jp = new JoinPacket(player.getUsername(), player.getColor());
-        client.getServerConnection().sendUdp(jp);
     }
 
     @Override
@@ -292,6 +290,8 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     @Override
     public void connected(Connection con) {
         System.out.println("Connected to Host: " + con.getAddress() + ":" + con.getUdpPort());
+        JoinPacket jp = new JoinPacket(player.getUsername(), player.getColor());
+        client.getServerConnection().sendUdp(jp);
     }
 
     @Override

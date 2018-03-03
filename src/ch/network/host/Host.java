@@ -33,7 +33,7 @@ public class Host implements SocketListener, PacketListener, ActionListener {
             server = new Server(port, port);
             server.setListener(this);
             if (server.isConnected()) {
-                System.out.println("Server has started.");
+                System.out.println("Server has started. Port:" + server.getUdpPort());
             }
         } catch (NNCantStartServer e) {
             e.printStackTrace();
@@ -41,6 +41,7 @@ public class Host implements SocketListener, PacketListener, ActionListener {
     }
 
     private void sendTo(Connection con, Object ... packets) {
+        System.out.println(con.getUdpPort());
         for (Object o : packets) {
             con.sendUdp(o);
         }
@@ -125,7 +126,10 @@ public class Host implements SocketListener, PacketListener, ActionListener {
         player.setId(connection.getId());
         session.addPlayer(player);
 
-        System.out.println("Player joined: " + player.getUsername() + " ID: " + player.getId() + " Color:" + player.getColor());
+        WelcomePacket wp = new WelcomePacket(player.getId());
+        sendTo(connection, wp);
+
+        System.out.println("Player joined: " + player.getUsername() + " ID: " + player.getId() + " Color:" + player.getColor() + " Port:" + connection.getUdpPort());
         packet.id = connection.getId();
         broadcast(packet);
     }
@@ -133,8 +137,10 @@ public class Host implements SocketListener, PacketListener, ActionListener {
     @Override
     public void handleLeave(LeavePacket packet, Connection connection) {
         Player player = session.getPlayer(connection.getId());
-        System.out.println("Player left: " + player.getUsername() + " ID: " + player.getId() + " Color:" + player.getColor());
-        session.removePlayer(player);
+        if (player != null) {
+            System.out.println("Player left: " + player.getUsername() + " ID: " + player.getId() + " Color:" + player.getColor());
+            session.removePlayer(player);
+        }
     }
 
     @Override
@@ -195,9 +201,6 @@ public class Host implements SocketListener, PacketListener, ActionListener {
     public void connected(Connection con) {
         System.out.println("Session connected. ID:" + con.getId() + " IP:" + con.getAddress() + ":" + con.getUdpPort());
         connections.add(con);
-
-        WelcomePacket wp = new WelcomePacket(con.getId());
-        sendTo(con, wp);
     }
 
     @Override
