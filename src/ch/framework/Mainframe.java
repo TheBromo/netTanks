@@ -1,9 +1,9 @@
 package ch.framework;
 
-import ch.framework.gameobjects.tank.Tank;
+import ch.framework.session.OnlineSession;
+import ch.framework.session.Session;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
@@ -11,12 +11,10 @@ import javafx.util.Duration;
 public class Mainframe extends Pane {
 
     private static int FPS;
-    private float mouseX, mouseY;
-
     private Timeline gameloop;
     private Camera camera;
-    private boolean follow;
     private Session session;
+    private Player player;
 
     public Mainframe(int width, int height) {
 
@@ -36,7 +34,11 @@ public class Mainframe extends Pane {
         this.addEventFilter(MouseEvent.ANY, (e) -> this.requestFocus());
     }
 
-    public void start(Session session) {
+    public void startOnlineSession(String host, String username, String color) {
+        player = new Player(username, color);
+        OnlineSession session = new OnlineSession(player);
+        session.connectTo(host);
+
         this.session = session;
         camera = new Camera(this, session.getHandler());
         camera.setLocation( (float) - this.getWidth() / 2 - 32, (float) - this.getHeight() / 2 - 32);
@@ -53,36 +55,16 @@ public class Mainframe extends Pane {
 
     /**
      * Gets called 60 times per second by the gameloop.
-     * Used to update and camera objects etc.
+     * Used to tick and camera objects etc.
      */
     private void update() {
+
         FPS++;
 
         //Update all the things!
         camera.render();
         session.tick();
 
-//        if (follow) {
-//            float rot = ((float) Math.toDegrees(Math.atan2((-mouseY + camera.getCx()), (-mouseX + camera.getCx()))) + 90);
-//            if (rot < 0) {
-//                rot += 360;
-//            }
-//            session.mouseMoved(rot);
-//        } else {
-//            Tank tank = session.getPlayer().getTank();
-//            if (tank != null) {
-//                float rot = ((float) Math.toDegrees(Math.atan2(((mouseY - this.getHeight()/2) - camera.getCy() - tank.getY()), ((mouseX - this.getWidth()/2) - camera.getCx() - tank.getX()))) + 90);
-//                if (rot < 0) {
-//                    rot += 360;
-//                }
-//                session.mouseMoved(rot);
-//            }
-//        }
-
-//        Tank tank = session.getPlayer().getTank();
-//        if (tank != null) {
-//            camera.setTarget(tank);
-//        }
     }
 
     private void setKeyInput() {
@@ -90,16 +72,16 @@ public class Mainframe extends Pane {
         this.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case W:
-                    session.setVelocity(-1.5f);
+                    player.changeVelocity(-1.5f);
                     break;
                 case A:
-                    session.setVelRotation(-1.2f);
+                    player.changeRotation(-1.2f);
                     break;
                 case S:
-                    session.setVelocity(1.5f);
+                    player.changeVelocity(1.5f);
                     break;
                 case D:
-                    session.setVelRotation(1.2f);
+                    player.changeRotation(1.2f);
                     break;
                 case TAB:
                     //hud.setPlayerInfoVisibility(true);
@@ -111,16 +93,16 @@ public class Mainframe extends Pane {
         this.setOnKeyReleased(event -> {
             switch (event.getCode()) {
                 case W:
-                    session.setVelocity(0);
+                    player.changeVelocity(0);
                     break;
                 case A:
-                    session.setVelRotation(0);
+                    player.changeRotation(0);
                     break;
                 case S:
-                    session.setVelocity(0);
+                    player.changeVelocity(0);
                     break;
                 case D:
-                    session.setVelRotation(0);
+                    player.changeRotation(0);
                     break;
                 case F1:
                     //hud.toggleOverlayVisibility();
@@ -130,10 +112,10 @@ public class Mainframe extends Pane {
                     break;
                 case C:
                     //player.setColor(new Color(random.nextDouble(), random.nextDouble(), random.nextDouble(), 1));
-                    session.spawn();
+                    player.spawn();
                     break;
                 case SPACE:
-                    session.place();
+                    player.place();
                     break;
             }
         });
@@ -141,14 +123,12 @@ public class Mainframe extends Pane {
 
     private void setMouseInput() {
         this.setOnMouseClicked(event -> {
-            session.shoot();
+            player.shoot();
         });
 
 
         this.setOnMousePressed(event -> {
-            if (event.getButton() == MouseButton.PRIMARY) {
-                //handler.handleShot(player.getTank());
-            }
+
         });
 
         this.setOnMouseReleased(event -> {
@@ -156,14 +136,16 @@ public class Mainframe extends Pane {
         });
 
         this.setOnMouseMoved(event -> {
-            mouseX = (float) event.getX();
-            mouseY = (float) event.getY();
+            float mx = (float) event.getX();
+            float my = (float) event.getY();
+            player.changeTurretRotation(mx, my);
         });
 
         this.setOnMouseDragged(event -> {
-            //Still update mouse position even if the mouse buttons are down...
-            mouseX = (float) event.getX();
-            mouseY = (float) event.getY();
+            //Still tick mouse position even if the mouse buttons are down...
+            float mx = (float) event.getX();
+            float my = (float) event.getY();
+            player.changeTurretRotation(mx, my);
         });
 
 //        this.setOnScroll(se -> {

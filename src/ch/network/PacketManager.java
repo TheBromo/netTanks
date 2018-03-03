@@ -14,52 +14,56 @@ public class PacketManager {
 
     public void handlePacket(Object object, Connection con) {
 
-        if (object instanceof JoinPacket) {
+        if (object instanceof WelcomePacket) {
+            packetListener.handleWelcome((WelcomePacket) object, con);
+        }
+
+        else if (object instanceof JoinPacket) {
             packetListener.handleJoin((JoinPacket) object, con);
         }
 
-        if (object instanceof LeavePacket) {
-            packetListener.handleLeave((LeavePacket) object);
+        else if (object instanceof LeavePacket) {
+            packetListener.handleLeave((LeavePacket) object, con);
         }
 
-        if (object instanceof LobbyPacket) {
-            packetListener.handleLobby((LobbyPacket) object);
+        else if (object instanceof LobbyPacket) {
+            packetListener.handleLobby((LobbyPacket) object, con);
         }
 
-        if (object instanceof CorrectionPacket) {
-            packetListener.handleMove((CorrectionPacket) object);
+        else if (object instanceof CorrectionPacket) {
+            packetListener.handleMove((CorrectionPacket) object, con);
         }
 
-        if (object instanceof HitPacket) {
-            packetListener.handleHit((HitPacket) object);
+        else if (object instanceof HitPacket) {
+            packetListener.handleHit((HitPacket) object, con);
         }
 
-        if (object instanceof PickUpPacket) {
-            packetListener.handlePickUp((PickUpPacket) object);
+        else if (object instanceof PickUpPacket) {
+            packetListener.handlePickUp((PickUpPacket) object, con);
         }
 
-        if (object instanceof PlacePacket) {
-            packetListener.handlePlace((PlacePacket) object);
+        else if (object instanceof PlacePacket) {
+            packetListener.handlePlace((PlacePacket) object, con);
         }
 
-        if (object instanceof ShootPacket) {
-            packetListener.handleShoot((ShootPacket) object);
+        else if (object instanceof ShootPacket) {
+            packetListener.handleShoot((ShootPacket) object, con);
         }
 
-        if (object instanceof SpawnPacket) {
-            packetListener.handleSpawn((SpawnPacket) object);
+        else if (object instanceof SpawnPacket) {
+            packetListener.handleSpawn((SpawnPacket) object, con);
         }
 
-        if (object instanceof DestroyPacket) {
-            packetListener.handleDestroy((DestroyPacket) object);
+        else if (object instanceof DestroyPacket) {
+            packetListener.handleDestroy((DestroyPacket) object, con);
         }
 
-        if (object instanceof VelocityPacket) {
-            packetListener.handleVelocity((VelocityPacket) object);
+        else if (object instanceof VelocityPacket) {
+            packetListener.handleVelocity((VelocityPacket) object, con);
         }
 
-        if (object instanceof MousePacket) {
-            packetListener.handleMouse((MousePacket) object);
+        else if (object instanceof MousePacket) {
+            packetListener.handleMouse((MousePacket) object, con);
         }
 
         packetsReceived++;

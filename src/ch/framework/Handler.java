@@ -62,7 +62,7 @@ public class Handler {
         this.map = new Map(Map.Maps.MAP1);
     }
 
-    public void update() {
+    public void tick() {
         //Check for any collisions before updating
         handleCollision();
 

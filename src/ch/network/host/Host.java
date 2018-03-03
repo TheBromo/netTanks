@@ -1,7 +1,6 @@
 package ch.network.host;
 
 import ch.framework.ActionListener;
-import ch.framework.Handler;
 import ch.framework.Player;
 import ch.framework.gameobjects.Bullet;
 import ch.framework.gameobjects.GameObject;
@@ -17,24 +16,18 @@ import com.jmr.wrapper.common.listener.SocketListener;
 import com.jmr.wrapper.server.Server;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
 
 public class Host implements SocketListener, PacketListener, ActionListener {
 
     private Server server;
     private PacketManager packetManager;
-
-    private Handler handler;
-    private ArrayList<Player> players;
-    private HashMap<Player, Connection> playerConnections;
     private ArrayList<Connection> connections;
+
+    private HostSession session;
 
     public Host(int port) {
         packetManager = new PacketManager(this);
         connections = new ArrayList<>();
-        playerConnections = new HashMap<>();
-        players = new ArrayList<>();
 
         try {
             server = new Server(port, port);
@@ -53,7 +46,7 @@ public class Host implements SocketListener, PacketListener, ActionListener {
         }
     }
 
-    private void send(Object ... packets) {
+    private void broadcast(Object ... packets) {
         for (Connection c : connections) {
             for (Object o : packets) {
                 c.sendUdp(o);
@@ -68,117 +61,131 @@ public class Host implements SocketListener, PacketListener, ActionListener {
     }
 
     public void startSession() {
-        players.clear();
-        handler = new Handler();
+        session = new HostSession();
+        session.start();
     }
 
     // PACKETS ////////////////////////////////////////////////////////////////////
 
+
+    @Override
+    public void handleWelcome(WelcomePacket packet, Connection con) {
+
+    }
+
     @Override
     public void handleJoin(JoinPacket packet, Connection connection) {
-        System.out.println("User: " + packet.username + " Color: " + packet.color + " ID: " + packet.id + " connected!");
+//        System.out.println("User: " + packet.username + " Color: " + packet.color + " ID: " + connection.getId() + " connected!");
+//
+//        if (connections.contains(connection)) {
+//            Player player = new Player(packet.username, packet.color, connection.getId());
+//
+//            ArrayList<Object> objects = new ArrayList<>();
+//            for (Player p : players) {
+//
+//                // Send User
+//                JoinPacket jp = new JoinPacket(p.getUsername(), p.getColor());
+//                jp.id = p.getId();
+//                //objects.add(jp);
+//                System.out.println(connection.getUdpPort());
+//                connection.sendUdp(jp);
+//
+//                // Send Tank
+//                Tank tank = handler.getTank(p.getTank());
+//                if (tank != null) {
+//                    SpawnPacket sp = new SpawnPacket(tank.getId(), tank.getX(), tank.getY(), tank.getRotation());
+//                    sp.id = p.getId();
+//                    //objects.add(sp);
+//                    connection.sendUdp(sp);
+//                }
+//
+//                // Send Bullets
+//                for (Bullet bullet : handler.getBullets(p.getBullets())) {
+//                    ShootPacket sp = new ShootPacket(bullet.getX(), bullet.getY(), bullet.getRotation(), bullet.getId(), bullet.getType());
+//                    sp.id = p.getId();
+//                    //objects.add(sp);
+//                    connection.sendUdp(sp);
+//                }
+//
+//                for (Mine mine : handler.getMines(p.getMines())) {
+//                    // TODO send mine packets
+//                }
+//            }
+//            sendTo(connection, objects);
+//
+//            players.add(player);
+//
+//            // Inform the other players in the Session:
+//            JoinPacket joinPacket = new JoinPacket(player.getUsername(), player.getColor());
+//            joinPacket.id = player.getId();
+//            broadcast(joinPacket);
+//        }
 
-        if (connections.contains(connection)) {
-            Player player = new Player(packet.username, packet.color, connection.getId());
-            players.add(player);
+        Player player = new Player(packet.username, packet.color);
+        player.setId(connection.getId());
+        session.addPlayer(player);
 
-            ArrayList<Object> objects = new ArrayList<>();
-            for (Player p : players) {
-
-                // Send User
-                JoinPacket jp = new JoinPacket(p.getUsername(), p.getColor());
-                jp.id = player.getId();
-                //objects.add(jp);
-                System.out.println(connection.getUdpPort());
-                connection.sendUdp(jp);
-
-                // Send Tank
-                Tank tank = handler.getTank(p.getTank());
-                if (tank != null) {
-                    SpawnPacket sp = new SpawnPacket(tank.getId(), tank.getX(), tank.getY(), tank.getRotation());
-                    sp.id = p.getId();
-                    //objects.add(sp);
-                    connection.sendUdp(sp);
-                }
-
-                // Send Bullets
-                for (Bullet bullet : handler.getBullets(p.getBullets())) {
-                    ShootPacket sp = new ShootPacket(bullet.getX(), bullet.getY(), bullet.getRotation(), bullet.getId(), bullet.getType());
-                    sp.id = p.getId();
-                    //objects.add(sp);
-                    connection.sendUdp(sp);
-                }
-
-                for (Mine mine : handler.getMines(p.getMines())) {
-                    // TODO send mine packets
-                }
-            }
-            sendTo(connection, objects);
-
-            // Inform the other players in the Session:
-            JoinPacket joinPacket = new JoinPacket(player.getUsername(), player.getColor());
-            joinPacket.id = player.getId();
-
-            for (Connection c : connections) {
-                if (c != connection) {
-                    c.sendUdp(joinPacket);
-                }
-            }
-        }
+        System.out.println("Player joined: " + player.getUsername() + " ID: " + player.getId() + " Color:" + player.getColor());
+        packet.id = connection.getId();
+        broadcast(packet);
     }
 
     @Override
-    public void handleLeave(LeavePacket packet) {
+    public void handleLeave(LeavePacket packet, Connection connection) {
+        Player player = session.getPlayer(connection.getId());
+        System.out.println("Player left: " + player.getUsername() + " ID: " + player.getId() + " Color:" + player.getColor());
+        session.removePlayer(player);
+    }
+
+    @Override
+    public void handleLobby(LobbyPacket packet, Connection connection) {
         //redirect(packet);
     }
 
     @Override
-    public void handleLobby(LobbyPacket packet) {
+    public void handleMove(CorrectionPacket packet, Connection connection) {
         //redirect(packet);
     }
 
     @Override
-    public void handleMove(CorrectionPacket packet) {
+    public void handleHit(HitPacket packet, Connection connection) {
+        redirect(packet);
+    }
+
+    @Override
+    public void handlePickUp(PickUpPacket packet, Connection connection) {
+        redirect(packet);
+    }
+
+    @Override
+    public void handlePlace(PlacePacket packet, Connection connection) {
+        redirect(packet);
+    }
+
+    @Override
+    public void handleShoot(ShootPacket packet, Connection connection) {
+        redirect(packet);
+    }
+
+    @Override
+    public void handleSpawn(SpawnPacket packet, Connection connection) {
+//        Player player = session.getPlayer(connection.getId());
+//        Tank tank = new Tank(packet.tank, packet.x, packet.y, packet.rot);
+//        player.spawn(tank);
+    }
+
+    @Override
+    public void handleDestroy(DestroyPacket packet, Connection connection) {
         //redirect(packet);
     }
 
     @Override
-    public void handleHit(HitPacket packet) {
+    public void handleVelocity(VelocityPacket packet, Connection connection) {
         redirect(packet);
     }
 
     @Override
-    public void handlePickUp(PickUpPacket packet) {
-        redirect(packet);
-    }
-
-    @Override
-    public void handlePlace(PlacePacket packet) {
-        redirect(packet);
-    }
-
-    @Override
-    public void handleShoot(ShootPacket packet) {
-        redirect(packet);
-    }
-
-    @Override
-    public void handleSpawn(SpawnPacket packet) {
-        redirect(packet);
-    }
-
-    @Override
-    public void handleDestroy(DestroyPacket packet) {
-        redirect(packet);
-    }
-
-    @Override
-    public void handleVelocity(VelocityPacket packet) {
-        redirect(packet);
-    }
-
-    @Override
-    public void handleMouse(MousePacket packet) {
+    public void handleMouse(MousePacket packet, Connection connection) {
         redirect(packet);
     }
 
@@ -186,13 +193,21 @@ public class Host implements SocketListener, PacketListener, ActionListener {
 
     @Override
     public void connected(Connection con) {
-        System.out.println("Session connected. ID:" + con.getId());
+        System.out.println("Session connected. ID:" + con.getId() + " IP:" + con.getAddress() + ":" + con.getUdpPort());
         connections.add(con);
+
+        WelcomePacket wp = new WelcomePacket(con.getId());
+        sendTo(con, wp);
     }
 
     @Override
     public void disconnected(Connection con) {
-        System.out.println("Session disconnected. ID:" + con.getId());
+        System.out.println("Session disconnected. ID:" + con.getId() + " IP:" + con.getAddress() + ":" + con.getUdpPort());
+
+        LeavePacket lp = new LeavePacket(con.getId());
+        handleLeave(lp, con);
+        broadcast(lp);
+
         connections.remove(con);
     }
 
@@ -204,7 +219,6 @@ public class Host implements SocketListener, PacketListener, ActionListener {
     public static void main(String[] args) {
         Host host = new Host(13013);
         host.startSession();
-
     }
 
     // HANDLER EVENTS /////////////////////////////////////////////////////////////

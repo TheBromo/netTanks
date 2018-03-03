@@ -1,7 +1,11 @@
 package ch.framework;
 
+import ch.framework.gameobjects.Bullet;
+import ch.framework.gameobjects.Mine;
+import ch.framework.gameobjects.tank.Tank;
+
 import java.util.ArrayList;
-import java.util.UUID;
+import java.util.List;
 
 public class Player {
 
@@ -9,16 +13,56 @@ public class Player {
     private String username;
     private String color;
 
-    UUID tank;
-    ArrayList<UUID> bullets;
-    ArrayList<UUID> mines;
+    private Tank tank;
+    private List<Bullet> bullets;
+    private List<Mine> mines;
 
-    public Player(String username, String color, int id) {
+    private PlayerActionListener listener;
+
+    public Player(String username, String color) {
         this.username = username;
         this.color = color;
-        this.id = id;
+        this.id = 0;
         bullets = new ArrayList<>();
         mines = new ArrayList<>();
+    }
+
+    public void changeVelocity(float vel) {
+        listener.changeVelocity(vel, this);
+    }
+
+    public void changeRotation(float vel) {
+        listener.changeRotation(vel, this);
+    }
+
+    public void changeTurretRotation(float rot) {
+        listener.changeTurretRotation(rot, this);
+    }
+
+    public void changeTurretRotation(float mx, float my) {
+        float rot = ((float) Math.toDegrees(Math.atan2(-my, -mx)) + 90); // TODO Check for errors
+        if (rot < 0) {
+            rot += 360;
+        }
+        listener.changeTurretRotation(rot, this);
+    }
+
+    public void shoot() {
+        listener.shoot(this);
+    }
+
+    public void place() {
+        listener.place(this);
+    }
+
+    public void spawn() {
+        listener.spawn(this);
+    }
+
+    // GETTERS & SETTERS ////////////////////////////////////////////////////////
+
+    public void setListener(PlayerActionListener listener) {
+        this.listener = listener;
     }
 
     public String getUsername() {
@@ -45,35 +89,35 @@ public class Player {
         this.id = id;
     }
 
-    public UUID getTank() {
+    public Tank getTank() {
         return tank;
     }
 
-    public void setTank(UUID tank) {
+    public void setTank(Tank tank) {
         this.tank = tank;
     }
 
-    public void addBullet(UUID id) {
-        bullets.add(id);
+    public void addBullet(Bullet bullet) {
+        bullets.add(bullet);
     }
 
-    public void removeBullet(UUID id) {
-        bullets.remove(id);
+    public void removeBullet(Bullet bullet) {
+        bullets.remove(bullet);
     }
 
-    public ArrayList<UUID> getBullets() {
+    public List<Bullet> getBullets() {
         return bullets;
     }
 
-    public void addMine(UUID id) {
-        mines.add(id);
+    public void addMine(Mine mine) {
+        mines.add(mine);
     }
 
-    public void removeMine(UUID id) {
-        mines.remove(id);
+    public void removeMine(Mine mine) {
+        mines.remove(mine);
     }
 
-    public ArrayList<UUID> getMines() {
+    public List<Mine> getMines() {
         return mines;
     }
 
