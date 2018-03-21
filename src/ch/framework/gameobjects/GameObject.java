@@ -1,10 +1,12 @@
 package ch.framework.gameobjects;
 
+import ch.framework.ID;
 import ch.framework.collision.Point;
 import ch.framework.collision.Shape;
 
 public abstract class GameObject {
 
+    protected ID id;
     protected float x, y;
     protected Shape bounds;
 
@@ -32,5 +34,9 @@ public abstract class GameObject {
 
     public Point getLocation() {
         return new Point(x, y);
+    }
+
+    public ID getId() {
+        return id;
     }
 }

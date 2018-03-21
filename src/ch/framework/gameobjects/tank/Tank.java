@@ -1,5 +1,6 @@
 package ch.framework.gameobjects.tank;
 
+import ch.framework.ID;
 import ch.framework.collision.Rectangle;
 import ch.framework.gameobjects.Bullet;
 import ch.framework.gameobjects.GameObject;
@@ -9,8 +10,6 @@ import java.util.UUID;
 
 public class Tank extends GameObject {
 
-    private UUID id;
-
     private float rotation;
     private float velocity, velRotation;
     private boolean alive;
@@ -19,7 +18,7 @@ public class Tank extends GameObject {
     private Bullet.Type bulletType;
     private Color color;
 
-    public Tank(UUID id, float x, float y, float rotation) {
+    public Tank(ID id, float x, float y, float rotation) {
         this.x = x;
         this.y = y;
         this.rotation = rotation;
@@ -93,10 +92,6 @@ public class Tank extends GameObject {
 
     public void setAlive(boolean alive) {
         this.alive = alive;
-    }
-
-    public UUID getId() {
-        return id;
     }
 
     public Rectangle getFutureBounds() {

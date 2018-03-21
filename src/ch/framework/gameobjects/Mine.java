@@ -1,5 +1,6 @@
 package ch.framework.gameobjects;
 
+import ch.framework.ID;
 import ch.framework.collision.Circle;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -8,23 +9,14 @@ import java.util.UUID;
 
 public class Mine extends GameObject {
 
-    private UUID id;
-    
     private float radius;
     private float explosionRadius, explosionDamage;
     private int counter;
     private boolean active;
 
     private Circle explosionBounds;
-
-    public Mine(float x, float y) {
-        this.x = x;
-        this.y = y;
-        init();
-        this.id = UUID.randomUUID();
-    }
     
-    public Mine(UUID id, float x, float y) {
+    public Mine(ID id, float x, float y) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -84,7 +76,4 @@ public class Mine extends GameObject {
         return counter;
     }
 
-    public UUID getId() {
-        return id;
-    }
 }

@@ -7,19 +7,17 @@ import ch.framework.gameobjects.GameObject;
 import ch.framework.gameobjects.Mine;
 import ch.framework.gameobjects.tank.Tank;
 import ch.framework.map.Block;
+import ch.network.Connection;
+import ch.network.Packet;
 import ch.network.PacketListener;
 import ch.network.PacketManager;
+import ch.network.SocketListener;
 import ch.network.packets.*;
-import com.jmr.wrapper.common.Connection;
-import com.jmr.wrapper.common.exceptions.NNCantStartServer;
-import com.jmr.wrapper.common.listener.SocketListener;
-import com.jmr.wrapper.server.Server;
 
 import java.util.ArrayList;
 
 public class Host implements SocketListener, PacketListener, ActionListener {
 
-    private Server server;
     private PacketManager packetManager;
     private ArrayList<Connection> connections;
 
@@ -29,35 +27,20 @@ public class Host implements SocketListener, PacketListener, ActionListener {
         packetManager = new PacketManager(this);
         connections = new ArrayList<>();
 
-        try {
-            server = new Server(port, port);
-            server.setListener(this);
-            if (server.isConnected()) {
-                System.out.println("Server has started. Port:" + server.getUdpPort());
-            }
-        } catch (NNCantStartServer e) {
-            e.printStackTrace();
+
+    }
+
+    private void sendTo(Connection con, Packet ... packets) {
+        for (Packet packet : packets) {
+            con.send(packet);
         }
     }
 
-    private void sendTo(Connection con, Object ... packets) {
-        System.out.println(con.getUdpPort());
-        for (Object o : packets) {
-            con.sendUdp(o);
-        }
-    }
-
-    private void broadcast(Object ... packets) {
+    private void broadcast(Packet ... packets) {
         for (Connection c : connections) {
-            for (Object o : packets) {
-                c.sendUdp(o);
+            for (Packet packet : packets) {
+                c.send(packet);
             }
-        }
-    }
-
-    private void redirect(Object object) {
-        for (Connection c : connections) {
-            c.sendUdp(object);
         }
     }
 
