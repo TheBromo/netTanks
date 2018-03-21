@@ -26,37 +26,39 @@ public class HostSession extends Session implements PlayerActionListener {
         handler.tick();
     }
 
+    // PLAYER ACTIONS //////////////////////////////////////////////////////////////////////////////////////////////////
+
     @Override
-    public void changeVelocity(float vel, Player player) {
+    public void handleVelocityChanged(float vel, Player player) {
 
     }
 
     @Override
-    public void changeRotation(float vel, Player player) {
+    public void handleRotationChanged(float vel, Player player) {
 
     }
 
     @Override
-    public void changeTurretRotation(float rot, Player player) {
+    public void handleTurretRotationChanged(float rot, Player player) {
 
     }
 
     @Override
-    public void shoot(Player player) {
+    public void handleShot(Player player) {
 
     }
 
     @Override
-    public void place(Player player) {
+    public void handlePlace(Player player) {
 
     }
 
     @Override
-    public void spawn(Player player) {
+    public void handleSpawn(Player player) {
 
     }
 
-    // HANDLER ACTIONS //////////////////////////////////////////////////////////
+    // HANDLER ACTIONS /////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void onExplosion(GameObject trigger, Mine mine) {

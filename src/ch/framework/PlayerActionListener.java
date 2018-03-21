@@ -2,11 +2,11 @@ package ch.framework;
 
 public interface PlayerActionListener {
 
-    void changeVelocity(float vel, Player player);
-    void changeRotation(float vel, Player player);
-    void changeTurretRotation(float rot, Player player);
-    void shoot(Player player);
-    void place(Player player);
-    void spawn(Player player);
+    void handleVelocityChanged(float vel, Player player);
+    void handleRotationChanged(float vel, Player player);
+    void handleTurretRotationChanged(float rot, Player player);
+    void handleShot(Player player);
+    void handlePlace(Player player);
+    void handleSpawn(Player player);
 
 }

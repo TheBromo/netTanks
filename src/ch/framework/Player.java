@@ -28,15 +28,15 @@ public class Player {
     }
 
     public void changeVelocity(float vel) {
-        listener.changeVelocity(vel, this);
+        listener.handleVelocityChanged(vel, this);
     }
 
     public void changeRotation(float vel) {
-        listener.changeRotation(vel, this);
+        listener.handleRotationChanged(vel, this);
     }
 
     public void changeTurretRotation(float rot) {
-        listener.changeTurretRotation(rot, this);
+        listener.handleTurretRotationChanged(rot, this);
     }
 
     public void changeTurretRotation(float mx, float my) {
@@ -44,19 +44,19 @@ public class Player {
         if (rot < 0) {
             rot += 360;
         }
-        listener.changeTurretRotation(rot, this);
+        listener.handleTurretRotationChanged(rot, this);
     }
 
     public void shoot() {
-        listener.shoot(this);
+        listener.handleShot(this);
     }
 
     public void place() {
-        listener.place(this);
+        listener.handlePlace(this);
     }
 
     public void spawn() {
-        listener.spawn(this);
+        listener.handleSpawn(this);
     }
 
     // GETTERS & SETTERS ////////////////////////////////////////////////////////

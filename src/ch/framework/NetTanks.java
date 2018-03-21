@@ -28,7 +28,7 @@ public class NetTanks extends Application {
         Mainframe mainframe = new Mainframe(WIDTH, HEIGHT);
         root.getChildren().add(mainframe);
 
-        mainframe.startOnlineSession("localhost:13013", "blub", "#666666");
+        mainframe.startOnlineSession("192.168.3.75:13013", "userable", "#666666");
 
     }
 

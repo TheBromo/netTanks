@@ -72,13 +72,13 @@ public class Mainframe extends Pane {
         this.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case W:
-                    player.changeVelocity(-1.5f);
+                    player.changeVelocity(1.5f);
                     break;
                 case A:
                     player.changeRotation(-1.2f);
                     break;
                 case S:
-                    player.changeVelocity(1.5f);
+                    player.changeVelocity(-1.5f);
                     break;
                 case D:
                     player.changeRotation(1.2f);

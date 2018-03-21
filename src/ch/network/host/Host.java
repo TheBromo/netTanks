@@ -177,7 +177,7 @@ public class Host implements SocketListener, PacketListener, ActionListener {
     public void handleSpawn(SpawnPacket packet, Connection connection) {
 //        Player player = session.getPlayer(connection.getId());
 //        Tank tank = new Tank(packet.tank, packet.x, packet.y, packet.rot);
-//        player.spawn(tank);
+//        player.handleSpawn(tank);
     }
 
     @Override

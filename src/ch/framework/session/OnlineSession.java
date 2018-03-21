@@ -60,7 +60,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     // PLAYER ACTIONS //////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void changeVelocity(float vel, Player player) {
+    public void handleVelocityChanged(float vel, Player player) {
         Tank tank = player.getTank();
 
         if (tank != null) {
@@ -72,7 +72,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     }
 
     @Override
-    public void changeRotation(float vel, Player player) {
+    public void handleRotationChanged(float vel, Player player) {
         Tank tank = player.getTank();
         if (tank != null) {
             tank.setVelRotation(vel);
@@ -83,7 +83,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     }
 
     @Override
-    public void changeTurretRotation(float rot, Player player) {
+    public void handleTurretRotationChanged(float rot, Player player) {
         Tank tank = player.getTank();
         if (tank != null) {
             Turret turret = tank.getTurret();
@@ -95,7 +95,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     }
 
     @Override
-    public void shoot(Player player) {
+    public void handleShot(Player player) {
         Tank tank = player.getTank();
         if (tank != null) {
             Bullet bullet = new Bullet(
@@ -116,7 +116,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     }
 
     @Override
-    public void place(Player player) {
+    public void handlePlace(Player player) {
         Tank tank = player.getTank();
         if (tank != null) {
             Mine mine = new Mine(tank.getX(), tank.getY());
@@ -127,7 +127,7 @@ public class OnlineSession extends Session implements SocketListener, PacketList
     }
 
     @Override
-    public void spawn(Player player) {
+    public void handleSpawn(Player player) {
         SpawnPacket spawnPacket = new SpawnPacket(UUID.randomUUID(),100, 100, 0);
         client.getServerConnection().sendUdp(spawnPacket);
     }
