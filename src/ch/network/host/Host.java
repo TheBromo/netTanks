@@ -8,7 +8,6 @@ import ch.framework.gameobjects.Mine;
 import ch.framework.gameobjects.tank.Tank;
 import ch.framework.map.Block;
 import ch.network.Connection;
-import ch.network.Packet;
 import ch.network.PacketListener;
 import ch.network.PacketManager;
 import ch.network.SocketListener;
@@ -132,7 +131,7 @@ public class Host implements SocketListener, PacketListener, ActionListener {
     }
 
     @Override
-    public void handleMove(CorrectionPacket packet, Connection connection) {
+    public void handleCorrection(CorrectionPacket packet, Connection connection) {
         //redirect(packet);
     }
 

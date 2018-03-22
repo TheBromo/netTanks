@@ -29,16 +29,6 @@ public class Connection {
         this.socketListener = socketListener;
     }
 
-    public void send(Packet packet) {
-        ByteBuffer buffer = packet.toByteBuffer();
-        try {
-            buffer.flip();
-            channel.send(buffer, receiver);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void sendByteBuffer(ByteBuffer buffer) {
         try {
             buffer.flip();
@@ -54,21 +44,15 @@ public class Connection {
 
     private void receive() {
         ByteBuffer buffer = ByteBuffer.allocate(64);
+        InetSocketAddress sender = null;
         try {
-            SocketAddress sender = channel.receive(buffer);
+            sender = (InetSocketAddress) channel.receive(buffer);
             buffer.flip();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         if (buffer.hasRemaining()) {
-            Packet packet = Packet.fromByteBuffer(buffer);
-
-            if (packet instanceof Packet.Ping) {
-                Packet.Ping ping = (Packet.Ping) packet;
-                System.out.println("ID:" + ping.id + " Time:" + ping.time);
-            }
-
             if (socketListener != null)
                 socketListener.received(this, packet);
         }
