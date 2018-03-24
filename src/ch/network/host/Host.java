@@ -9,7 +9,6 @@ import ch.framework.gameobjects.tank.Tank;
 import ch.framework.map.Block;
 import ch.network.Connection;
 import ch.network.PacketListener;
-import ch.network.PacketManager;
 import ch.network.SocketListener;
 import ch.network.packets.*;
 

@@ -1,7 +1,7 @@
 package ch.network;
 
+import java.net.InetSocketAddress;
+
 public interface SocketListener {
-    void connected(Connection connection, Packet.Connect packet);
-    void received(Connection connection, Packet packet);
-    void disconnected(Connection connection);
+    void received(Packet packet, InetSocketAddress sender);
 }

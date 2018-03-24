@@ -9,7 +9,6 @@ import ch.framework.gameobjects.tank.Tank;
 import ch.framework.gameobjects.tank.Turret;
 import ch.framework.map.Block;
 import ch.network.PacketListener;
-import ch.network.PacketManager;
 import ch.network.packets.*;
 import com.jmr.wrapper.client.Client;
 import com.jmr.wrapper.common.Connection;
