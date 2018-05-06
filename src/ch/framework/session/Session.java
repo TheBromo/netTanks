@@ -93,7 +93,7 @@ public class Session implements ActionListener, PlayerActionListener {
     public void handleSpawn(Player player) {
         Tank tank = new Tank(ID.randomID(), 100, 100, 0);
         tank.setColor(player.getColor());
-        handler.addTank(tank);
+        handler.spawnTank(tank);
         player.setTank(tank);
     }
 

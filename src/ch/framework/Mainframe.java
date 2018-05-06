@@ -36,17 +36,6 @@ public class Mainframe extends Pane {
 
         this.addEventFilter(MouseEvent.ANY, (e) -> this.requestFocus());
     }
-//
-//    public void startOnlineSession(String host, String username, String color) {
-//        player = new Player(username, color);
-//        OnlineSession session = new OnlineSession(player);
-//        session.connectTo(host);
-//
-//        this.session = session;
-//        camera = new Camera(this, session.getHandler());
-//        camera.setLocation( (float) - this.getWidth() / 2 - 32, (float) - this.getHeight() / 2 - 32);
-//        gameloop.play();
-//    }
 
     public void start() {
         player = new Player("Test", "#d35400");

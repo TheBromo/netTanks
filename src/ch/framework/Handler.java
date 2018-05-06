@@ -230,10 +230,6 @@ public class Handler {
         }
     }
 
-//    public void handlePickUp(Tank tank, PickUp pickUp) {
-//
-//    }
-
     public void handleShot(Tank tank, Bullet bullet) {
         if (tank.isAlive()) {
             bullets.add(bullet);
@@ -282,15 +278,7 @@ public class Handler {
         removedBlocks.add(block);
     }
 
-    /*
-    public Tank spawnTank(float x, float y, float rotation) {
-        Tank tank = new Tank(x, y, rotation);
-        addTank(tank);
-        return tank;
-    }
-    */
-
-    public void addTank(Tank tank) {
+    public void spawnTank(Tank tank) {
         tanks.add(tank);
     }
 
