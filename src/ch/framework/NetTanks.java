@@ -10,26 +10,15 @@ public class NetTanks extends Application {
     private static NetTanks instance = new NetTanks();
     public static final int WIDTH = 1280, HEIGHT = 848;
 
-    private Pane root;
+    private Window window;
 
     @Override
     public void start(Stage primaryStage) {
-
-        root = new Pane();
-        root.setPrefWidth(WIDTH);
-        root.setPrefHeight(HEIGHT);
-        Scene scene = new Scene(root, WIDTH - 10, HEIGHT - 10);
-
-        primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
-        primaryStage.show();
-        primaryStage.setOnCloseRequest(event -> System.exit(0));
+        window = new Window(WIDTH, HEIGHT);
 
         Mainframe mainframe = new Mainframe(WIDTH, HEIGHT);
-        root.getChildren().add(mainframe);
-
-        mainframe.startOnlineSession("192.168.3.75:13013", "userable", "#666666");
-
+        window.setView(mainframe);
+        mainframe.start();
     }
 
     public int getWidth() {
@@ -38,10 +27,6 @@ public class NetTanks extends Application {
 
     public int getHeight() {
         return HEIGHT;
-    }
-
-    public Pane getRoot() {
-        return root;
     }
 
     public static NetTanks getInstance() {

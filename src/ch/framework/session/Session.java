@@ -1,88 +1,131 @@
 package ch.framework.session;
 
-import ch.framework.ActionListener;
-import ch.framework.Handler;
-import ch.framework.Player;
+import ch.framework.*;
 import ch.framework.gameobjects.Bullet;
 import ch.framework.gameobjects.GameObject;
 import ch.framework.gameobjects.Mine;
 import ch.framework.gameobjects.tank.Tank;
 import ch.framework.map.Block;
+import ch.framework.map.Map;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class Session implements ActionListener {
+public class Session implements ActionListener, PlayerActionListener {
 
-    protected int ticks;
-    protected List<Player> players;
+    private Player player;
+    private List<Player> players;
 
-    protected Handler handler;
+    private Handler handler;
 
-    public Session() {
+    public Session(Player player) {
+        this.player = player;
+        this.player.setListener(this);
         players = new ArrayList<>();
-        handler = new Handler();
+        handler = new Handler(new Map(Map.Maps.MAP1));
         handler.setActionListener(this);
     }
 
     public void tick() {
         handler.tick();
-        ticks++;
     }
 
     // HANDLER ACTIONS //////////////////////////////////////////////////////////
 
     @Override
-    public abstract void onExplosion(GameObject trigger, Mine mine);
+    public void onExplosion(GameObject trigger, Mine mine) {
+        handler.handleExplosion(trigger, mine);
+    }
 
     @Override
-    public abstract void onBulletBreak(Bullet b1);
+    public void onBulletBreak(Bullet bullet) {
+        handler.handleBulletBreak(bullet);
+    }
 
     @Override
-    public abstract void onKill(GameObject trigger, Tank tank);
+    public void onKill(GameObject trigger, Tank tank) {
+        System.out.println("Killed");
+    }
 
     @Override
-    public abstract void onBlockDestroyed(GameObject trigger, Block block);
+    public void onBlockDestroyed(GameObject trigger, Block block) {
+        handler.handleBlockDestroyed(trigger, block);
+    }
+
+    // PLAYER ACTIONS ///////////////////////////////////////////////////////////
+
+    @Override
+    public void handleVelocityChanged(float vel, Player player) {
+        Tank tank = player.getTank();
+        tank.setVelocity(vel);
+    }
+
+    @Override
+    public void handleRotationChanged(float vel, Player player) {
+        Tank tank = player.getTank();
+        tank.setVelRotation(vel);
+    }
+
+    @Override
+    public void handleTurretRotationChanged(float rot, Player player) {
+        Tank tank = player.getTank();
+        tank.getTurret().setRotation(rot);
+    }
+
+    @Override
+    public void handleShot(Player player) {
+        Tank tank = player.getTank();
+        Bullet bullet = new Bullet(ID.randomID(), tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation(), tank.getBulletType());
+        handler.handleShot(tank, bullet);
+        player.addBullet(bullet);
+    }
+
+    @Override
+    public void handlePlace(Player player) {
+        Tank tank = player.getTank();
+        Mine mine = new Mine(ID.randomID(), tank.getX(), tank.getY());
+        handler.handleMinePlaced(tank, mine);
+        player.addMine(mine);
+    }
+
+    @Override
+    public void handleSpawn(Player player) {
+        Tank tank = new Tank(ID.randomID(), 100, 100, 0);
+        tank.setColor(player.getColor());
+        handler.addTank(tank);
+        player.setTank(tank);
+    }
 
     // GETTERS & SETTERS ////////////////////////////////////////////////////////
 
-    public void addPlayer(Player player) {
-        players.add(player);
+    public void addPlayers(Player... players) {
+        for (Player player : players) {
+            player.setListener(this);
+            this.players.add(player);
+        }
     }
 
     public void removePlayer(Player player) {
         players.remove(player);
     }
 
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+
     public List<Player> getPlayers() {
         return players;
     }
 
-    public Player getPlayer(int id) {
+    public Player getPlayer(ID id) {
         for (Player player : players) {
             if (id == player.getId()) {
                 return player;
-            }
-        }
-
-        return null;
-    }
-
-    public Bullet getBullet(UUID id) {
-        for (Bullet bullet : handler.getBullets()) {
-            if (id.compareTo(bullet.getId()) == 0) {
-                return bullet;
-            }
-        }
-
-        return null;
-    }
-
-    public Tank getTank(UUID id) {
-        for (Tank tank : handler.getTanks()) {
-            if (id.compareTo(tank.getId()) == 0) {
-                return tank;
             }
         }
 

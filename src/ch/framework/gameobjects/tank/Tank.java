@@ -16,7 +16,7 @@ public class Tank extends GameObject {
 
     private Turret turret;
     private Bullet.Type bulletType;
-    private Color color;
+    private String color;
 
     public Tank(ID id, float x, float y, float rotation) {
         this.x = x;
@@ -78,11 +78,11 @@ public class Tank extends GameObject {
         this.bulletType = bulletType;
     }
 
-    public Color getColor() {
+    public String getColor() {
         return color;
     }
 
-    public void setColor(Color color) {
+    public void setColor(String color) {
         this.color = color;
     }
 

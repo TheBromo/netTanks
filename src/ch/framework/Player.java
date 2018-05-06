@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Player {
 
-    private int id;
+    private ID id;
     private String username;
     private String color;
 
@@ -22,7 +22,7 @@ public class Player {
     public Player(String username, String color) {
         this.username = username;
         this.color = color;
-        this.id = 0;
+        this.id = ID.randomID();
         bullets = new ArrayList<>();
         mines = new ArrayList<>();
     }
@@ -40,11 +40,13 @@ public class Player {
     }
 
     public void changeTurretRotation(float mx, float my) {
-        float rot = ((float) Math.toDegrees(Math.atan2(-my, -mx)) + 90); // TODO Check for errors
-        if (rot < 0) {
-            rot += 360;
+        if (tank != null) {
+            float rot = ((float) Math.toDegrees(Math.atan2(mx, my)) + 180);
+            if (rot < 0) {
+                rot += 360;
+            }
+            listener.handleTurretRotationChanged(-rot, this);
         }
-        listener.handleTurretRotationChanged(rot, this);
     }
 
     public void shoot() {
@@ -81,11 +83,11 @@ public class Player {
         this.color = color;
     }
 
-    public int getId() {
+    public ID getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(ID id) {
         this.id = id;
     }
 

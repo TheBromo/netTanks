@@ -1,9 +1,9 @@
 package ch.framework;
 
-import ch.framework.session.OnlineSession;
 import ch.framework.session.Session;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
@@ -15,15 +15,18 @@ public class Mainframe extends Pane {
     private Camera camera;
     private Session session;
     private Player player;
+    private Canvas canvas;
 
     public Mainframe(int width, int height) {
-
         this.setWidth(width);
         this.setHeight(height);
 
+        canvas = new Canvas(width, height);
+        this.getChildren().add(canvas);
+
         //Create Game Loop
         gameloop = new Timeline(new KeyFrame(
-                Duration.millis(16.666666666667),
+                Duration.millis(1000 / 60),
                 ae -> update()));
         gameloop.setCycleCount(Timeline.INDEFINITE);
 
@@ -33,16 +36,28 @@ public class Mainframe extends Pane {
 
         this.addEventFilter(MouseEvent.ANY, (e) -> this.requestFocus());
     }
+//
+//    public void startOnlineSession(String host, String username, String color) {
+//        player = new Player(username, color);
+//        OnlineSession session = new OnlineSession(player);
+//        session.connectTo(host);
+//
+//        this.session = session;
+//        camera = new Camera(this, session.getHandler());
+//        camera.setLocation( (float) - this.getWidth() / 2 - 32, (float) - this.getHeight() / 2 - 32);
+//        gameloop.play();
+//    }
 
-    public void startOnlineSession(String host, String username, String color) {
-        player = new Player(username, color);
-        OnlineSession session = new OnlineSession(player);
-        session.connectTo(host);
+    public void start() {
+        player = new Player("Test", "#d35400");
+        session = new Session(player);
 
-        this.session = session;
-        camera = new Camera(this, session.getHandler());
-        camera.setLocation( (float) - this.getWidth() / 2 - 32, (float) - this.getHeight() / 2 - 32);
+        camera = new Camera(canvas.getGraphicsContext2D(), (int) canvas.getWidth(), (int) canvas.getHeight());
+        camera.setPosition((float) - this.getWidth() / 2 - 32, (float) - this.getHeight() / 2 - 32);
+        camera.setHandler(session.getHandler());
         gameloop.play();
+
+        player.spawn();
     }
 
     public void clear() {
@@ -58,13 +73,12 @@ public class Mainframe extends Pane {
      * Used to tick and camera objects etc.
      */
     private void update() {
-
         FPS++;
 
         //Update all the things!
-        camera.render();
         session.tick();
-
+        camera.setPosition(-player.getTank().getX(), -player.getTank().getY());
+        camera.render();
     }
 
     private void setKeyInput() {
@@ -126,7 +140,6 @@ public class Mainframe extends Pane {
             player.shoot();
         });
 
-
         this.setOnMousePressed(event -> {
 
         });
@@ -136,16 +149,15 @@ public class Mainframe extends Pane {
         });
 
         this.setOnMouseMoved(event -> {
-            float mx = (float) event.getX();
-            float my = (float) event.getY();
+            float mx = (float) (event.getX() - this.getWidth() / 2);
+            float my = (float) (event.getY() - this.getHeight() / 2);
             player.changeTurretRotation(mx, my);
         });
 
         this.setOnMouseDragged(event -> {
-            //Still tick mouse position even if the mouse buttons are down...
-            float mx = (float) event.getX();
-            float my = (float) event.getY();
-            player.changeTurretRotation(mx, my);
+            //Still update mouse position even if the mouse buttons are down...
+            float mx = (float) (event.getX() - this.getWidth() / 2);
+            float my = (float) (event.getY() - this.getHeight() / 2);
         });
 
 //        this.setOnScroll(se -> {

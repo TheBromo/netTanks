@@ -12,7 +12,7 @@ public class Mine extends GameObject {
     private float radius;
     private float explosionRadius, explosionDamage;
     private int counter;
-    private boolean active;
+    private boolean active, exploded;
 
     private Circle explosionBounds;
     
@@ -34,9 +34,9 @@ public class Mine extends GameObject {
     }
 
     public void update() {
-    }
-
-    public void tick() {
+        if (counter <= 0) {
+            exploded = true;
+        }
         counter--;
     }
 
@@ -70,6 +70,10 @@ public class Mine extends GameObject {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public boolean isExploded() {
+        return exploded;
     }
 
     public int getCounter() {

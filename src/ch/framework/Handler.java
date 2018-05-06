@@ -13,8 +13,6 @@ import ch.framework.map.Map;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
 
 public class Handler {
 
@@ -30,17 +28,11 @@ public class Handler {
     private ArrayList<Mine> removedMines;
     private ArrayList<PickUp> removedPickUps;
 
-    private HashMap<Tank, ArrayList<Bullet>> bulletHashMap;
-    private HashMap<Tank, ArrayList<Mine>> mineHashMap;
-
     private Map map;
     private ArrayList<Block> removedBlocks;
 
-    private HashMap<Bullet, BulletTrail> bulletTrails;
-    private HashMap<Mine, Explosion> mineExplosions;
-
-    public Handler() {
-
+    public Handler(Map map) {
+        this.map = map;
         bullets = new ArrayList<>();
         tanks = new ArrayList<>();
         mines = new ArrayList<>();
@@ -51,83 +43,25 @@ public class Handler {
         removedMines = new ArrayList<>();
         removedPickUps = new ArrayList<>();
         removedBlocks = new ArrayList<>();
-
-        bulletHashMap = new HashMap<>();
-        mineHashMap = new HashMap<>();
-
-        bulletTrails = new HashMap<>();
-        mineExplosions = new HashMap<>();
-
-
-        this.map = new Map(Map.Maps.MAP1);
     }
 
     public void tick() {
         //Check for any collisions before updating
         handleCollision();
 
-        for (Tank tank : tanks) {
-            tank.update();
-        }
-
-        for (Bullet bullet : bullets) {
+        tanks.forEach(Tank::update);
+        bullets.forEach(bullet -> {
             bullet.update();
+            bullet.setActive(true);
+        });
+        mines.forEach(mine -> {
+            mine.update();
+            mine.setActive(true);
+            if (mine.isExploded() && actionListener != null) actionListener.onExplosion(null, mine);
+        });
 
-            Tank owner = null;
+        // TODO check if Bullets and Mines are not inside owner Tank
 
-            for (Tank tank : bulletHashMap.keySet()) {
-                if (bulletHashMap.get(tank).contains(bullet)) {
-                    owner = tank;
-                    break;
-                }
-            }
-
-            if (!bullet.isActive()) {
-                if (!Collision.testCircleToRectangle((Circle) bullet.getBounds(), (Rectangle) owner.getBounds())) {
-                    bullet.setActive(true);
-                }
-            }
-        }
-
-        // HANDLE MINE
-        for (Mine mine : mines) {
-            mine.tick();
-            if (mine.getCounter() <= 0) {
-                handleExplosion(null, mine);
-                break;
-            }
-
-            Tank owner = null;
-
-            for (Tank tank : mineHashMap.keySet()) {
-                if (mineHashMap.get(tank).contains(mine)) {
-                    owner = tank;
-                    break;
-                }
-            }
-
-            if (!mine.isActive()) {
-                if (!Collision.testCircleToRectangle((Circle) mine.getBounds(), (Rectangle) owner.getBounds())) {
-                    mine.setActive(true);
-                }
-            }
-        }
-
-
-        // ANIMATIONS
-        for (Mine mine : mineExplosions.keySet()) {
-            mineExplosions.get(mine).tick();
-            if (mineExplosions.get(mine).isExpired()) {
-                mineExplosions.remove(mine);
-            }
-        }
-
-        for (PickUp pickUp : pickUps) {
-            pickUp.update();
-            if (pickUp.isExpired()) {
-                removedPickUps.add(pickUp);
-            }
-        }
 
         // REMOVE REMOVED OBJECTS
         tanks.removeAll(removedTanks);
@@ -213,7 +147,6 @@ public class Handler {
                     for (Mine mine : mines) {
                         if (Collision.testCircleToCircle((Circle) bullet.getBounds(), (Circle) mine.getBounds())) {
                             actionListener.onBulletBreak(bullet);
-                            handleExplosion(bullet, mine);
                             break collision;
                         }
                     }
@@ -271,45 +204,10 @@ public class Handler {
             for (Mine mine : mines) {
                 if (Collision.testCircleToRectangle((Circle) mine.getBounds(), (Rectangle) tank.getBounds())) {
                     if (mine.isActive()) {
-                        handleExplosion(tank, mine);
+                        actionListener.onExplosion(tank, mine);
                     }
                 }
             }
-
-        }
-
-    }
-
-    private void handleExplosion(GameObject trigger, Mine mine) {
-
-        if (mine.isActive()) {
-
-            // CHECK FOR RADIUS
-            for (Tank tank : tanks) {
-                if (Collision.testCircleToRectangle(mine.getExplosionBounds(), (Rectangle) tank.getBounds())) {
-                    actionListener.onKill(mine, tank);
-                }
-            }
-
-            for (Bullet bullet : bullets) {
-                if (Collision.testCircleToCircle(mine.getExplosionBounds(), (Circle) bullet.getBounds())) {
-                    actionListener.onBulletBreak(bullet);
-                }
-            }
-
-            for (Block block : map.getBlocks()) {
-                if (block.getType().isExplosionDamage()) {
-                    if (Collision.testCircleToRectangle(mine.getExplosionBounds(), (Rectangle) block.getBounds())) {
-                        block.setDestroyed(true);
-                        actionListener.onBlockDestroyed(mine, block);
-                    }
-                }
-            }
-
-            actionListener.onExplosion(trigger, mine);
-
-//                mineExplosions.put(mine, new Explosion(mine.getX(), mine.getY()));
-//                removedMines.add(mine);
         }
 
     }
@@ -328,34 +226,60 @@ public class Handler {
             //Rebound
             bullet.rebound(bullet.getX(), bullet.getY(), (float) segment.getAngle()); //TODO
         } else {
-            removeBullet(bullet);
+            this.removedBullets.add(bullet);
         }
     }
 
-    public void handlePickUp(Tank tank, PickUp pickUp) {
-
-    }
+//    public void handlePickUp(Tank tank, PickUp pickUp) {
+//
+//    }
 
     public void handleShot(Tank tank, Bullet bullet) {
         if (tank.isAlive()) {
-            //Bullet bullet = new Bullet(tank.getTurret().getMuzzleX(), tank.getTurret().getMuzzleY(), tank.getTurret().getRotation(), tank.getBulletType());
             bullets.add(bullet);
-            bulletHashMap.get(tank).add(bullet);
-            bulletTrails.put(bullet, new BulletTrail(bullet));
-//        System.out.println("Pew! " + turret.getRotation());
         }
     }
 
     public void handleMinePlaced(Tank tank, Mine mine) {
         if (tank.isAlive()) {
             mines.add(mine);
-            mineHashMap.get(tank).add(mine);
         }
     }
 
-    public void removeBullet(Bullet bullet) {
+    public void handleBulletBreak(Bullet bullet) {
         removedBullets.add(bullet);
-        bulletTrails.remove(bullet);
+    }
+
+    public void handleExplosion(GameObject trigger, Mine mine) {
+        if (mine.isActive()) {
+
+            // CHECK FOR RADIUS
+            for (Tank tank : tanks) {
+                if (Collision.testCircleToRectangle(mine.getExplosionBounds(), (Rectangle) tank.getBounds())) {
+                    actionListener.onKill(mine, tank);
+                }
+            }
+
+            for (Bullet bullet : bullets) {
+                if (Collision.testCircleToCircle(mine.getExplosionBounds(), (Circle) bullet.getBounds())) {
+                    actionListener.onBulletBreak(bullet);
+                }
+            }
+
+            for (Block block : map.getBlocks()) {
+                if (block.getType().isExplosionDamage()) {
+                    if (Collision.testCircleToRectangle(mine.getExplosionBounds(), (Rectangle) block.getBounds())) {
+                        actionListener.onBlockDestroyed(mine, block);
+                    }
+                }
+            }
+
+            removedMines.add(mine);
+        }
+    }
+
+    public void handleBlockDestroyed(GameObject trigger, Block block) {
+        removedBlocks.add(block);
     }
 
     /*
@@ -367,8 +291,6 @@ public class Handler {
     */
 
     public void addTank(Tank tank) {
-        bulletHashMap.put(tank, new ArrayList<>());
-        mineHashMap.put(tank, new ArrayList<>());
         tanks.add(tank);
     }
 
@@ -378,59 +300,17 @@ public class Handler {
 
     // GETTERS & SETTERS //////////////////////////////////////////////////////
 
-    public Tank getTank(UUID id) {
-        for (Tank tank : tanks) {
-            if (tank.getId().compareTo(id) == 0) {
-                return tank;
-            }
-        }
-
-        return null;
+    public Tank getTank(ID id) {
+        return tanks.stream().filter(tank -> tank.getId().equals(id)).findFirst().orElse(null);
     }
 
-    public Bullet getBullet(UUID id) {
-        for (Bullet bullet : bullets) {
-            if (bullet.getId().compareTo(id) == 0) {
-                return bullet;
-            }
-        }
-
-        return null;
+    public Bullet getBullet(ID id) {
+        return bullets.stream().filter(bullet -> bullet.getId().equals(id)).findFirst().orElse(null);
     }
 
-    public List<Bullet> getBullets(ArrayList<UUID> ids) {
-        ArrayList<Bullet> bullets = new ArrayList<>();
-        for (UUID id : ids) {
-            Bullet bullet = getBullet(id);
-            if (bullet != null) {
-                bullets.add(bullet);
-            }
-        }
-        return bullets;
+    public Mine getMine(ID id) {
+        return mines.stream().filter(mine -> mine.getId().equals(id)).findFirst().orElse(null);
     }
-
-    public Mine getMine(UUID id) {
-        for (Mine mine : mines) {
-            if (mine.getId().compareTo(id) == 0) {
-                return mine;
-            }
-        }
-
-        return null;
-    }
-
-    public List<Mine> getMines(ArrayList<UUID> ids) {
-        ArrayList<Mine> mines = new ArrayList<>();
-        for (UUID id : ids) {
-            Mine mine = getMine(id);
-            if (mine != null) {
-                mines.add(mine);
-            }
-        }
-        return mines;
-    }
-
-
 
     public ArrayList<Tank> getTanks() {
         return tanks;
@@ -479,23 +359,8 @@ public class Handler {
         return map;
     }
 
-    public HashMap<Bullet, BulletTrail> getBulletTrails() {
-        return bulletTrails;
-    }
-
-    public HashMap<Mine, Explosion> getMineExplosions() {
-        return mineExplosions;
-    }
-
-    public HashMap<Tank, ArrayList<Bullet>> getBulletHashMap() {
-        return bulletHashMap;
-    }
-
-    public HashMap<Tank, ArrayList<Mine>> getMineHashMap() {
-        return mineHashMap;
-    }
-
     public void setActionListener(ActionListener actionListener) {
         this.actionListener = actionListener;
     }
+
 }
